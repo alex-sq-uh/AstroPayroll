@@ -1,0 +1,1615 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AstroPayroll · Calculadora de nómina e IRPF España</title>
+<meta name="description" content="AstroPayroll — calculadora de nómina e IRPF en España. Calcula tu neto mes a mes con bonus, plan de pensiones, tickets y retribución flexible.">
+<style>
+  :root {
+    --primary: #1a2b5e;
+    --secondary: #4a6dd1;
+    --accent: #f5c84b;
+    --bg: #f4f6fb;
+    --surface: #ffffff;
+    --surface2: #f0f4f8;
+    --border: #dde3ea;
+    --text: #1a2733;
+    --text-muted: #5a6a7a;
+    --danger: #e74c3c;
+    --danger-bg: #fdf0ee;
+    --success: #27ae60;
+    --success-bg: #edfaf2;
+    --warning: #e67e22;
+    --warning-bg: #fef6ee;
+    --radius: 10px;
+    --radius-lg: 14px;
+    --shadow: 0 2px 12px rgba(26,60,94,0.08);
+    --shadow-lg: 0 4px 24px rgba(26,60,94,0.13);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); font-size: 15px; line-height: 1.6; }
+  a { color: var(--secondary); }
+
+  /* NAV */
+  .topbar { background: linear-gradient(120deg, #0f1d44 0%, #1a2b5e 55%, #2a3f80 100%); color: #fff; padding: 0 1.5rem; display: flex; align-items: center; justify-content: space-between; height: 60px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,0.25); }
+  .topbar-brand { font-weight: 700; font-size: 1.05rem; letter-spacing: 0.01em; display: flex; align-items: center; gap: 10px; }
+  .topbar-brand .logo { width: 34px; height: 34px; flex-shrink: 0; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3)); }
+  .topbar-brand .brand-text { display: flex; flex-direction: column; line-height: 1.15; }
+  .topbar-brand .brand-text .name { font-weight: 800; letter-spacing: 0.02em; }
+  .topbar-brand .brand-text .name .accent { color: var(--accent); }
+  .topbar-brand .brand-text .ver { font-size: 0.7rem; opacity: 0.75; font-weight: 500; letter-spacing: 0.05em; }
+  .nav-links { display: flex; gap: 4px; }
+  .nav-btn { background: none; border: none; color: rgba(255,255,255,0.75); padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.875rem; transition: all 0.15s; }
+  .nav-btn:hover, .nav-btn.active { background: rgba(255,255,255,0.15); color: #fff; }
+  .lang-sel { display: flex; gap: 4px; }
+  .lang-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.8); padding: 4px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8rem; transition: all 0.15s; }
+  .lang-btn.active { background: rgba(255,255,255,0.25); color: #fff; border-color: rgba(255,255,255,0.4); }
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+
+  /* LAYOUT */
+  .page { display: none; max-width: 820px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+  .page.active { display: block; }
+
+  /* CARDS */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.4rem 1.5rem; margin-bottom: 1.25rem; box-shadow: var(--shadow); }
+  .card-title { font-size: 0.95rem; font-weight: 700; color: var(--primary); margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; }
+  .card-title .icon { width: 28px; height: 28px; background: var(--bg); border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; flex-shrink: 0; }
+
+  /* FORM */
+  .field { margin-bottom: 1rem; }
+  .field label { display: block; font-size: 0.82rem; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .field-row { display: flex; gap: 12px; align-items: flex-end; }
+  .field-row .field { flex: 1; margin-bottom: 0; }
+  .input-wrap { position: relative; }
+  .input-wrap .unit { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.85rem; pointer-events: none; }
+  input[type="number"], input[type="text"], select { width: 100%; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 0.95rem; background: var(--surface); color: var(--text); outline: none; transition: border-color 0.15s; }
+  input[type="number"]:focus, select:focus { border-color: var(--secondary); }
+  input[type="number"].error { border-color: var(--danger); }
+  .field-help { font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; }
+  .field-error { font-size: 0.78rem; color: var(--danger); margin-top: 4px; display: none; }
+  .field-error.show { display: block; }
+  .badge-pct { background: var(--secondary); color: #fff; font-size: 0.78rem; font-weight: 700; padding: 3px 9px; border-radius: 20px; white-space: nowrap; }
+  .badge-pct.green { background: var(--success); }
+  .badge-pct.orange { background: var(--warning); }
+
+  /* TOGGLE ROW */
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 0; }
+  .toggle-label { font-size: 0.9rem; font-weight: 600; color: var(--text); }
+  .toggle-sub { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+  .toggle { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider { position: absolute; inset: 0; background: var(--border); border-radius: 24px; cursor: pointer; transition: background 0.2s; }
+  .toggle-slider:before { content: ''; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: transform 0.2s; }
+  .toggle input:checked + .toggle-slider { background: var(--secondary); }
+  .toggle input:checked + .toggle-slider:before { transform: translateX(20px); }
+  .toggle-content { margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed var(--border); display: none; }
+  .toggle-content.open { display: block; }
+
+  /* RADIO OPTIONS */
+  .radio-group { display: flex; gap: 8px; margin-bottom: 0.75rem; flex-wrap: wrap; }
+  .radio-opt { flex: 1; min-width: 140px; }
+  .radio-opt input { display: none; }
+  .radio-opt label { display: block; border: 1.5px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 0.82rem; cursor: pointer; transition: all 0.15s; text-align: center; }
+  .radio-opt input:checked + label { border-color: var(--secondary); background: #eaf4fb; color: var(--secondary); font-weight: 600; }
+
+  /* TOOLTIP */
+  .tooltip-wrap { display: inline-flex; align-items: center; gap: 4px; }
+  .info-icon { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; background: var(--text-muted); color: #fff; font-size: 0.65rem; font-weight: 700; cursor: help; flex-shrink: 0; position: relative; }
+  .info-icon:hover .tooltip-box { display: block; }
+  .tooltip-box { display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: var(--primary); color: #fff; font-size: 0.75rem; line-height: 1.4; padding: 8px 12px; border-radius: 8px; width: 220px; z-index: 200; margin-bottom: 6px; font-weight: 400; white-space: normal; pointer-events: none; box-shadow: var(--shadow-lg); }
+  .tooltip-box::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: var(--primary); }
+
+  /* SECTION SELECTOR */
+  .sel-group { display: flex; gap: 8px; margin-bottom: 0.75rem; }
+  .sel-group select { flex: 1; }
+
+  /* BUTTONS */
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 22px; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.15s; border: none; }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: #142e49; }
+  .btn-secondary { background: var(--surface); color: var(--primary); border: 1.5px solid var(--border); }
+  .btn-secondary:hover { background: var(--bg); }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn-full { width: 100%; justify-content: center; padding: 13px; font-size: 1rem; }
+
+  /* RESULTS */
+  #results { display: none; margin-top: 2rem; }
+  .result-hero { background: linear-gradient(135deg, var(--primary) 0%, #2563a8 100%); color: #fff; border-radius: var(--radius-lg); padding: 1.75rem; margin-bottom: 1.25rem; }
+  .result-hero h2 { font-size: 1rem; opacity: 0.8; margin-bottom: 1rem; }
+  .hero-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; }
+  .hero-stat { text-align: center; }
+  .hero-stat .val { font-size: 1.6rem; font-weight: 700; }
+  .hero-stat .lbl { font-size: 0.75rem; opacity: 0.75; margin-top: 2px; }
+
+  /* RESULT TABLE */
+  .rtable { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  .rtable th { text-align: left; padding: 7px 10px; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); border-bottom: 2px solid var(--border); }
+  .rtable td { padding: 7px 10px; border-bottom: 1px solid var(--border); }
+  .rtable tr:last-child td { border-bottom: none; }
+  .rtable .total-row td { font-weight: 700; color: var(--primary); border-top: 2px solid var(--border); border-bottom: none; }
+  .rtable .deduct td { color: var(--danger); }
+  .rtable .positive td { color: var(--success); }
+  .rtable .sep-row td { padding: 4px 10px; background: var(--bg); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+  .rtable .highlight-row { background: #fff8e7; }
+  .rtable .subida-row { background: #edf7ff; }
+  .rtable td:last-child { text-align: right; }
+  .rtable th:last-child { text-align: right; }
+  .amount-neg { color: var(--danger); }
+  .amount-pos { color: var(--success); }
+  .amount-neutral { color: var(--text); }
+
+  /* MONTHLY TABLE */
+  .monthly-wrap { overflow-x: auto; }
+  .month-badge { font-size: 0.7rem; padding: 2px 7px; border-radius: 10px; font-weight: 600; display: inline-block; margin-left: 5px; }
+  .badge-bonus { background: #fff3cd; color: #856404; }
+  .badge-raise { background: #d1ecf1; color: #0c5460; }
+
+  /* COLLAPSIBLE */
+  .collapsible-trigger { display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 10px 0; border-top: 1px dashed var(--border); margin-top: 1rem; font-size: 0.83rem; color: var(--secondary); font-weight: 600; user-select: none; }
+  .collapsible-trigger .arrow { transition: transform 0.2s; font-size: 0.75rem; }
+  .collapsible-trigger.open .arrow { transform: rotate(180deg); }
+  .collapsible-body { display: none; padding-top: 1rem; font-size: 0.85rem; color: var(--text-muted); line-height: 1.7; }
+  .collapsible-body.open { display: block; }
+
+  /* DISCLAIMER */
+  .disclaimer { background: #fff8e7; border: 1px solid #f0d070; border-radius: var(--radius); padding: 1rem 1.25rem; margin-top: 2rem; font-size: 0.82rem; color: #6b5300; }
+  .disclaimer strong { color: #5a4400; }
+  .llm-note { background: #eaf4fb; border: 1px solid #b3d7f0; border-radius: var(--radius); padding: 1rem 1.25rem; margin-top: 0.75rem; font-size: 0.82rem; color: #0d4a6e; }
+
+  /* HOW IT WORKS */
+  .edu-block { margin-bottom: 1.25rem; }
+  .edu-trigger { display: flex; align-items: center; justify-content: space-between; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: background 0.15s; }
+  .edu-trigger:hover { background: var(--bg); }
+  .edu-body { display: none; background: var(--surface); border: 1px solid var(--border); border-top: none; border-radius: 0 0 var(--radius) var(--radius); padding: 1.25rem; font-size: 0.88rem; line-height: 1.75; color: var(--text); }
+  .edu-body.open { display: block; }
+  .edu-body p { margin-bottom: 0.75rem; }
+  .edu-body p:last-child { margin-bottom: 0; }
+  .edu-body .example-box { background: var(--bg); border-radius: 8px; padding: 1rem; margin-top: 0.75rem; font-size: 0.83rem; }
+  .edu-body table { width: 100%; border-collapse: collapse; margin-top: 0.75rem; font-size: 0.83rem; }
+  .edu-body table th { background: var(--bg); padding: 6px 10px; text-align: left; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); }
+  .edu-body table td { padding: 6px 10px; border-bottom: 1px solid var(--border); }
+
+  /* TRAMOS TABLE */
+  .tramos-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  .tramos-table th { background: var(--primary); color: #fff; padding: 10px 14px; text-align: left; font-size: 0.8rem; }
+  .tramos-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  .tramos-table tr:last-child td { border-bottom: none; }
+  .tramos-table tr:nth-child(even) { background: var(--bg); }
+  .tramo-pct { font-weight: 700; color: var(--primary); }
+  .tramo-bar-wrap { height: 8px; background: var(--border); border-radius: 4px; margin-top: 3px; }
+  .tramo-bar { height: 8px; border-radius: 4px; background: var(--secondary); }
+
+  /* INTERACTIVE TRAMO EXAMPLE */
+  .tramo-example { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; margin-top: 1.5rem; }
+  .tramo-example h3 { font-size: 0.9rem; font-weight: 700; color: var(--primary); margin-bottom: 1rem; }
+  .breakdown-bars { margin-top: 1rem; }
+  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; font-size: 0.8rem; }
+  .bar-row .bar-label { width: 120px; color: var(--text-muted); flex-shrink: 0; }
+  .bar-row .bar-fill { height: 20px; border-radius: 4px; transition: width 0.3s; }
+  .bar-row .bar-val { min-width: 80px; text-align: right; font-weight: 600; }
+
+  /* SHARE */
+  .share-copied { color: var(--success); font-size: 0.82rem; display: none; margin-left: 8px; }
+  .share-copied.show { display: inline; }
+
+  /* FOOTER */
+  .site-footer { margin-top: 3rem; padding: 1.75rem 1rem 2rem; text-align: center; font-size: 0.82rem; color: var(--text-muted); border-top: 1px solid var(--border); background: var(--surface); }
+  .site-footer .foot-brand { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; color: var(--primary); margin-bottom: 4px; }
+  .site-footer .foot-brand svg { width: 22px; height: 22px; }
+  .site-footer a { text-decoration: none; color: var(--secondary); font-weight: 600; }
+  .site-footer a:hover { text-decoration: underline; }
+  .site-footer .ver-tag { display: inline-block; background: var(--bg); border: 1px solid var(--border); border-radius: 20px; padding: 1px 9px; font-size: 0.72rem; color: var(--text-muted); margin-left: 6px; }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .topbar { padding: 0 1rem; }
+    .nav-links { gap: 2px; }
+    .nav-btn { padding: 6px 9px; font-size: 0.8rem; }
+    .page { padding: 1rem 0.75rem 3rem; }
+    .card { padding: 1.1rem 1rem; }
+    .hero-stat .val { font-size: 1.25rem; }
+    .field-row { flex-direction: column; gap: 0.75rem; }
+    .topbar-brand .brand-text .ver { display: none; }
+    .topbar-brand .logo { width: 30px; height: 30px; }
+  }
+
+  /* SEPARATOR */
+  .sep { height: 1px; background: var(--border); margin: 0.5rem 0; }
+  .section-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); margin: 1.25rem 0 0.75rem; }
+
+  /* SUMMARY INLINE */
+  .inline-sum { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 0.9rem; }
+  .inline-sum.total { font-weight: 700; color: var(--primary); border-top: 1.5px solid var(--border); margin-top: 6px; padding-top: 10px; font-size: 1rem; }
+  .inline-sum.neg .val { color: var(--danger); }
+  .inline-sum.pos .val { color: var(--success); }
+
+  /* PENSION DETAIL */
+  .pension-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 0.85rem; border-bottom: 1px solid var(--border); }
+  .pension-row:last-child { border-bottom: none; }
+  .pension-row .lbl { color: var(--text-muted); }
+  .pension-row.total { font-weight: 700; color: var(--primary); border-top: 2px solid var(--border); border-bottom: none; padding-top: 8px; }
+
+  /* PROGRESS BAR FOR TRAMOS */
+  .tramo-vis { display: flex; height: 12px; border-radius: 6px; overflow: hidden; margin: 1rem 0; }
+  .tramo-vis-seg { height: 100%; transition: flex 0.3s; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-brand">
+    <svg class="logo" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs>
+        <linearGradient id="apOrbit" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#7aa1ff"/>
+          <stop offset="100%" stop-color="#f5c84b"/>
+        </linearGradient>
+        <radialGradient id="apPlanet" cx="0.35" cy="0.3" r="0.85">
+          <stop offset="0%" stop-color="#f8d97a"/>
+          <stop offset="55%" stop-color="#f5c84b"/>
+          <stop offset="100%" stop-color="#c79420"/>
+        </radialGradient>
+      </defs>
+      <ellipse cx="32" cy="34" rx="26" ry="9" fill="none" stroke="url(#apOrbit)" stroke-width="2.4" transform="rotate(-22 32 34)" opacity="0.85"/>
+      <circle cx="32" cy="30" r="14" fill="url(#apPlanet)"/>
+      <text x="32" y="36" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-weight="800" font-size="16" fill="#1a2b5e">€</text>
+      <circle cx="11" cy="14" r="1.4" fill="#fff"/>
+      <circle cx="54" cy="18" r="1" fill="#fff"/>
+      <circle cx="52" cy="48" r="1.2" fill="#fff"/>
+      <circle cx="9" cy="50" r="1" fill="#fff"/>
+    </svg>
+    <div class="brand-text">
+      <span class="name">Astro<span class="accent">Payroll</span></span>
+      <span class="ver">v1.0</span>
+    </div>
+  </div>
+  <div class="nav-links">
+    <button class="nav-btn active" onclick="showPage('calc')" data-i18n="nav_calc">Calculadora</button>
+    <button class="nav-btn" onclick="showPage('how')" data-i18n="nav_how">¿Cómo funciona?</button>
+    <button class="nav-btn" onclick="showPage('tramos')" data-i18n="nav_tramos">Tramos IRPF</button>
+  </div>
+  <div class="topbar-right">
+    <div class="lang-sel">
+      <button class="lang-btn active" onclick="setLang('es')">ES</button>
+      <button class="lang-btn" onclick="setLang('ca')">CA</button>
+      <button class="lang-btn" onclick="setLang('en')">EN</button>
+    </div>
+  </div>
+</div>
+
+<!-- CALCULATOR PAGE -->
+<div class="page active" id="page-calc">
+  <div style="margin-bottom:1.5rem; padding-top:0.5rem;">
+    <h1 style="font-size:1.4rem; font-weight:700; color:var(--primary); margin-bottom:4px;" data-i18n="calc_title">¿Cuánto me queda neto?</h1>
+    <p style="color:var(--text-muted); font-size:0.88rem;" data-i18n="calc_subtitle">Introduce tu salario y te calculamos el desglose real mes a mes.</p>
+  </div>
+
+  <!-- BLOQUE 1: SALARIO -->
+  <div class="card">
+    <div class="card-title"><div class="icon">💼</div> <span data-i18n="blk_salary">Salario base</span></div>
+    <div class="field">
+      <label data-i18n="lbl_salary_base">Salario base bruto anual</label>
+      <div class="input-wrap">
+        <input type="number" id="salaryBase" placeholder="50000" min="0">
+        <span class="unit">€</span>
+      </div>
+      <div class="tooltip-wrap" style="margin-top:5px;">
+        <span class="info-icon">i<div class="tooltip-box" data-i18n="tip_salary">Es el sueldo que aparece en tu contrato antes de que te descuenten nada. No incluye bonus ni extras.</div></span>
+        <span style="font-size:0.78rem; color:var(--text-muted);" data-i18n="tip_salary_short">El sueldo de tu contrato antes de descuentos</span>
+      </div>
+    </div>
+
+    <!-- SUBIDA SALARIAL -->
+    <div class="toggle-row" style="margin-top:1rem;">
+      <div>
+        <div class="toggle-label" data-i18n="toggle_raise">¿Tienes subida salarial este año?</div>
+        <div class="toggle-sub" data-i18n="toggle_raise_sub">Recalcularemos mes a mes como lo haría tu empresa</div>
+      </div>
+      <label class="toggle"><input type="checkbox" id="hasRaise" onchange="toggleSection('raiseSec',this)"><div class="toggle-slider"></div></label>
+    </div>
+    <div class="toggle-content" id="raiseSec">
+      <div class="field-row">
+        <div class="field">
+          <label data-i18n="lbl_old_salary">Salario anterior (€/año)</label>
+          <div class="input-wrap">
+            <input type="number" id="oldSalary" placeholder="48000" min="0">
+            <span class="unit">€</span>
+          </div>
+        </div>
+        <div class="field">
+          <label data-i18n="lbl_new_salary">Salario nuevo (€/año)</label>
+          <div class="input-wrap">
+            <input type="number" id="newSalary" placeholder="50000" min="0" oninput="calcRaisePct()">
+            <span class="unit">€</span>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:0.75rem;">
+        <span style="font-size:0.82rem; color:var(--text-muted);" data-i18n="lbl_raise_pct">Incremento:</span>
+        <span class="badge-pct green" id="raisePct">—</span>
+      </div>
+      <div class="field">
+        <label data-i18n="lbl_raise_month">Mes de la subida</label>
+        <select id="raiseMonth"></select>
+      </div>
+      <div class="field-help" data-i18n="help_raise">La retención se recalculará desde ese mes en adelante, igual que lo haría tu empresa.</div>
+    </div>
+  </div>
+
+  <!-- BLOQUE 2: BONUS -->
+  <div class="card">
+    <div class="toggle-row">
+      <div>
+        <div class="card-title" style="margin-bottom:2px;"><div class="icon">🎯</div> <span data-i18n="blk_bonus">Bonus</span></div>
+        <div class="toggle-sub" data-i18n="toggle_bonus_sub">Pago variable anual</div>
+      </div>
+      <label class="toggle"><input type="checkbox" id="hasBonus" onchange="toggleSection('bonusSec',this)"><div class="toggle-slider"></div></label>
+    </div>
+    <div class="toggle-content" id="bonusSec">
+      <div class="field-row">
+        <div class="field">
+          <label>
+            <span data-i18n="lbl_bonus">Importe del bonus bruto</span>
+            <span class="info-icon" style="margin-left:5px;">i<div class="tooltip-box" data-i18n="tip_bonus">El bonus tributa igual que el salario. El mes que lo cobras, tu empresa recalcula toda la retención del año y aplica el ajuste de golpe en ese mes.</div></span>
+          </label>
+          <div class="input-wrap">
+            <input type="number" id="bonusAmt" placeholder="10000" min="0">
+            <span class="unit">€</span>
+          </div>
+        </div>
+        <div class="field">
+          <label data-i18n="lbl_bonus_month">Mes en que se cobra</label>
+          <select id="bonusMonth"></select>
+        </div>
+      </div>
+      <div class="field-help" data-i18n="help_bonus">Los meses anteriores al bonus tu empresa calcula la retención sin contar con él. Cuando se decide, ajusta todo de golpe.</div>
+    </div>
+  </div>
+
+  <!-- BLOQUE 3: CAR ALLOWANCE -->
+  <div class="card">
+    <div class="toggle-row">
+      <div>
+        <div class="card-title" style="margin-bottom:2px;"><div class="icon">🚗</div> <span data-i18n="blk_car">Car allowance</span></div>
+        <div class="toggle-sub" data-i18n="toggle_car_sub">Asignación de coche</div>
+      </div>
+      <label class="toggle"><input type="checkbox" id="hasCar" onchange="toggleSection('carSec',this)"><div class="toggle-slider"></div></label>
+    </div>
+    <div class="toggle-content" id="carSec">
+      <div class="field">
+        <label>
+          <span data-i18n="lbl_car">Importe mensual del car allowance</span>
+          <span class="info-icon" style="margin-left:5px;">i<div class="tooltip-box" data-i18n="tip_car">Si tu empresa te da una asignación de coche y no la usas para un vehículo, ese importe se añade a tu salario y tributa como salario normal. No computa para bonus ni plan de pensiones.</div></span>
+        </label>
+        <div class="input-wrap">
+          <input type="number" id="carAmt" placeholder="690" min="0">
+          <span class="unit">€/mes</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOQUE 4: TICKETS RESTAURANTE -->
+  <div class="card">
+    <div class="toggle-row">
+      <div>
+        <div class="card-title" style="margin-bottom:2px;"><div class="icon">🍽️</div> <span data-i18n="blk_tickets">Tickets restaurante</span></div>
+        <div class="toggle-sub" data-i18n="toggle_tickets_sub">Límite exento: 2.750 €/año</div>
+      </div>
+      <label class="toggle"><input type="checkbox" id="hasTickets" onchange="toggleSection('ticketsSec',this)"><div class="toggle-slider"></div></label>
+    </div>
+    <div class="toggle-content" id="ticketsSec">
+      <div class="field">
+        <label data-i18n="lbl_tickets_type">¿Cómo funcionan tus tickets?</label>
+        <div class="radio-group">
+          <div class="radio-opt">
+            <input type="radio" name="ticketsType" id="ticketsOnTop" value="ontop" checked>
+            <label for="ticketsOnTop" data-i18n="tickets_ontop">Beneficio adicional (on top)</label>
+          </div>
+          <div class="radio-opt">
+            <input type="radio" name="ticketsType" id="ticketsFlex" value="flex">
+            <label for="ticketsFlex" data-i18n="tickets_flex">Retribución flexible</label>
+          </div>
+        </div>
+        <div class="field-help" id="ticketsTypeHelp" data-i18n="tip_tickets_ontop">La empresa te da los tickets encima de tu sueldo. El importe exento (hasta 2.750 €) no tributa en IRPF ni cotiza a la SS.</div>
+      </div>
+      <div class="field">
+        <label data-i18n="lbl_tickets_amt">Importe anual de tickets (€)</label>
+        <div class="input-wrap">
+          <input type="number" id="ticketsAmt" placeholder="2420" min="0" oninput="validateTickets()">
+          <span class="unit">€</span>
+        </div>
+        <div class="field-error" id="ticketsError" data-i18n="err_tickets">El límite legal exento es de 2.750 € (11 €/día × 250 días). No puede superar este importe.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOQUE 5: SEGURO MÉDICO -->
+  <div class="card">
+    <div class="toggle-row">
+      <div>
+        <div class="card-title" style="margin-bottom:2px;"><div class="icon">🏥</div> <span data-i18n="blk_health">Seguro médico</span></div>
+        <div class="toggle-sub" data-i18n="toggle_health_sub">Lo paga la empresa</div>
+      </div>
+      <label class="toggle"><input type="checkbox" id="hasHealth" onchange="toggleSection('healthSec',this)"><div class="toggle-slider"></div></label>
+    </div>
+    <div class="toggle-content" id="healthSec">
+      <div class="field">
+        <label data-i18n="lbl_health_type">¿Cómo funciona tu seguro médico?</label>
+        <div class="radio-group">
+          <div class="radio-opt">
+            <input type="radio" name="healthType" id="healthOnTop" value="ontop" checked>
+            <label for="healthOnTop" data-i18n="health_ontop">Beneficio adicional (on top)</label>
+          </div>
+          <div class="radio-opt">
+            <input type="radio" name="healthType" id="healthFlex" value="flex">
+            <label for="healthFlex" data-i18n="health_flex">Retribución flexible</label>
+          </div>
+        </div>
+        <div class="field-help" id="healthTypeHelp" data-i18n="tip_health_ontop">La empresa paga el seguro encima de tu sueldo. Hasta 500 €/año está exento de IRPF. El exceso tributa como retribución en especie.</div>
+      </div>
+      <div class="field">
+        <label data-i18n="lbl_health_amt">Importe anual del seguro médico (€)</label>
+        <div class="input-wrap">
+          <input type="number" id="healthAmt" placeholder="1200" min="0">
+          <span class="unit">€</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOQUE 6: SEGURO VIDA -->
+  <div class="card">
+    <div class="toggle-row">
+      <div>
+        <div class="card-title" style="margin-bottom:2px;"><div class="icon">🛡️</div> <span data-i18n="blk_life">Seguro de vida y accidentes</span></div>
+        <div class="toggle-sub" data-i18n="toggle_life_sub">Lo paga la empresa. Tributa como retribución en especie.</div>
+      </div>
+      <label class="toggle"><input type="checkbox" id="hasLife" onchange="toggleSection('lifeSec',this)"><div class="toggle-slider"></div></label>
+    </div>
+    <div class="toggle-content" id="lifeSec">
+      <div class="field">
+        <label>
+          <span data-i18n="lbl_life_amt">Importe anual del seguro (€)</span>
+          <span class="info-icon" style="margin-left:5px;">i<div class="tooltip-box" data-i18n="tip_life">Lo paga la empresa pero tributa íntegramente como retribución en especie. Se suma a tu base imponible del IRPF.</div></span>
+        </label>
+        <div class="input-wrap">
+          <input type="number" id="lifeAmt" placeholder="300" min="0">
+          <span class="unit">€</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOQUE 7: PLAN DE PENSIONES -->
+  <div class="card">
+    <div class="toggle-row">
+      <div>
+        <div class="card-title" style="margin-bottom:2px;"><div class="icon">🏦</div> <span data-i18n="blk_pension">Plan de pensiones de empresa</span></div>
+        <div class="toggle-sub" data-i18n="toggle_pension_sub">Reduce tu base imponible y tu empresa aporta también</div>
+      </div>
+      <label class="toggle"><input type="checkbox" id="hasPension" onchange="toggleSection('pensionSec',this)"><div class="toggle-slider"></div></label>
+    </div>
+    <div class="toggle-content" id="pensionSec">
+      <div class="field">
+        <label>
+          <span data-i18n="lbl_pension_pct">Tu aportación sobre el salario base</span>
+          <span class="info-icon" style="margin-left:5px;">i<div class="tooltip-box" data-i18n="tip_pension_pct">Este importe se descuenta de tu salario bruto y reduce tu base imponible. Es dinero tuyo que va al plan, pero pagas menos IRPF ahora.</div></span>
+        </label>
+        <select id="pensionPct">
+          <option value="0">0%</option>
+          <option value="0.5">0,5%</option>
+          <option value="1">1%</option>
+          <option value="1.5">1,5%</option>
+          <option value="2">2%</option>
+          <option value="2.5">2,5%</option>
+          <option value="3">3%</option>
+          <option value="3.5">3,5%</option>
+          <option value="4" selected>4%</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>
+          <span data-i18n="lbl_pension_match">Match de la empresa (%)</span>
+          <span class="info-icon" style="margin-left:5px;">i<div class="tooltip-box" data-i18n="tip_pension_match">Por cada euro que aportas tú, la empresa aporta este porcentaje adicional. No sale de tu salario, es dinero extra para tu plan.</div></span>
+        </label>
+        <div class="input-wrap">
+          <input type="number" id="pensionMatch" value="50" min="0" max="200">
+          <span class="unit">%</span>
+        </div>
+      </div>
+
+      <div class="toggle-row" style="margin-top:0.75rem;">
+        <div>
+          <div class="toggle-label" data-i18n="toggle_pension_extra">¿La empresa hace aportación adicional por tramos?</div>
+          <div class="toggle-sub" data-i18n="toggle_pension_extra_sub">Típico en empresas con plan de pensiones avanzado</div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="hasPensionExtra" checked onchange="toggleSection('pensionExtraSec',this)"><div class="toggle-slider"></div></label>
+      </div>
+      <div class="toggle-content open" id="pensionExtraSec">
+        <div class="field-row">
+          <div class="field">
+            <label>
+              <span data-i18n="lbl_pension_t1">% tramo hasta el tope SS</span>
+              <span class="info-icon" style="margin-left:5px;">i<div class="tooltip-box" data-i18n="tip_pension_t1">La empresa aporta este % sobre la parte de tu salario base que está por debajo del tope máximo de cotización de la SS.</div></span>
+            </label>
+            <div class="input-wrap">
+              <input type="number" id="pensionT1" value="1" min="0" step="0.5">
+              <span class="unit">%</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>
+              <span data-i18n="lbl_pension_t2">% tramo por encima del tope SS</span>
+              <span class="info-icon" style="margin-left:5px;">i<div class="tooltip-box" data-i18n="tip_pension_t2">La empresa aporta este % sobre la parte de tu salario base que supera el tope de cotización.</div></span>
+            </label>
+            <div class="input-wrap">
+              <input type="number" id="pensionT2" value="10" min="0" step="0.5">
+              <span class="unit">%</span>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>
+            <span data-i18n="lbl_ss_cap">Tope máximo base cotización SS (€/año)</span>
+            <span class="info-icon" style="margin-left:5px;">i<div class="tooltip-box" data-i18n="tip_ss_cap">Límite anual sobre el que cotizas a la SS. Para 2026 es de 61.214,40 €.</div></span>
+          </label>
+          <div class="input-wrap">
+            <input type="number" id="ssCap" value="61214.40" min="0" step="100">
+            <span class="unit">€</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BUTTONS -->
+  <div class="btn-row" style="margin-bottom:1rem;">
+    <button class="btn btn-primary btn-full" onclick="calculate()" data-i18n="btn_calc">Calcular mi neto</button>
+  </div>
+  <div class="btn-row" style="justify-content:flex-end;">
+    <button class="btn btn-secondary" onclick="resetForm()" data-i18n="btn_reset">Resetear</button>
+    <button class="btn btn-secondary" onclick="shareResult()" data-i18n="btn_share">Compartir resultado</button>
+    <span class="share-copied" id="shareCopied" data-i18n="share_ok">¡Copiado!</span>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results">
+    <!-- Hero -->
+    <div class="result-hero">
+      <h2 data-i18n="res_title">Tu resumen anual estimado</h2>
+      <div class="hero-grid">
+        <div class="hero-stat"><div class="val" id="heroGross">—</div><div class="lbl" data-i18n="hero_gross">Bruto anual</div></div>
+        <div class="hero-stat"><div class="val" id="heroNet">—</div><div class="lbl" data-i18n="hero_net">Neto anual</div></div>
+        <div class="hero-stat"><div class="val" id="heroNetMonth">—</div><div class="lbl" data-i18n="hero_net_month">Neto mensual medio</div></div>
+        <div class="hero-stat"><div class="val" id="heroEffRate">—</div><div class="lbl" data-i18n="hero_eff_rate">Tipo efectivo IRPF</div></div>
+      </div>
+    </div>
+
+    <!-- RESUMEN ANUAL -->
+    <div class="card">
+      <div class="card-title"><div class="icon">📊</div> <span data-i18n="res_annual">Desglose anual</span></div>
+      <div id="annualBreakdown"></div>
+    </div>
+
+    <!-- DESGLOSE MENSUAL -->
+    <div class="card">
+      <div class="card-title"><div class="icon">📅</div> <span data-i18n="res_monthly">Desglose mes a mes</span></div>
+      <div class="monthly-wrap"><div id="monthlyTable"></div></div>
+      <div class="collapsible-trigger" onclick="toggleCollapsible('monthlyCalcDetail')">
+        <span data-i18n="show_calc">Ver cómo se calcula la retención mensual</span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="collapsible-body" id="monthlyCalcDetail">
+        <p data-i18n="monthly_calc_exp">Tu empresa recalcula la retención de IRPF cada mes. La lógica es: proyecta cuánto ganarás en todo el año desde ese mes, calcula el IRPF anual total, y retiene lo que falta para llegar a ese importe restando lo que ya te ha retenido. Así, si en marzo cobras el bonus, la retención de ese mes sube mucho para compensar.</p>
+      </div>
+    </div>
+
+    <!-- BONUS -->
+    <div class="card" id="bonusCard" style="display:none;">
+      <div class="card-title"><div class="icon">🎯</div> <span data-i18n="res_bonus">Tu bonus</span></div>
+      <div id="bonusBreakdown"></div>
+    </div>
+
+    <!-- BENEFICIOS -->
+    <div class="card" id="benefitsCard" style="display:none;">
+      <div class="card-title"><div class="icon">✨</div> <span data-i18n="res_benefits">Beneficios y ahorro fiscal</span></div>
+      <div id="benefitsBreakdown"></div>
+    </div>
+
+    <!-- PLAN PENSIONES -->
+    <div class="card" id="pensionCard" style="display:none;">
+      <div class="card-title"><div class="icon">🏦</div> <span data-i18n="res_pension">Tu plan de pensiones</span></div>
+      <div id="pensionBreakdown"></div>
+    </div>
+  </div>
+
+  <!-- DISCLAIMER -->
+  <div class="disclaimer">
+    <strong data-i18n="disclaimer_title">⚠️ Estimación orientativa.</strong>
+    <span data-i18n="disclaimer_body"> Esta calculadora proporciona una estimación basada en los tramos y reglas generales del IRPF en España. No tiene en cuenta situaciones personales como hijos, discapacidad o deducciones autonómicas. Para conocer tu retención exacta consulta con un asesor fiscal o con el equipo de Recursos Humanos de tu empresa.</span>
+  </div>
+  <div class="llm-note">
+    <strong data-i18n="llm_title">💡 ¿Tienes dudas?</strong>
+    <span data-i18n="llm_body"> Esta app está pensada para usarse junto a asistentes de IA como Claude o ChatGPT. Si algo no te queda claro, copia tu desglose y pregúntale directamente: ¿Por qué me retienen tanto en marzo? ¿Qué es el tipo marginal? ¿Me conviene aportar más al plan de pensiones? Son herramientas muy útiles para entender tu nómina.</span>
+  </div>
+</div>
+
+<!-- HOW IT WORKS PAGE -->
+<div class="page" id="page-how">
+  <h1 style="font-size:1.3rem; font-weight:700; color:var(--primary); margin-bottom:1.5rem; padding-top:0.5rem;" data-i18n="how_title">Entiende tu nómina</h1>
+
+  <div class="edu-block">
+    <div class="edu-trigger" onclick="toggleEdu(this)">
+      <span data-i18n="edu1_title">🔍 ¿Qué es el IRPF?</span><span>▼</span>
+    </div>
+    <div class="edu-body">
+      <p data-i18n="edu1_p1">El IRPF (Impuesto sobre la Renta de las Personas Físicas) es el impuesto que pagas por lo que ganas. No importa si es salario, bonus, alquiler o venta de acciones: casi todo lo que ingresas paga IRPF.</p>
+      <p data-i18n="edu1_p2">Tu empresa lo descuenta automáticamente cada mes de tu nómina antes de pagarte. Eso es la "retención". Al año siguiente presentas la declaración de la renta y Hacienda ajusta: si te retuvieron de más te devuelve, si fue de menos pagas la diferencia.</p>
+    </div>
+  </div>
+
+  <div class="edu-block">
+    <div class="edu-trigger" onclick="toggleEdu(this)">
+      <span data-i18n="edu2_title">📈 ¿Qué significa que haya tramos?</span><span>▼</span>
+    </div>
+    <div class="edu-body">
+      <p data-i18n="edu2_p1">El IRPF es progresivo: cuanto más ganas, más pagas en proporción. Pero los porcentajes no se aplican a todo tu salario, sino solo a la parte que cae en cada tramo.</p>
+      <div class="example-box">
+        <strong data-i18n="edu2_ex_title">Ejemplo: salario de 45.000 €</strong>
+        <table>
+          <tr><th data-i18n="col_tramo">Tramo</th><th data-i18n="col_base">Base en tramo</th><th data-i18n="col_tipo">Tipo</th><th data-i18n="col_cuota">Cuota</th></tr>
+          <tr><td>0 – 12.450 €</td><td>12.450 €</td><td>19%</td><td>2.365,50 €</td></tr>
+          <tr><td>12.450 – 20.200 €</td><td>7.750 €</td><td>24%</td><td>1.860,00 €</td></tr>
+          <tr><td>20.200 – 35.200 €</td><td>15.000 €</td><td>30%</td><td>4.500,00 €</td></tr>
+          <tr><td>35.200 – 45.000 €</td><td>9.800 €</td><td>37%</td><td>3.626,00 €</td></tr>
+          <tr><td colspan="3"><strong data-i18n="col_total">Total IRPF</strong></td><td><strong>12.351,50 €</strong></td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="edu-block">
+    <div class="edu-trigger" onclick="toggleEdu(this)">
+      <span data-i18n="edu3_title">🎯 Tipo marginal vs tipo efectivo</span><span>▼</span>
+    </div>
+    <div class="edu-body">
+      <p data-i18n="edu3_p1"><strong>Tipo marginal</strong>: el porcentaje que pagas por el último euro que ganas. Es el tramo más alto que alcanzas. Si ganas 50.000 €, tu tipo marginal es el 37%.</p>
+      <p data-i18n="edu3_p2"><strong>Tipo efectivo</strong>: el porcentaje real medio que pagas sobre todo tu salario. Siempre es menor que el marginal porque los primeros euros tributan mucho menos.</p>
+      <p data-i18n="edu3_p3">Por eso, si te ofrecen una subida de 5.000 € no pierdes el 37% de todo tu salario, solo pagas el 37% de esos 5.000 € extra.</p>
+    </div>
+  </div>
+
+  <div class="edu-block">
+    <div class="edu-trigger" onclick="toggleEdu(this)">
+      <span data-i18n="edu4_title">📋 ¿Qué es la base imponible?</span><span>▼</span>
+    </div>
+    <div class="edu-body">
+      <p data-i18n="edu4_p1">La base imponible es la cantidad sobre la que se calcula el IRPF. No es exactamente tu salario bruto: algunos conceptos se suman y otros se restan.</p>
+      <p data-i18n="edu4_p2">Se suman: el salario base, el bonus, el car allowance, las retribuciones en especie (como el seguro de vida o la parte del seguro médico que supera 500 €).</p>
+      <p data-i18n="edu4_p3">Se restan: las aportaciones al plan de pensiones (hasta el límite legal), los tickets restaurante en modalidad retribución flexible (hasta 2.750 €), el seguro médico en retribución flexible (hasta 500 €).</p>
+    </div>
+  </div>
+
+  <div class="edu-block">
+    <div class="edu-trigger" onclick="toggleEdu(this)">
+      <span data-i18n="edu5_title">🍽️ ¿Por qué los tickets restaurante me ahorran dinero?</span><span>▼</span>
+    </div>
+    <div class="edu-body">
+      <p data-i18n="edu5_p1">Los tickets restaurante (hasta 11 €/día, máximo 2.750 €/año) están exentos de IRPF y de cotización a la SS. Es como cobrar ese dinero sin pagar impuestos.</p>
+      <p data-i18n="edu5_p2">El ahorro se calcula con tu tipo marginal porque ese importe "sustituye" a la parte más alta de tu salario. Si tu tipo marginal es el 45% y tienes 2.420 € en tickets, ahorras 1.089 € en IRPF más lo que ahorras en SS.</p>
+    </div>
+  </div>
+
+  <div class="edu-block">
+    <div class="edu-trigger" onclick="toggleEdu(this)">
+      <span data-i18n="edu6_title">🔄 ¿Qué es la retribución flexible?</span><span>▼</span>
+    </div>
+    <div class="edu-body">
+      <p data-i18n="edu6_p1">La retribución flexible es cuando cambias parte de tu salario bruto por beneficios con ventaja fiscal. Por ejemplo, en vez de cobrar 1.200 € más al año, recibes ese importe en seguro médico.</p>
+      <p data-i18n="edu6_p2">La ventaja: ese importe deja de tributar en IRPF (hasta los límites exentos) y también deja de cotizar a la SS. El resultado es que con el mismo coste para la empresa, tú recibes más valor neto.</p>
+    </div>
+  </div>
+
+  <div class="edu-block">
+    <div class="edu-trigger" onclick="toggleEdu(this)">
+      <span data-i18n="edu7_title">😱 ¿Por qué me retienen muchísimo el mes del bonus?</span><span>▼</span>
+    </div>
+    <div class="edu-body">
+      <p data-i18n="edu7_p1">Porque tu empresa recalcula toda la retención del año en ese momento. Hasta el mes del bonus, calculaba la retención asumiendo que solo cobrarías tu salario base. Cuando ve que también hay un bonus de, por ejemplo, 16.000 €, recalcula el IRPF anual total y aplica de golpe la diferencia.</p>
+      <p data-i18n="edu7_p2">Es simplemente un ajuste: no pagas "más" en total, pero ese mes notas una retención mucho mayor de lo habitual.</p>
+    </div>
+  </div>
+
+  <div class="edu-block">
+    <div class="edu-trigger" onclick="toggleEdu(this)">
+      <span data-i18n="edu8_title">🏦 ¿Por qué es tan bueno el plan de pensiones de empresa?</span><span>▼</span>
+    </div>
+    <div class="edu-body">
+      <p data-i18n="edu8_p1">Triple ventaja: primero, ahorras para el futuro. Segundo, tu aportación reduce la base imponible del IRPF, así que pagas menos impuestos ahora. Tercero, la empresa añade dinero adicional que no sale de tu salario.</p>
+      <p data-i18n="edu8_p2">El dinero tributará cuando lo recuperes en la jubilación, pero probablemente en un tramo más bajo que ahora. Y mientras tanto ha estado creciendo sin pagar impuestos.</p>
+    </div>
+  </div>
+
+  <div class="edu-block">
+    <div class="edu-trigger" onclick="toggleEdu(this)">
+      <span data-i18n="edu9_title">🏛️ ¿Qué es la Seguridad Social?</span><span>▼</span>
+    </div>
+    <div class="edu-body">
+      <p data-i18n="edu9_p1">La Seguridad Social es el sistema de cotizaciones que financia la sanidad pública, las pensiones, el paro y las bajas. Tanto tú como tu empresa cotizáis cada mes (la empresa paga una cantidad bastante mayor que tú).</p>
+      <p data-i18n="edu9_p2">Lo que pagas tú como empleado incluye: contingencias comunes (4,70%), desempleo (1,55%), formación profesional (0,10%) y la cuota MEI (0,58%). La base de cotización tiene un tope máximo anual: por encima de ese importe, no pagas más.</p>
+    </div>
+  </div>
+
+  <div class="edu-block">
+    <div class="edu-trigger" onclick="toggleEdu(this)">
+      <span data-i18n="edu10_title">⚡ ¿Qué es la cuota de solidaridad?</span><span>▼</span>
+    </div>
+    <div class="edu-body">
+      <p data-i18n="edu10_p1">Entró en vigor en 2025. Es una cotización adicional que pagan los empleados con salarios que superan el tope máximo de cotización de la SS. Se aplica por tramos sobre el exceso:</p>
+      <div class="example-box">
+        <table>
+          <tr><th data-i18n="col_tramo">Tramo del exceso</th><th data-i18n="col_tipo">Tipo</th></tr>
+          <tr><td data-i18n="sol_t1">De 0 € a 15.303,60 € de exceso</td><td>0,92%</td></tr>
+          <tr><td data-i18n="sol_t2">De 15.303,60 € a 30.607,20 € de exceso</td><td>1,00%</td></tr>
+          <tr><td data-i18n="sol_t3">Más de 30.607,20 € de exceso</td><td>1,17%</td></tr>
+        </table>
+      </div>
+      <p data-i18n="edu10_p2">Solo afecta a quienes superan el tope de cotización (61.214,40 € en 2026).</p>
+    </div>
+  </div>
+
+  <div class="disclaimer" style="margin-top:2rem;">
+    <strong data-i18n="disclaimer_title">⚠️ Estimación orientativa.</strong>
+    <span data-i18n="disclaimer_body"> Esta calculadora proporciona una estimación basada en los tramos y reglas generales del IRPF en España. No tiene en cuenta situaciones personales como hijos, discapacidad o deducciones autonómicas. Para conocer tu retención exacta consulta con un asesor fiscal o con el equipo de Recursos Humanos de tu empresa.</span>
+  </div>
+</div>
+
+<!-- TRAMOS PAGE -->
+<div class="page" id="page-tramos">
+  <h1 style="font-size:1.3rem; font-weight:700; color:var(--primary); margin-bottom:0.5rem; padding-top:0.5rem;" data-i18n="tramos_title">Tramos del IRPF 2026</h1>
+  <p style="color:var(--text-muted); font-size:0.88rem; margin-bottom:1.5rem;" data-i18n="tramos_sub">Tipos estatales. Las comunidades autónomas añaden tipos complementarios.</p>
+
+  <div class="card" style="padding:0; overflow:hidden;">
+    <table class="tramos-table" style="margin:0;">
+      <thead>
+        <tr>
+          <th data-i18n="col_tramo">Tramo</th>
+          <th data-i18n="col_tipo">Tipo</th>
+          <th data-i18n="col_cuota_tramo">Lo que pagas en este tramo</th>
+          <th data-i18n="col_desc">Explicación</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>0 – 12.450 €</td>
+          <td><span class="tramo-pct">19%</span><div class="tramo-bar-wrap"><div class="tramo-bar" style="width:19%;"></div></div></td>
+          <td>Hasta 2.365,50 €</td>
+          <td style="font-size:0.8rem; color:var(--text-muted);" data-i18n="tramo1_desc">Solo pagas el 19% de los euros que caen aquí, no de todo tu sueldo</td>
+        </tr>
+        <tr>
+          <td>12.450 – 20.200 €</td>
+          <td><span class="tramo-pct">24%</span><div class="tramo-bar-wrap"><div class="tramo-bar" style="width:24%;"></div></div></td>
+          <td>Hasta 1.860 €</td>
+          <td style="font-size:0.8rem; color:var(--text-muted);" data-i18n="tramo2_desc">Solo los euros entre 12.450 € y 20.200 € pagan este tipo</td>
+        </tr>
+        <tr>
+          <td>20.200 – 35.200 €</td>
+          <td><span class="tramo-pct">30%</span><div class="tramo-bar-wrap"><div class="tramo-bar" style="width:30%;"></div></div></td>
+          <td>Hasta 4.500 €</td>
+          <td style="font-size:0.8rem; color:var(--text-muted);" data-i18n="tramo3_desc">Un tercio de lo que ganes en este rango va a Hacienda</td>
+        </tr>
+        <tr>
+          <td>35.200 – 60.000 €</td>
+          <td><span class="tramo-pct">37%</span><div class="tramo-bar-wrap"><div class="tramo-bar" style="width:37%;"></div></div></td>
+          <td>Hasta 9.176 €</td>
+          <td style="font-size:0.8rem; color:var(--text-muted);" data-i18n="tramo4_desc">Tramo habitual para salarios medios-altos en España</td>
+        </tr>
+        <tr>
+          <td>60.000 – 300.000 €</td>
+          <td><span class="tramo-pct">45%</span><div class="tramo-bar-wrap"><div class="tramo-bar" style="width:45%;"></div></div></td>
+          <td>Hasta 108.000 €</td>
+          <td style="font-size:0.8rem; color:var(--text-muted);" data-i18n="tramo5_desc">Casi la mitad de cada euro en este rango es del fisco</td>
+        </tr>
+        <tr>
+          <td data-i18n="tramo6_range">Más de 300.000 €</td>
+          <td><span class="tramo-pct">47%</span><div class="tramo-bar-wrap"><div class="tramo-bar" style="width:47%;"></div></div></td>
+          <td>—</td>
+          <td style="font-size:0.8rem; color:var(--text-muted);" data-i18n="tramo6_desc">El tipo más alto del sistema estatal</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="tramo-example">
+    <h3 data-i18n="tramo_ex_title">Prueba con tu salario</h3>
+    <div class="field" style="margin-bottom:1rem;">
+      <label data-i18n="tramo_ex_input">Introduce un salario anual (€)</label>
+      <div class="input-wrap">
+        <input type="number" id="tramoInput" placeholder="45000" oninput="renderTramoExample()" style="max-width:220px;">
+        <span class="unit">€</span>
+      </div>
+    </div>
+    <div id="tramoExResult"></div>
+  </div>
+
+  <div class="disclaimer" style="margin-top:1.5rem;">
+    <strong data-i18n="disclaimer_title">⚠️ Estimación orientativa.</strong>
+    <span data-i18n="disclaimer_body"> Esta calculadora proporciona una estimación basada en los tramos y reglas generales del IRPF en España.</span>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="foot-brand">
+    <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <ellipse cx="32" cy="34" rx="26" ry="9" fill="none" stroke="#4a6dd1" stroke-width="3" transform="rotate(-22 32 34)"/>
+      <circle cx="32" cy="30" r="13" fill="#f5c84b"/>
+      <text x="32" y="35" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-weight="800" font-size="15" fill="#1a2b5e">€</text>
+    </svg>
+    <span>AstroPayroll</span>
+    <span class="ver-tag">v1.0</span>
+  </div>
+  <div data-i18n="footer_astrocosas">Una app de <a href="#" target="_blank" rel="noopener">AstroCosas</a> · Hecha con ☕ y datos fiscales 2026</div>
+</footer>
+
+<script>
+const APP_VERSION = '1.0';
+const TRAMOS = [
+  {from:0,      to:12450,   rate:0.19},
+  {from:12450,  to:20200,   rate:0.24},
+  {from:20200,  to:35200,   rate:0.30},
+  {from:35200,  to:60000,   rate:0.37},
+  {from:60000,  to:300000,  rate:0.45},
+  {from:300000, to:Infinity,rate:0.47}
+];
+const SS_RATE = 0.0693;
+const SS_CAP_DEFAULT = 61214.40;
+const SOL_LIMITS = [61214.40, 76518.00, 91821.60];
+const SOL_RATES  = [0.0092, 0.0100, 0.0117];
+const HEALTH_EXEMPT = 500;
+const TICKETS_LIMIT = 2750;
+const MONTHS_ES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const MONTHS_CA = ['Gener','Febrer','Març','Abril','Maig','Juny','Juliol','Agost','Setembre','Octubre','Novembre','Desembre'];
+const MONTHS_EN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+let currentLang = 'es';
+let lastResult = null;
+
+const T = {
+  es:{
+    brand:'AstroPayroll', nav_calc:'Calculadora', nav_how:'¿Cómo funciona?', nav_tramos:'Tramos IRPF',
+    footer_astrocosas:'Una app de AstroCosas · Hecha con ☕ y datos fiscales 2026',
+    calc_title:'¿Cuánto me queda neto?', calc_subtitle:'Introduce tu salario y te calculamos el desglose real mes a mes.',
+    blk_salary:'Salario base', lbl_salary_base:'Salario base bruto anual', tip_salary:'Es el sueldo que aparece en tu contrato antes de que te descuenten nada. No incluye bonus ni extras.', tip_salary_short:'El sueldo de tu contrato antes de descuentos',
+    toggle_raise:'¿Tienes subida salarial este año?', toggle_raise_sub:'Recalcularemos mes a mes como lo haría tu empresa',
+    lbl_old_salary:'Salario anterior (€/año)', lbl_new_salary:'Salario nuevo (€/año)', lbl_raise_pct:'Incremento:', lbl_raise_month:'Mes de la subida',
+    help_raise:'La retención se recalculará desde ese mes en adelante, igual que lo haría tu empresa.',
+    blk_bonus:'Bonus', toggle_bonus_sub:'Pago variable anual', lbl_bonus:'Importe del bonus bruto', tip_bonus:'El bonus tributa igual que el salario. El mes que lo cobras, tu empresa recalcula toda la retención del año y aplica el ajuste de golpe en ese mes.',
+    lbl_bonus_month:'Mes en que se cobra', help_bonus:'Los meses anteriores al bonus tu empresa calcula la retención sin contar con él. Cuando se decide, ajusta todo de golpe.',
+    blk_car:'Car allowance', toggle_car_sub:'Asignación de coche', lbl_car:'Importe mensual del car allowance', tip_car:'Si tu empresa te da una asignación de coche y no la usas para un vehículo, ese importe se añade a tu salario y tributa como salario normal. No computa para bonus ni plan de pensiones.',
+    blk_tickets:'Tickets restaurante', toggle_tickets_sub:'Límite exento: 2.750 €/año', lbl_tickets_type:'¿Cómo funcionan tus tickets?',
+    tickets_ontop:'Beneficio adicional (on top)', tickets_flex:'Retribución flexible',
+    tip_tickets_ontop:'La empresa te da los tickets encima de tu sueldo. El importe exento (hasta 2.750 €) no tributa en IRPF ni cotiza a la SS.',
+    tip_tickets_flex:'Los tickets salen de tu salario bruto. El importe exento reduce tu base imponible de IRPF y tu base de cotización a la SS.',
+    lbl_tickets_amt:'Importe anual de tickets (€)', err_tickets:'El límite legal exento es de 2.750 € (11 €/día × 250 días). No puede superar este importe.',
+    blk_health:'Seguro médico', toggle_health_sub:'Lo paga la empresa', lbl_health_type:'¿Cómo funciona tu seguro médico?',
+    health_ontop:'Beneficio adicional (on top)', health_flex:'Retribución flexible',
+    tip_health_ontop:'La empresa paga el seguro encima de tu sueldo. Hasta 500 €/año está exento de IRPF. El exceso tributa como retribución en especie.',
+    tip_health_flex:'Los costes del seguro salen de tu salario bruto. Hasta 500 €/año es exento de IRPF y de SS.',
+    lbl_health_amt:'Importe anual del seguro médico (€)',
+    blk_life:'Seguro de vida y accidentes', toggle_life_sub:'Lo paga la empresa. Tributa como retribución en especie.',
+    tip_life:'Lo paga la empresa pero tributa íntegramente como retribución en especie. Se suma a tu base imponible del IRPF.',
+    lbl_life_amt:'Importe anual del seguro (€)',
+    blk_pension:'Plan de pensiones de empresa', toggle_pension_sub:'Reduce tu base imponible y tu empresa aporta también',
+    lbl_pension_pct:'Tu aportación sobre el salario base', tip_pension_pct:'Este importe se descuenta de tu salario bruto y reduce tu base imponible. Es dinero tuyo que va al plan, pero pagas menos IRPF ahora.',
+    lbl_pension_match:'Match de la empresa (%)', tip_pension_match:'Por cada euro que aportas tú, la empresa aporta este porcentaje adicional. No sale de tu salario, es dinero extra para tu plan.',
+    toggle_pension_extra:'¿La empresa hace aportación adicional por tramos?', toggle_pension_extra_sub:'Típico en empresas con plan de pensiones avanzado',
+    lbl_pension_t1:'% tramo hasta el tope SS', tip_pension_t1:'La empresa aporta este % sobre la parte de tu salario base que está por debajo del tope máximo de cotización de la SS.',
+    lbl_pension_t2:'% tramo por encima del tope SS', tip_pension_t2:'La empresa aporta este % sobre la parte de tu salario base que supera el tope de cotización.',
+    lbl_ss_cap:'Tope máximo base cotización SS (€/año)', tip_ss_cap:'Límite anual sobre el que cotizas a la SS. Para 2026 es de 61.214,40 €.',
+    btn_calc:'Calcular mi neto', btn_reset:'Resetear', btn_share:'Compartir resultado', share_ok:'¡Copiado!',
+    res_title:'Tu resumen anual estimado', hero_gross:'Bruto anual', hero_net:'Neto anual', hero_net_month:'Neto mensual medio', hero_eff_rate:'Tipo efectivo IRPF',
+    res_annual:'Desglose anual', res_monthly:'Desglose mes a mes', res_bonus:'Tu bonus', res_benefits:'Beneficios y ahorro fiscal', res_pension:'Tu plan de pensiones',
+    show_calc:'Ver cómo se calcula la retención mensual',
+    monthly_calc_exp:'Tu empresa recalcula la retención de IRPF cada mes. La lógica es: proyecta cuánto ganarás en todo el año desde ese mes, calcula el IRPF anual total, y retiene lo que falta para llegar a ese importe restando lo que ya te ha retenido. Así, si en marzo cobras el bonus, la retención de ese mes sube mucho para compensar.',
+    disclaimer_title:'⚠️ Estimación orientativa.', disclaimer_body:' Esta calculadora proporciona una estimación basada en los tramos y reglas generales del IRPF en España. No tiene en cuenta situaciones personales como hijos, discapacidad o deducciones autonómicas. Para conocer tu retención exacta consulta con un asesor fiscal o con el equipo de Recursos Humanos de tu empresa.',
+    llm_title:'💡 ¿Tienes dudas?', llm_body:' Esta app está pensada para usarse junto a asistentes de IA como Claude o ChatGPT. Si algo no te queda claro, copia tu desglose y pregúntale directamente: ¿Por qué me retienen tanto en marzo? ¿Qué es el tipo marginal? ¿Me conviene aportar más al plan de pensiones? Son herramientas muy útiles para entender tu nómina.',
+    how_title:'Entiende tu nómina',
+    edu1_title:'🔍 ¿Qué es el IRPF?', edu1_p1:'El IRPF (Impuesto sobre la Renta de las Personas Físicas) es el impuesto que pagas por lo que ganas.', edu1_p2:'Tu empresa lo descuenta automáticamente cada mes de tu nómina antes de pagarte. Eso es la "retención".',
+    edu2_title:'📈 ¿Qué significa que haya tramos?', edu2_p1:'El IRPF es progresivo: cuanto más ganas, más pagas en proporción. Pero los porcentajes no se aplican a todo tu salario.', edu2_ex_title:'Ejemplo: salario de 45.000 €',
+    edu3_title:'🎯 Tipo marginal vs tipo efectivo', edu3_p1:'Tipo marginal: el porcentaje que pagas por el último euro que ganas.', edu3_p2:'Tipo efectivo: el porcentaje real medio que pagas sobre todo tu salario.', edu3_p3:'Por eso, una subida salarial no te hace pagar más en el tramo anterior.',
+    edu4_title:'📋 ¿Qué es la base imponible?', edu4_p1:'La base imponible es la cantidad sobre la que se calcula el IRPF.', edu4_p2:'Se suman: salario base, bonus, car allowance, retribuciones en especie.', edu4_p3:'Se restan: aportaciones al plan de pensiones, tickets y seguro médico en retribución flexible.',
+    edu5_title:'🍽️ ¿Por qué los tickets restaurante me ahorran dinero?', edu5_p1:'Los tickets (hasta 2.750 €/año) están exentos de IRPF y SS.', edu5_p2:'El ahorro se calcula con tu tipo marginal porque ese importe sustituye a la parte más alta de tu salario.',
+    edu6_title:'🔄 ¿Qué es la retribución flexible?', edu6_p1:'Cambias parte de tu salario bruto por beneficios con ventaja fiscal.', edu6_p2:'Esos importes dejan de tributar en IRPF y de cotizar a la SS (hasta los límites legales).',
+    edu7_title:'😱 ¿Por qué me retienen muchísimo el mes del bonus?', edu7_p1:'Tu empresa recalcula toda la retención del año en ese momento.', edu7_p2:'Es un ajuste: no pagas más en total, pero ese mes la retención es mucho mayor.',
+    edu8_title:'🏦 ¿Por qué es tan bueno el plan de pensiones de empresa?', edu8_p1:'Triple ventaja: ahorras para el futuro, reduces IRPF ahora, y la empresa añade dinero extra.', edu8_p2:'El dinero tributará en la jubilación, probablemente en un tramo más bajo.',
+    edu9_title:'🏛️ ¿Qué es la Seguridad Social?', edu9_p1:'El sistema que financia la sanidad, pensiones y desempleo.', edu9_p2:'Pagas: CC 4,70% + desempleo 1,55% + FP 0,10% + MEI 0,58%. Con tope máximo anual.',
+    edu10_title:'⚡ ¿Qué es la cuota de solidaridad?', edu10_p1:'Cotización adicional para salarios que superan el tope de la SS.', edu10_p2:'Solo afecta a quienes superan el tope de cotización (61.214,40 € en 2026).',
+    sol_t1:'De 0 € a 15.303,60 € de exceso', sol_t2:'De 15.303,60 € a 30.607,20 € de exceso', sol_t3:'Más de 30.607,20 € de exceso',
+    tramos_title:'Tramos del IRPF 2026', tramos_sub:'Tipos estatales. Las comunidades autónomas añaden tipos complementarios.',
+    col_tramo:'Tramo', col_tipo:'Tipo', col_cuota:'Cuota', col_cuota_tramo:'Lo que pagas en este tramo', col_desc:'Explicación', col_base:'Base en tramo', col_total:'Total IRPF',
+    tramo1_desc:'Solo pagas el 19% de los euros que caen aquí', tramo2_desc:'Solo los euros entre 12.450 € y 20.200 € pagan este tipo', tramo3_desc:'Un tercio de lo que ganes en este rango va a Hacienda', tramo4_desc:'Tramo habitual para salarios medios-altos', tramo5_desc:'Casi la mitad de cada euro en este rango es del fisco', tramo6_range:'Más de 300.000 €', tramo6_desc:'El tipo más alto del sistema estatal',
+    tramo_ex_title:'Prueba con tu salario', tramo_ex_input:'Introduce un salario anual (€)',
+    month_bonus:'Bonus', month_raise:'Subida',
+    ann_gross:'Bruto total anual', ann_salary:'Salario base', ann_car:'Car allowance', ann_bonus:'Bonus bruto', ann_health_spkd:'Retribución en especie: seguro médico', ann_life_spkd:'Retribución en especie: seguro vida',
+    ann_base:'Base imponible', ann_irpf:'IRPF retenido', ann_irpf_rate:'Tipo efectivo', ann_ss:'Seguridad Social (empleado)', ann_solidarity:'Cuota de solidaridad', ann_pension_emp:'Aportación plan pensiones (empleado)', ann_total_ded:'Total deducciones', ann_net:'Neto anual estimado',
+    ann_tickets_saving:'Ahorro fiscal tickets restaurante', ann_tickets_exp:'El ahorro equivale al importe exento multiplicado por tu tipo marginal. Ese dinero no paga IRPF.',
+    col_mes:'Mes', col_bruto:'Bruto', col_irpf:'IRPF', col_ss:'SS + Solidaridad', col_pension_emp:'Pensión (tú)', col_neto:'Neto',
+    bonus_gross:'Bonus bruto', bonus_irpf_est:'Retención extra del mes del bonus', bonus_marginal_cost:'IRPF anual atribuible al bonus', bonus_net:'Bonus neto estimado',
+    bonus_exp_trigger:'¿Por qué la retención del bonus es tan alta?',
+    bonus_exp:'El mes que cobras el bonus, tu empresa recalcula el IRPF de todo el año incluyéndolo. Aplica de golpe la diferencia entre lo que debería haberte retenido hasta ahora y lo que te ha retenido realmente. El resultado es una retención muy alta ese mes, aunque en total anual cuadra.',
+    ben_tickets:'Tickets restaurante', ben_health:'Seguro médico', ben_life:'Seguro de vida', ben_saving_irpf:'Ahorro IRPF estimado', ben_saving_ss:'Ahorro SS estimado', ben_saving_total:'Ahorro total estimado', ben_marginal:'Tipo marginal aplicado',
+    pen_emp:'Tu aportación', pen_match:'Match empresa', pen_t1:'Aportación empresa tramo 1%', pen_t2:'Aportación empresa tramo 10%', pen_total:'Total anual al plan', pen_tax_saving:'Ahorro fiscal por tu aportación', pen_tax_exp:'Tu aportación reduce la base imponible del IRPF. El ahorro es la aportación multiplicada por tu tipo marginal.',
+    pen_exp_trigger:'¿Qué es el plan de pensiones y por qué me conviene?',
+    pen_exp:'Aportas dinero ahora, pagas menos IRPF, y la empresa añade más por encima. Ese dinero crece sin tributar hasta la jubilación.'
+  },
+  ca:{
+    brand:'AstroPayroll', nav_calc:'Calculadora', nav_how:'Com funciona?', nav_tramos:'Trams IRPF',
+    footer_astrocosas:'Una app d\'AstroCosas · Feta amb ☕ i dades fiscals 2026',
+    calc_title:'Quant em queda net?', calc_subtitle:'Introdueix el teu salari i calculem el desglossament real mes a mes.',
+    blk_salary:'Salari base', lbl_salary_base:'Salari base brut anual', tip_salary:'És el sou que apareix al teu contracte abans de cap descompte.', tip_salary_short:'El sou del teu contracte abans de descomptes',
+    toggle_raise:'Tens pujada salarial enguany?', toggle_raise_sub:'Recalcularem mes a mes com ho faria la teva empresa',
+    lbl_old_salary:'Salari anterior (€/any)', lbl_new_salary:'Salari nou (€/any)', lbl_raise_pct:'Increment:', lbl_raise_month:'Mes de la pujada',
+    help_raise:"La retenció es recalcularà des d'aquell mes en endavant.",
+    blk_bonus:'Bonus', toggle_bonus_sub:'Pagament variable anual', lbl_bonus:'Import del bonus brut', tip_bonus:'El bonus tributa igual que el salari. El mes que el cobres, la teva empresa recalcula tota la retenció de l\'any.',
+    lbl_bonus_month:'Mes en què es cobra', help_bonus:"Els mesos anteriors al bonus, l'empresa calcula la retenció sense comptar-lo.",
+    blk_car:'Car allowance', toggle_car_sub:'Assignació de cotxe', lbl_car:'Import mensual del car allowance', tip_car:"Si l'empresa et dóna una assignació de cotxe i no la uses, es suma al salari i tributa normalment.",
+    blk_tickets:'Tiquets restaurant', toggle_tickets_sub:'Límit exempt: 2.750 €/any', lbl_tickets_type:'Com funcionen els teus tiquets?',
+    tickets_ontop:'Benefici addicional (on top)', tickets_flex:'Retribució flexible',
+    tip_tickets_ontop:"L'empresa et dóna els tiquets a sobre del sou. L'import exempt (fins a 2.750 €) no tributa.",
+    tip_tickets_flex:"Els tiquets surten del teu salari brut. L'import exempt redueix la base imposable.",
+    lbl_tickets_amt:'Import anual de tiquets (€)', err_tickets:"El límit legal exempt és de 2.750 € (11 €/dia × 250 dies). No pot superar aquest import.",
+    blk_health:'Assegurança mèdica', toggle_health_sub:"La paga l'empresa", lbl_health_type:'Com funciona la teva assegurança mèdica?',
+    health_ontop:'Benefici addicional (on top)', health_flex:'Retribució flexible',
+    tip_health_ontop:"L'empresa paga l'assegurança a sobre del teu sou. Fins a 500 €/any és exempt d'IRPF.",
+    tip_health_flex:"El cost de l'assegurança surt del teu salari brut. Fins a 500 €/any és exempt.",
+    lbl_health_amt:"Import anual de l'assegurança mèdica (€)",
+    blk_life:'Assegurança de vida i accidents', toggle_life_sub:"La paga l'empresa. Tributa com a retribució en espècie.",
+    tip_life:"La paga l'empresa però tributa íntegrament com a retribució en espècie.",
+    lbl_life_amt:"Import anual de l'assegurança (€)",
+    blk_pension:"Pla de pensions d'empresa", toggle_pension_sub:'Redueix la teva base imposable i la teva empresa també aporta',
+    lbl_pension_pct:'La teva aportació sobre el salari base', tip_pension_pct:"Aquest import es descompta del teu salari brut i redueix la base imposable.",
+    lbl_pension_match:"Match de l'empresa (%)", tip_pension_match:"Per cada euro que aportes tu, l'empresa aporta aquest percentatge addicional.",
+    toggle_pension_extra:"L'empresa fa aportació addicional per trams?", toggle_pension_extra_sub:"Típic en empreses amb pla de pensions avançat",
+    lbl_pension_t1:'% tram fins al topall SS', tip_pension_t1:"L'empresa aporta aquest % sobre la part del salari per sota del topall de cotització.",
+    lbl_pension_t2:'% tram per sobre del topall SS', tip_pension_t2:"L'empresa aporta aquest % sobre la part del salari que supera el topall.",
+    lbl_ss_cap:'Topall màxim base cotització SS (€/any)', tip_ss_cap:'Límit anual sobre el qual cotitzes a la SS. Per al 2026 és de 61.214,40 €.',
+    btn_calc:'Calcular el meu net', btn_reset:'Reiniciar', btn_share:'Compartir resultat', share_ok:'Copiat!',
+    res_title:'El teu resum anual estimat', hero_gross:'Brut anual', hero_net:'Net anual', hero_net_month:'Net mensual mitjà', hero_eff_rate:'Tipus efectiu IRPF',
+    res_annual:'Desglossament anual', res_monthly:'Desglossament mes a mes', res_bonus:'El teu bonus', res_benefits:'Beneficis i estalvi fiscal', res_pension:'El teu pla de pensions',
+    show_calc:'Veure com es calcula la retenció mensual',
+    monthly_calc_exp:"La teva empresa recalcula la retenció d'IRPF cada mes. Projecta quant guanyaràs en tot l'any, calcula l'IRPF total i reté el que falta.",
+    disclaimer_title:'⚠️ Estimació orientativa.', disclaimer_body:" Aquesta calculadora proporciona una estimació basada en els trams generals de l'IRPF a Espanya. No té en compte situacions personals com fills, discapacitat o deduccions autonòmiques.",
+    llm_title:'💡 Tens dubtes?', llm_body:" Aquesta app està pensada per usar-se amb assistents d'IA com Claude o ChatGPT. Si alguna cosa no et queda clara, copia el desglossament i pregunta directament.",
+    how_title:'Entén la teva nòmina',
+    edu1_title:"🔍 Què és l'IRPF?", edu1_p1:"L'IRPF (Impost sobre la Renda de les Persones Físiques) és l'impost que pagues pel que guanyes.", edu1_p2:'La teva empresa el descompta automàticament cada mes de la nòmina.',
+    edu2_title:'📈 Què significa que hi hagi trams?', edu2_p1:"L'IRPF és progressiu: com més guanyes, més pagues en proporció.", edu2_ex_title:'Exemple: salari de 45.000 €',
+    edu3_title:'🎯 Tipus marginal vs tipus efectiu', edu3_p1:'Tipus marginal: el percentatge que pagues per l\'últim euro que guanyes.', edu3_p2:'Tipus efectiu: el percentatge real mitjà que pagues sobre tot el teu salari.', edu3_p3:"Per tant, una pujada salarial no et fa pagar més en el tram anterior.",
+    edu4_title:'📋 Què és la base imposable?', edu4_p1:"La base imposable és la quantitat sobre la qual es calcula l'IRPF.", edu4_p2:"S'hi sumen: salari base, bonus, car allowance, retribucions en espècie.", edu4_p3:"S'hi resten: aportacions al pla de pensions, tiquets i assegurança mèdica en retribució flexible.",
+    edu5_title:'🍽️ Per què els tiquets restaurant estalvien diners?', edu5_p1:"Els tiquets (fins a 2.750 €/any) estan exempts d'IRPF i SS.", edu5_p2:"L'estalvi es calcula amb el teu tipus marginal.",
+    edu6_title:'🔄 Què és la retribució flexible?', edu6_p1:'Canvies part del teu salari brut per beneficis amb avantatge fiscal.', edu6_p2:"Aquests imports deixen de tributar a l'IRPF i de cotitzar a la SS.",
+    edu7_title:'😱 Per què em retenen molt el mes del bonus?', edu7_p1:"La teva empresa recalcula tota la retenció de l'any en aquell moment.", edu7_p2:"És un ajustament: no pagues més en total, però aquell mes la retenció és molt més alta.",
+    edu8_title:'🏦 Per què és tan bo el pla de pensions?', edu8_p1:"Triple avantatge: estalvies per al futur, reduceixes l'IRPF ara, i l'empresa afegeix diners extra.", edu8_p2:'Els diners tributaran en la jubilació, probablement en un tram més baix.',
+    edu9_title:"🏛️ Què és la Seguretat Social?", edu9_p1:'El sistema que finança la sanitat, pensions i atur.', edu9_p2:'Pagues: CC 4,70% + atur 1,55% + FP 0,10% + MEI 0,58%.',
+    edu10_title:'⚡ Què és la quota de solidaritat?', edu10_p1:'Cotització addicional per a salaris que superen el topall de la SS.', edu10_p2:'Només afecta qui supera el topall de cotització (61.214,40 € el 2026).',
+    sol_t1:"De 0 € a 15.303,60 € d'excés", sol_t2:"De 15.303,60 € a 30.607,20 € d'excés", sol_t3:"Més de 30.607,20 € d'excés",
+    tramos_title:'Trams de l\'IRPF 2026', tramos_sub:'Tipus estatals. Les comunitats autònomes afegeixen tipus complementaris.',
+    col_tramo:'Tram', col_tipo:'Tipus', col_cuota:'Quota', col_cuota_tramo:'El que pagues en aquest tram', col_desc:'Explicació', col_base:'Base en tram', col_total:'Total IRPF',
+    tramo1_desc:'Només pagues el 19% dels euros que cauen aquí', tramo2_desc:'Només els euros entre 12.450 € i 20.200 € paguen aquest tipus', tramo3_desc:"Un terç del que guanyis en aquest rang va a Hisenda", tramo4_desc:'Tram habitual per a salaris mitjans-alts', tramo5_desc:'Gairebé la meitat de cada euro en aquest rang és del fisc', tramo6_range:'Més de 300.000 €', tramo6_desc:'El tipus més alt del sistema estatal',
+    tramo_ex_title:'Prova amb el teu salari', tramo_ex_input:'Introdueix un salari anual (€)',
+    month_bonus:'Bonus', month_raise:'Pujada',
+    ann_gross:'Brut total anual', ann_salary:'Salari base', ann_car:'Car allowance', ann_bonus:'Bonus brut', ann_health_spkd:'Retribució en espècie: assegurança mèdica', ann_life_spkd:'Retribució en espècie: assegurança vida',
+    ann_base:'Base imposable', ann_irpf:'IRPF retingut', ann_irpf_rate:'Tipus efectiu', ann_ss:'Seguretat Social (empleat)', ann_solidarity:'Quota de solidaritat', ann_pension_emp:'Aportació pla pensions (empleat)', ann_total_ded:'Total deduccions', ann_net:'Net anual estimat',
+    ann_tickets_saving:'Estalvi fiscal tiquets restaurant', ann_tickets_exp:"L'estalvi equival a l'import exempt multiplicat pel teu tipus marginal.",
+    col_mes:'Mes', col_bruto:'Brut', col_irpf:'IRPF', col_ss:'SS + Solidaritat', col_pension_emp:'Pensió (tu)', col_neto:'Net',
+    bonus_gross:'Bonus brut', bonus_irpf_est:'Retenció extra del mes del bonus', bonus_marginal_cost:'IRPF anual atribuïble al bonus', bonus_net:'Bonus net estimat',
+    bonus_exp_trigger:'Per què la retenció del bonus és tan alta?',
+    bonus_exp:"El mes que cobres el bonus, la teva empresa recalcula l'IRPF de tot l'any incloent-lo.",
+    ben_tickets:'Tiquets restaurant', ben_health:'Assegurança mèdica', ben_life:'Assegurança de vida', ben_saving_irpf:'Estalvi IRPF estimat', ben_saving_ss:'Estalvi SS estimat', ben_saving_total:'Estalvi total estimat', ben_marginal:'Tipus marginal aplicat',
+    pen_emp:'La teva aportació', pen_match:"Match empresa", pen_t1:'Aportació empresa tram 1%', pen_t2:'Aportació empresa tram 10%', pen_total:'Total anual al pla', pen_tax_saving:"Estalvi fiscal per la teva aportació", pen_tax_exp:"La teva aportació redueix la base imposable de l'IRPF.",
+    pen_exp_trigger:'Què és el pla de pensions i per què m\'interessa?',
+    pen_exp:"Aportes diners ara, pagues menys IRPF, i l'empresa afegeix més per sobre."
+  },
+  en:{
+    brand:'AstroPayroll', nav_calc:'Calculator', nav_how:'How does it work?', nav_tramos:'Tax Brackets',
+    footer_astrocosas:'An app by AstroCosas · Built with ☕ and 2026 tax data',
+    calc_title:'How much do I take home?', calc_subtitle:'Enter your salary and we calculate your real monthly breakdown.',
+    blk_salary:'Base salary', lbl_salary_base:'Annual gross base salary', tip_salary:'The salary stated in your contract before any deductions. Does not include bonuses or extras.', tip_salary_short:'Your contract salary before deductions',
+    toggle_raise:'Getting a salary raise this year?', toggle_raise_sub:"We'll recalculate month by month like your company would",
+    lbl_old_salary:'Previous salary (€/year)', lbl_new_salary:'New salary (€/year)', lbl_raise_pct:'Increase:', lbl_raise_month:'Month of the raise',
+    help_raise:'Tax withholding will be recalculated from that month onwards.',
+    blk_bonus:'Bonus', toggle_bonus_sub:'Annual variable pay', lbl_bonus:'Gross bonus amount', tip_bonus:'Bonuses are taxed like salary. The month you receive it, your company recalculates the full-year withholding and applies the adjustment all at once.',
+    lbl_bonus_month:'Month it is paid', help_bonus:"In months before the bonus, your company calculates withholding without it. When it's decided, they adjust everything at once.",
+    blk_car:'Car allowance', toggle_car_sub:'Vehicle allowance', lbl_car:'Monthly car allowance amount', tip_car:"If your company gives you a car allowance and you don't use it for a vehicle, it's added to your salary and taxed normally. It doesn't count for bonus or pension calculations.",
+    blk_tickets:'Meal vouchers', toggle_tickets_sub:'Tax-exempt limit: €2,750/year', lbl_tickets_type:'How do your meal vouchers work?',
+    tickets_ontop:'Additional benefit (on top of salary)', tickets_flex:'Flexible remuneration',
+    tip_tickets_ontop:'The company gives you vouchers on top of your salary. The exempt amount (up to €2,750) is free of income tax and social security.',
+    tip_tickets_flex:'Vouchers come out of your gross salary. The exempt amount reduces your taxable base and SS contribution base.',
+    lbl_tickets_amt:'Annual meal voucher amount (€)', err_tickets:'The legal tax-exempt limit is €2,750 (€11/day × 250 days). Cannot exceed this amount.',
+    blk_health:'Health insurance', toggle_health_sub:'Paid by the company', lbl_health_type:'How does your health insurance work?',
+    health_ontop:'Additional benefit (on top of salary)', health_flex:'Flexible remuneration',
+    tip_health_ontop:'The company pays the insurance on top of your salary. Up to €500/year is exempt from income tax. The excess is taxed as a benefit in kind.',
+    tip_health_flex:'Insurance costs come from your gross salary. Up to €500/year is exempt from income tax and SS.',
+    lbl_health_amt:'Annual health insurance amount (€)',
+    blk_life:'Life and accident insurance', toggle_life_sub:'Paid by the company. Taxed as a benefit in kind.',
+    tip_life:'Paid by the company but fully taxed as a benefit in kind. Added to your income tax base.',
+    lbl_life_amt:'Annual insurance amount (€)',
+    blk_pension:'Company pension plan', toggle_pension_sub:'Reduces your taxable base and your company also contributes',
+    lbl_pension_pct:'Your contribution on base salary', tip_pension_pct:'This amount is deducted from your gross salary and reduces your taxable base. It is your money going to the plan, but you pay less tax now.',
+    lbl_pension_match:'Company match (%)', tip_pension_match:"For every euro you contribute, the company adds this percentage. It doesn't come from your salary.",
+    toggle_pension_extra:'Does the company make additional tiered contributions?', toggle_pension_extra_sub:'Typical in companies with advanced pension plans',
+    lbl_pension_t1:'% tier up to SS cap', tip_pension_t1:'The company contributes this % on the portion of your base salary below the SS contribution cap.',
+    lbl_pension_t2:'% tier above SS cap', tip_pension_t2:'The company contributes this % on the portion of your base salary that exceeds the cap.',
+    lbl_ss_cap:'Max SS contribution base cap (€/year)', tip_ss_cap:'Annual limit on which you contribute to social security. For 2026 it is €61,214.40.',
+    btn_calc:'Calculate my take-home', btn_reset:'Reset', btn_share:'Share result', share_ok:'Copied!',
+    res_title:'Your estimated annual summary', hero_gross:'Annual gross', hero_net:'Annual net', hero_net_month:'Average monthly net', hero_eff_rate:'Effective tax rate',
+    res_annual:'Annual breakdown', res_monthly:'Month-by-month breakdown', res_bonus:'Your bonus', res_benefits:'Benefits & tax savings', res_pension:'Your pension plan',
+    show_calc:'How is monthly withholding calculated?',
+    monthly_calc_exp:"Your company recalculates income tax withholding every month. It projects how much you'll earn for the full year from that month, calculates total annual tax, and withholds what's needed minus what's already been withheld. That's why the bonus month sees a high withholding.",
+    disclaimer_title:'⚠️ Indicative estimate.', disclaimer_body:' This calculator provides an estimate based on general Spanish income tax rules. It does not account for personal circumstances such as children, disability, or regional deductions. For your exact withholding, consult a tax advisor or your HR department.',
+    llm_title:'💡 Got questions?', llm_body:" This app is designed to be used alongside AI assistants like Claude or ChatGPT. If something isn't clear, copy your breakdown and ask directly: Why is my March payslip so low? What is the marginal rate? Should I contribute more to my pension?",
+    how_title:'Understand your payslip',
+    edu1_title:'🔍 What is income tax (IRPF)?', edu1_p1:'IRPF (Personal Income Tax) is the tax you pay on what you earn.', edu1_p2:'Your company automatically deducts it from your payslip each month before paying you.',
+    edu2_title:'📈 What does having tax brackets mean?', edu2_p1:'IRPF is progressive: the more you earn, the more you pay proportionally. But percentages only apply to the income within each bracket.', edu2_ex_title:'Example: €45,000 salary',
+    edu3_title:'🎯 Marginal rate vs effective rate', edu3_p1:'Marginal rate: the percentage you pay on your last earned euro.', edu3_p2:'Effective rate: the real average percentage you pay on your total salary.', edu3_p3:'So a salary raise does not make you pay more on your previous income.',
+    edu4_title:'📋 What is the taxable base?', edu4_p1:'The taxable base is the amount on which income tax is calculated.', edu4_p2:'Added: base salary, bonus, car allowance, benefits in kind.', edu4_p3:'Deducted: pension contributions, meal vouchers and health insurance under flexible remuneration.',
+    edu5_title:'🍽️ Why do meal vouchers save me money?', edu5_p1:'Meal vouchers (up to €2,750/year) are exempt from income tax and social security.', edu5_p2:'The saving is calculated at your marginal rate.',
+    edu6_title:'🔄 What is flexible remuneration?', edu6_p1:'You exchange part of your gross salary for tax-advantaged benefits.', edu6_p2:'Those amounts stop being subject to income tax and social security (within legal limits).',
+    edu7_title:'😱 Why is my bonus month withholding so high?', edu7_p1:'Your company recalculates the full-year withholding the month the bonus is paid.', edu7_p2:"It's an adjustment: you don't pay more overall, but that month the deduction is much higher.",
+    edu8_title:'🏦 Why is the company pension plan so good?', edu8_p1:'Triple benefit: you save for the future, reduce your tax bill now, and the company adds free money.', edu8_p2:"The money will be taxed when you withdraw it at retirement, likely at a lower rate.",
+    edu9_title:'🏛️ What is Social Security?', edu9_p1:'The system that funds healthcare, pensions, and unemployment.', edu9_p2:'You pay: CC 4.70% + unemployment 1.55% + FP 0.10% + MEI 0.58%. With an annual cap.',
+    edu10_title:'⚡ What is the solidarity surcharge?', edu10_p1:'An additional contribution for salaries that exceed the SS contribution cap.', edu10_p2:'Only affects those who exceed the cap (€61,214.40 in 2026).',
+    sol_t1:'From €0 to €15,303.60 of excess', sol_t2:'From €15,303.60 to €30,607.20 of excess', sol_t3:'More than €30,607.20 of excess',
+    tramos_title:'2026 Income Tax Brackets', tramos_sub:'State rates. Autonomous communities add complementary rates.',
+    col_tramo:'Bracket', col_tipo:'Rate', col_cuota:'Tax due', col_cuota_tramo:'What you pay in this bracket', col_desc:'Explanation', col_base:'Income in bracket', col_total:'Total tax',
+    tramo1_desc:'You only pay 19% on the euros that fall here', tramo2_desc:'Only the euros between €12,450 and €20,200 pay this rate', tramo3_desc:'One third of earnings in this range goes to the taxman', tramo4_desc:'Typical bracket for upper-middle salaries in Spain', tramo5_desc:'Almost half of each euro in this range goes to tax', tramo6_range:'Over €300,000', tramo6_desc:'The highest rate in the state system',
+    tramo_ex_title:'Try with your salary', tramo_ex_input:'Enter an annual salary (€)',
+    month_bonus:'Bonus', month_raise:'Raise',
+    ann_gross:'Total annual gross', ann_salary:'Base salary', ann_car:'Car allowance', ann_bonus:'Gross bonus', ann_health_spkd:'Benefit in kind: health insurance', ann_life_spkd:'Benefit in kind: life insurance',
+    ann_base:'Taxable base', ann_irpf:'Income tax withheld', ann_irpf_rate:'Effective rate', ann_ss:'Social Security (employee)', ann_solidarity:'Solidarity surcharge', ann_pension_emp:'Pension contribution (employee)', ann_total_ded:'Total deductions', ann_net:'Estimated annual net',
+    ann_tickets_saving:'Tax saving from meal vouchers', ann_tickets_exp:'The saving equals the exempt amount multiplied by your marginal rate. That money is not subject to income tax.',
+    col_mes:'Month', col_bruto:'Gross', col_irpf:'Tax', col_ss:'SS + Solidarity', col_pension_emp:'Pension (you)', col_neto:'Net',
+    bonus_gross:'Gross bonus', bonus_irpf_est:'Extra withholding in the bonus month', bonus_marginal_cost:'Annual tax attributable to the bonus', bonus_net:'Estimated net bonus',
+    bonus_exp_trigger:'Why is the bonus month withholding so high?',
+    bonus_exp:'The month the bonus is paid, your company recalculates the full-year income tax including it. It applies the cumulative difference all at once.',
+    ben_tickets:'Meal vouchers', ben_health:'Health insurance', ben_life:'Life insurance', ben_saving_irpf:'Estimated tax saving', ben_saving_ss:'Estimated SS saving', ben_saving_total:'Total estimated saving', ben_marginal:'Marginal rate applied',
+    pen_emp:'Your contribution', pen_match:'Company match', pen_t1:'Company contribution tier 1%', pen_t2:'Company contribution tier 10%', pen_total:'Total annual to plan', pen_tax_saving:'Tax saving from your contribution', pen_tax_exp:'Your contribution reduces your income tax base. The saving is your contribution multiplied by your marginal rate.',
+    pen_exp_trigger:'What is a pension plan and why should I care?',
+    pen_exp:"You invest now, pay less tax, and the company adds free money on top. That money grows tax-deferred until retirement."
+  }
+};
+
+function t(key){ return (T[currentLang] && T[currentLang][key]) || T['es'][key] || key; }
+
+function setLang(lang){
+  currentLang = lang;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.lang-btn[onclick="setLang('${lang}')"]`).classList.add('active');
+  document.documentElement.lang = lang;
+  applyTranslations();
+  populateMonthSelects();
+  if(lastResult) renderResults(lastResult);
+}
+
+function applyTranslations(){
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if(el.tagName === 'INPUT' && el.type !== 'checkbox') el.placeholder = t(key);
+    else el.textContent = t(key);
+  });
+}
+
+function populateMonthSelects(){
+  const months = currentLang === 'ca' ? MONTHS_CA : currentLang === 'en' ? MONTHS_EN : MONTHS_ES;
+  ['raiseMonth','bonusMonth'].forEach(id => {
+    const sel = document.getElementById(id);
+    if(!sel) return;
+    const cur = sel.value;
+    sel.innerHTML = months.map((m,i) => `<option value="${i+1}" ${parseInt(cur)===i+1?'selected':''}>${m}</option>`).join('');
+  });
+}
+
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const idx = {calc:0,how:1,tramos:2}[name];
+  document.querySelectorAll('.nav-btn')[idx].classList.add('active');
+}
+
+function toggleSection(id, cb){
+  const el = document.getElementById(id);
+  if(el) el.classList.toggle('open', cb.checked);
+}
+
+function toggleEdu(trigger){
+  const body = trigger.nextElementSibling;
+  body.classList.toggle('open');
+  const arr = trigger.querySelector('span:last-child');
+  if(arr) arr.textContent = body.classList.contains('open') ? '▲' : '▼';
+}
+
+function toggleCollapsible(id){
+  const body = document.getElementById(id);
+  body.classList.toggle('open');
+  const trigger = body.previousElementSibling;
+  if(trigger) trigger.classList.toggle('open', body.classList.contains('open'));
+}
+
+function calcRaisePct(){
+  const o = parseFloat(document.getElementById('oldSalary').value)||0;
+  const n = parseFloat(document.getElementById('newSalary').value)||0;
+  const el = document.getElementById('raisePct');
+  if(o>0 && n>0){
+    const pct = ((n-o)/o*100).toFixed(2);
+    el.textContent = (pct>0?'+':'')+pct.replace('.',',')+' %';
+    el.className = 'badge-pct '+(pct>=0?'green':'orange');
+  } else {
+    el.textContent = '—';
+    el.className = 'badge-pct';
+  }
+}
+
+function validateTickets(){
+  const val = parseFloat(document.getElementById('ticketsAmt').value)||0;
+  const err = document.getElementById('ticketsError');
+  const inp = document.getElementById('ticketsAmt');
+  if(val > TICKETS_LIMIT){
+    err.classList.add('show');
+    inp.classList.add('error');
+  } else {
+    err.classList.remove('show');
+    inp.classList.remove('error');
+  }
+}
+
+function fmt(n){ return n.toLocaleString(currentLang==='en'?'en-GB':'es-ES', {minimumFractionDigits:2, maximumFractionDigits:2})+' €'; }
+function fmtPct(n){ return n.toLocaleString(currentLang==='en'?'en-GB':'es-ES', {minimumFractionDigits:2, maximumFractionDigits:2})+' %'; }
+
+function calcIRPF(base){
+  let tax = 0;
+  for(const tr of TRAMOS){
+    if(base <= tr.from) break;
+    const portion = Math.min(base, tr.to) - tr.from;
+    tax += portion * tr.rate;
+  }
+  return Math.max(0, tax);
+}
+
+function getMarginalRate(base){
+  for(let i = TRAMOS.length-1; i >= 0; i--){
+    if(base > TRAMOS[i].from) return TRAMOS[i].rate;
+  }
+  return TRAMOS[0].rate;
+}
+
+function calcSolidarity(annualSalaryForSS, ssCap){
+  const excess = Math.max(0, annualSalaryForSS - ssCap);
+  if(excess <= 0) return 0;
+  let sol = 0;
+  const t1end = SOL_LIMITS[1] - SOL_LIMITS[0];
+  const t2end = SOL_LIMITS[2] - SOL_LIMITS[0];
+  const e1 = Math.min(excess, t1end);
+  sol += e1 * SOL_RATES[0];
+  if(excess > t1end){
+    const e2 = Math.min(excess - t1end, t2end - t1end);
+    sol += e2 * SOL_RATES[1];
+  }
+  if(excess > t2end){
+    sol += (excess - t2end) * SOL_RATES[2];
+  }
+  return sol;
+}
+
+function calculate(){
+  const ticketsAmt = parseFloat(document.getElementById('ticketsAmt').value)||0;
+  if(ticketsAmt > TICKETS_LIMIT){ validateTickets(); return; }
+
+  const hasRaise = document.getElementById('hasRaise').checked;
+  const hasBonus = document.getElementById('hasBonus').checked;
+  const hasCar   = document.getElementById('hasCar').checked;
+  const hasTickets = document.getElementById('hasTickets').checked;
+  const hasHealth  = document.getElementById('hasHealth').checked;
+  const hasLife    = document.getElementById('hasLife').checked;
+  const hasPension = document.getElementById('hasPension').checked;
+  const hasPensionExtra = document.getElementById('hasPensionExtra').checked;
+
+  let salaryBase = parseFloat(document.getElementById('salaryBase').value)||0;
+  if(hasRaise){
+    salaryBase = parseFloat(document.getElementById('oldSalary').value)||salaryBase;
+  }
+  const newSalary = hasRaise ? (parseFloat(document.getElementById('newSalary').value)||salaryBase) : salaryBase;
+  const raiseMonth = hasRaise ? parseInt(document.getElementById('raiseMonth').value) : 13;
+
+  const bonusAmt   = hasBonus ? (parseFloat(document.getElementById('bonusAmt').value)||0) : 0;
+  const bonusMonth = hasBonus ? parseInt(document.getElementById('bonusMonth').value) : 0;
+
+  const carMonthly = hasCar ? (parseFloat(document.getElementById('carAmt').value)||0) : 0;
+  const carAnnual  = carMonthly * 12;
+
+  const ticketsType = hasTickets ? document.querySelector('input[name="ticketsType"]:checked').value : 'none';
+  const ticketsExempt = hasTickets ? Math.min(ticketsAmt, TICKETS_LIMIT) : 0;
+
+  const healthType = hasHealth ? document.querySelector('input[name="healthType"]:checked').value : 'none';
+  const healthAmt  = hasHealth ? (parseFloat(document.getElementById('healthAmt').value)||0) : 0;
+  const healthExempt = Math.min(healthAmt, HEALTH_EXEMPT);
+  const healthTaxable = Math.max(0, healthAmt - HEALTH_EXEMPT);
+
+  const lifeAmt = hasLife ? (parseFloat(document.getElementById('lifeAmt').value)||0) : 0;
+
+  const pensionPct   = hasPension ? (parseFloat(document.getElementById('pensionPct').value)||0)/100 : 0;
+  const pensionMatch = hasPension ? (parseFloat(document.getElementById('pensionMatch').value)||0)/100 : 0;
+  const pensionT1    = hasPension && hasPensionExtra ? (parseFloat(document.getElementById('pensionT1').value)||0)/100 : 0;
+  const pensionT2    = hasPension && hasPensionExtra ? (parseFloat(document.getElementById('pensionT2').value)||0)/100 : 0;
+  const ssCap        = hasPension && hasPensionExtra ? (parseFloat(document.getElementById('ssCap').value)||SS_CAP_DEFAULT) : SS_CAP_DEFAULT;
+  const ssCapUsed    = parseFloat(document.getElementById('ssCap').value)||SS_CAP_DEFAULT;
+  const ssCapMonth   = ssCapUsed / 12;
+
+  let months = [];
+  let accRetained = 0;
+  let totalGross = 0, totalIRPF = 0, totalSS = 0, totalSol = 0, totalPensionEmp = 0, totalNet = 0;
+  let bonusMonthGross = 0, bonusMonthNormalIRPF = 0;
+
+  for(let m = 1; m <= 12; m++){
+    const curSalary = (hasRaise && m >= raiseMonth) ? newSalary : salaryBase;
+    const curSalaryMonth = curSalary / 12;
+    const carM = hasCar ? carMonthly : 0;
+
+    // Pension employee contribution this month
+    const pensionEmpM = hasPension ? (curSalary * pensionPct / 12) : 0;
+
+    // Benefits in kind (life, health excess) — prorate over 12
+    const lifeM = lifeAmt / 12;
+    const healthTaxableM = healthTaxable / 12;
+
+    // Gross for the month (what lands in the payslip)
+    let grossM = curSalaryMonth + carM;
+    // In flex mode, tickets/health reduce the gross shown
+    const ticketsFlexM = (ticketsType === 'flex') ? (ticketsExempt / 12) : 0;
+    const healthFlexM  = (healthType  === 'flex') ? (healthExempt / 12)  : 0;
+    grossM -= ticketsFlexM + healthFlexM;
+
+    let bonusPay = 0;
+    if(hasBonus && m === bonusMonth){ bonusPay = bonusAmt; grossM += bonusPay; }
+
+    // --- IRPF projected annual calculation ---
+    // Accumulated real base up to end of month m-1
+    let accBase = 0;
+    for(let pm = 1; pm < m; pm++){
+      const pSal = (hasRaise && pm >= raiseMonth) ? newSalary : salaryBase;
+      const pSalM = pSal / 12;
+      const pCarM = hasCar ? carMonthly : 0;
+      const pPensM = hasPension ? (pSal * pensionPct / 12) : 0;
+      const pTickFlex = (ticketsType==='flex') ? ticketsExempt/12 : 0;
+      const pHealthFlex = (healthType==='flex') ? healthExempt/12 : 0;
+      const pLifeM = lifeAmt/12;
+      const pHealthTaxM = healthTaxable/12;
+      let pBaseM = pSalM + pCarM - pPensM + pLifeM + pHealthTaxM - pTickFlex - pHealthFlex;
+      if(hasBonus && pm === bonusMonth) pBaseM += bonusAmt;
+      accBase += pBaseM;
+    }
+
+    // Current month base
+    let curBaseM = curSalaryMonth + carM - pensionEmpM + lifeM + healthTaxableM - ticketsFlexM - healthFlexM;
+    if(hasBonus && m === bonusMonth) curBaseM += bonusAmt;
+
+    // Project remaining months (including current)
+    const remainingMonths = 13 - m;
+    let projBase = 0;
+    for(let fm = m; fm <= 12; fm++){
+      const fSal = (hasRaise && fm >= raiseMonth) ? newSalary : salaryBase;
+      const fSalM = fSal / 12;
+      const fCarM = hasCar ? carMonthly : 0;
+      const fPensM = hasPension ? (fSal * pensionPct / 12) : 0;
+      const fTickFlex = (ticketsType==='flex') ? ticketsExempt/12 : 0;
+      const fHealthFlex = (healthType==='flex') ? healthExempt/12 : 0;
+      const fLifeM = lifeAmt/12;
+      const fHealthTaxM = healthTaxable/12;
+      let fBaseM = fSalM + fCarM - fPensM + fLifeM + fHealthTaxM - fTickFlex - fHealthFlex;
+      // Bonus: only include in the projection from the month it is known onwards
+      // (i.e. when we are calculating the bonus month or later). Before that month,
+      // the company doesn't know the bonus yet and doesn't retain for it.
+      if(hasBonus && fm === bonusMonth && m >= bonusMonth) fBaseM += bonusAmt;
+      projBase += fBaseM;
+    }
+
+    const totalProjBase = accBase + projBase;
+    const annualIRPFProj = calcIRPF(Math.max(0, totalProjBase));
+    const targetRetained = annualIRPFProj * (m / 12);
+    const irpfM = Math.max(0, targetRetained - accRetained);
+    accRetained += irpfM;
+
+    // SS
+    const ssBaseM = Math.min(curSalaryMonth + carM - ticketsFlexM - healthFlexM, ssCapMonth);
+    const ssM = ssBaseM * SS_RATE;
+
+    // Solidarity (annual, prorate monthly)
+    const annSalForSS = ((hasRaise && raiseMonth <= 12) ?
+      (salaryBase * (raiseMonth-1)/12 + newSalary * (13-raiseMonth)/12)
+      : salaryBase) + carAnnual - (ticketsType==='flex'?ticketsExempt:0) - (healthType==='flex'?healthExempt:0);
+    const annSolTotal = calcSolidarity(annSalForSS, ssCapUsed);
+    const solM = annSolTotal / 12;
+
+    const netM = grossM - irpfM - ssM - solM - pensionEmpM;
+
+    if(hasBonus && m === bonusMonth){ bonusMonthGross = grossM; }
+    if(hasBonus && m === bonusMonth - 1 || (bonusMonth === 1 && m === 1)){
+      bonusMonthNormalIRPF = irpfM;
+    }
+
+    totalGross += grossM;
+    totalIRPF  += irpfM;
+    totalSS    += ssM;
+    totalSol   += solM;
+    totalPensionEmp += pensionEmpM;
+    totalNet   += netM;
+
+    months.push({
+      m, grossM, irpfM, ssM, solM, pensionEmpM, netM,
+      isBonus: hasBonus && m === bonusMonth,
+      isRaise: hasRaise && m === raiseMonth
+    });
+  }
+
+  // Annual summary
+  const annualBase = months.reduce((s, mo) => {
+    const cur = (hasRaise && mo.m >= raiseMonth) ? newSalary : salaryBase;
+    const carM2 = hasCar ? carMonthly : 0;
+    const pensM2 = hasPension ? cur*pensionPct/12 : 0;
+    const tflexM = (ticketsType==='flex') ? ticketsExempt/12 : 0;
+    const hflexM = (healthType==='flex') ? healthExempt/12 : 0;
+    const lM = lifeAmt/12;
+    const htM = healthTaxable/12;
+    return s + cur/12 + carM2 - pensM2 + lM + htM - tflexM - hflexM + (hasBonus && mo.m===bonusMonth ? bonusAmt : 0);
+  }, 0);
+
+  const marginalRate = getMarginalRate(annualBase);
+  const effectiveRate = annualBase > 0 ? totalIRPF / annualBase : 0;
+
+  // Pension company
+  const weightedSalary = hasRaise ?
+    (salaryBase*(raiseMonth-1)/12 + newSalary*(13-raiseMonth)/12) : salaryBase;
+  const pensionMatchAmt = totalPensionEmp * pensionMatch;
+  let pensionT1amt = 0, pensionT2amt = 0;
+  if(hasPension && hasPensionExtra){
+    const belowCap = Math.min(weightedSalary, ssCapUsed);
+    const aboveCap = Math.max(0, weightedSalary - ssCapUsed);
+    pensionT1amt = belowCap * pensionT1;
+    pensionT2amt = aboveCap * pensionT2;
+  }
+  const pensionTotalCompany = pensionMatchAmt + pensionT1amt + pensionT2amt;
+  const pensionTotal = totalPensionEmp + pensionTotalCompany;
+  const pensionTaxSaving = totalPensionEmp * marginalRate;
+
+  // Ticket saving
+  const ticketSaving = ticketsExempt * marginalRate;
+  const ticketSSSaving = (ticketsType==='flex') ? ticketsExempt * SS_RATE : 0;
+
+  // Health saving
+  const healthSavingIRPF = healthExempt * marginalRate;
+  const healthSavingSS   = (healthType==='flex') ? healthExempt * SS_RATE : 0;
+
+  lastResult = {
+    months, totalGross, totalIRPF, totalSS, totalSol, totalPensionEmp, totalNet,
+    carAnnual, bonusAmt, hasBonus, hasTickets, ticketsExempt, ticketsType, ticketSaving, ticketSSSaving,
+    hasHealth, healthAmt, healthTaxable, healthSavingIRPF, healthSavingSS, healthType,
+    hasLife, lifeAmt,
+    hasPension, pensionPct, pensionMatchAmt, pensionT1amt, pensionT2amt, pensionTotal, pensionTaxSaving,
+    marginalRate, effectiveRate, weightedSalary, hasCar,
+    annualBase, ssCapUsed, pensionT1, pensionT2
+  };
+
+  renderResults(lastResult);
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('results').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function renderResults(r){
+  const months = currentLang==='ca' ? MONTHS_CA : currentLang==='en' ? MONTHS_EN : MONTHS_ES;
+
+  // Hero
+  document.getElementById('heroGross').textContent = fmt(r.totalGross);
+  document.getElementById('heroNet').textContent = fmt(r.totalNet);
+  document.getElementById('heroNetMonth').textContent = fmt(r.totalNet/12);
+  document.getElementById('heroEffRate').textContent = fmtPct(r.effectiveRate*100);
+
+  // Annual breakdown
+  let ann = `<div class="section-title">${t('ann_gross')}</div>`;
+  ann += `<div class="inline-sum"><span>${t('ann_salary')}</span><span class="val">${fmt(r.weightedSalary)}</span></div>`;
+  if(r.hasCar) ann += `<div class="inline-sum"><span>${t('ann_car')}</span><span class="val">${fmt(r.carAnnual)}</span></div>`;
+  if(r.hasBonus) ann += `<div class="inline-sum"><span>${t('ann_bonus')}</span><span class="val">${fmt(r.bonusAmt)}</span></div>`;
+  if(r.hasHealth && r.healthTaxable > 0) ann += `<div class="inline-sum"><span>${t('ann_health_spkd')}</span><span class="val">${fmt(r.healthTaxable)}</span></div>`;
+  if(r.hasLife) ann += `<div class="inline-sum"><span>${t('ann_life_spkd')}</span><span class="val">${fmt(r.lifeAmt)}</span></div>`;
+  ann += `<div class="inline-sum" style="font-weight:600; border-top:1px solid var(--border); padding-top:8px; margin-top:4px;"><span>${t('ann_base')}</span><span class="val">${fmt(r.annualBase)}</span></div>`;
+
+  ann += `<div class="section-title" style="margin-top:1rem;">${t('ann_total_ded')}</div>`;
+  ann += `<div class="inline-sum neg"><span>${t('ann_irpf')} <span style="color:var(--text-muted);font-size:0.8rem;">(${fmtPct(r.effectiveRate*100)} ${t('ann_irpf_rate')})</span></span><span class="val">−${fmt(r.totalIRPF)}</span></div>`;
+  ann += `<div class="inline-sum neg"><span>${t('ann_ss')}</span><span class="val">−${fmt(r.totalSS)}</span></div>`;
+  if(r.totalSol > 0) ann += `<div class="inline-sum neg"><span>${t('ann_solidarity')}</span><span class="val">−${fmt(r.totalSol)}</span></div>`;
+  if(r.hasPension) ann += `<div class="inline-sum neg"><span>${t('ann_pension_emp')}</span><span class="val">−${fmt(r.totalPensionEmp)}</span></div>`;
+
+  const totalDed = r.totalIRPF + r.totalSS + r.totalSol + r.totalPensionEmp;
+  ann += `<div class="inline-sum total neg" style="color:var(--danger);"><span>${t('ann_total_ded')}</span><span class="val">−${fmt(totalDed)}</span></div>`;
+  ann += `<div class="inline-sum total pos"><span>${t('ann_net')}</span><span class="val">${fmt(r.totalNet)}</span></div>`;
+
+  if(r.hasTickets){
+    ann += `<div class="section-title" style="margin-top:1rem;">${t('ann_tickets_saving')}</div>`;
+    ann += `<div class="inline-sum pos"><span>${t('ann_tickets_saving')} <span style="color:var(--text-muted);font-size:0.8rem;">(${fmtPct(r.marginalRate*100)})</span></span><span class="val">+${fmt(r.ticketSaving)}</span></div>`;
+    ann += `<p style="font-size:0.78rem;color:var(--text-muted);margin-top:4px;">${t('ann_tickets_exp')}</p>`;
+  }
+
+  document.getElementById('annualBreakdown').innerHTML = ann;
+
+  // Monthly table
+  const hasSolCol = r.totalSol > 0;
+  const hasPenCol = r.hasPension;
+  let tbl = `<table class="rtable"><thead><tr><th>${t('col_mes')}</th><th>${t('col_bruto')}</th><th>${t('col_irpf')}</th><th>${t('col_ss')}</th>${hasPenCol?`<th>${t('col_pension_emp')}</th>`:''}<th>${t('col_neto')}</th></tr></thead><tbody>`;
+  let gS=0,iS=0,sS=0,solS=0,pS=0,nS=0;
+  r.months.forEach(mo => {
+    const cls = mo.isBonus ? 'highlight-row' : mo.isRaise ? 'subida-row' : '';
+    const badge = mo.isBonus ? `<span class="month-badge badge-bonus">${t('month_bonus')}</span>` : mo.isRaise ? `<span class="month-badge badge-raise">${t('month_raise')}</span>` : '';
+    const ssTotal = mo.ssM + mo.solM;
+    tbl += `<tr class="${cls}"><td>${months[mo.m-1]}${badge}</td><td>${fmt(mo.grossM)}</td><td class="amount-neg">−${fmt(mo.irpfM)}</td><td class="amount-neg">−${fmt(ssTotal)}</td>${hasPenCol?`<td class="amount-neg">−${fmt(mo.pensionEmpM)}</td>`:''}<td class="amount-pos">${fmt(mo.netM)}</td></tr>`;
+    gS+=mo.grossM; iS+=mo.irpfM; sS+=mo.ssM; solS+=mo.solM; pS+=mo.pensionEmpM; nS+=mo.netM;
+  });
+  tbl += `<tr class="total-row"><td>Total</td><td>${fmt(gS)}</td><td class="amount-neg">−${fmt(iS)}</td><td class="amount-neg">−${fmt(sS+solS)}</td>${hasPenCol?`<td class="amount-neg">−${fmt(pS)}</td>`:''}<td class="amount-pos">${fmt(nS)}</td></tr>`;
+  tbl += '</tbody></table>';
+  document.getElementById('monthlyTable').innerHTML = tbl;
+
+  // Bonus card
+  if(r.hasBonus){
+    document.getElementById('bonusCard').style.display='';
+    const bonusMo = r.months.find(mo => mo.isBonus);
+    // Baseline = average IRPF retained in non-bonus months (no spike).
+    const otherMonths = r.months.filter(mo => !mo.isBonus);
+    const avgOtherIRPF = otherMonths.length ? otherMonths.reduce((s,mo)=>s+mo.irpfM,0) / otherMonths.length : 0;
+    // What was actually retained on top of a "normal" month, attributable to the bonus.
+    const bonusIRPFEst = bonusMo ? Math.max(0, bonusMo.irpfM - avgOtherIRPF) : 0;
+    // True annual tax cost of the bonus: bonus * marginal rate.
+    const bonusMarginalCost = r.bonusAmt * r.marginalRate;
+    let bk = `<div class="inline-sum"><span>${t('bonus_gross')}</span><span>${fmt(r.bonusAmt)}</span></div>`;
+    bk += `<div class="inline-sum neg"><span>${t('bonus_irpf_est')}</span><span>−${fmt(bonusIRPFEst)}</span></div>`;
+    bk += `<div class="inline-sum neg"><span>${t('bonus_marginal_cost')} <span style="color:var(--text-muted);font-size:0.8rem;">(${fmtPct(r.marginalRate*100)})</span></span><span>−${fmt(bonusMarginalCost)}</span></div>`;
+    bk += `<div class="inline-sum total pos"><span>${t('bonus_net')}</span><span>${fmt(r.bonusAmt - bonusMarginalCost)}</span></div>`;
+    bk += `<div class="collapsible-trigger" onclick="toggleCollapsible('bonusExpBody')"><span>${t('bonus_exp_trigger')}</span><span class="arrow">▼</span></div>`;
+    bk += `<div class="collapsible-body" id="bonusExpBody"><p>${t('bonus_exp')}</p></div>`;
+    document.getElementById('bonusBreakdown').innerHTML = bk;
+  } else { document.getElementById('bonusCard').style.display='none'; }
+
+  // Benefits card
+  const showBen = r.hasTickets || r.hasHealth || r.hasLife;
+  document.getElementById('benefitsCard').style.display = showBen ? '' : 'none';
+  if(showBen){
+    let bk = '';
+    if(r.hasTickets){
+      const total = r.ticketSaving + r.ticketSSSaving;
+      bk += `<div class="section-title">${t('ben_tickets')}</div>`;
+      bk += `<div class="inline-sum"><span>${t('ben_marginal')}</span><span>${fmtPct(r.marginalRate*100)}</span></div>`;
+      bk += `<div class="inline-sum pos"><span>${t('ben_saving_irpf')}</span><span>+${fmt(r.ticketSaving)}</span></div>`;
+      if(r.ticketSSSaving > 0) bk += `<div class="inline-sum pos"><span>${t('ben_saving_ss')}</span><span>+${fmt(r.ticketSSSaving)}</span></div>`;
+      bk += `<div class="inline-sum total pos"><span>${t('ben_saving_total')}</span><span>+${fmt(total)}</span></div>`;
+    }
+    if(r.hasHealth){
+      const total = r.healthSavingIRPF + r.healthSavingSS;
+      bk += `<div class="section-title" style="margin-top:1rem;">${t('ben_health')}</div>`;
+      bk += `<div class="inline-sum pos"><span>${t('ben_saving_irpf')}</span><span>+${fmt(r.healthSavingIRPF)}</span></div>`;
+      if(r.healthSavingSS > 0) bk += `<div class="inline-sum pos"><span>${t('ben_saving_ss')}</span><span>+${fmt(r.healthSavingSS)}</span></div>`;
+      bk += `<div class="inline-sum total pos"><span>${t('ben_saving_total')}</span><span>+${fmt(total)}</span></div>`;
+    }
+    if(r.hasLife){
+      bk += `<div class="section-title" style="margin-top:1rem;">${t('ben_life')}</div>`;
+      bk += `<div class="inline-sum"><span>Importe</span><span>${fmt(r.lifeAmt)}</span></div>`;
+      bk += `<div class="inline-sum neg"><span>${t('ann_irpf')}</span><span>−${fmt(r.lifeAmt * r.marginalRate)}</span></div>`;
+    }
+    document.getElementById('benefitsBreakdown').innerHTML = bk;
+  }
+
+  // Pension card
+  document.getElementById('pensionCard').style.display = r.hasPension ? '' : 'none';
+  if(r.hasPension){
+    let pk = '';
+    pk += `<div class="pension-row"><span class="lbl">${t('pen_emp')}</span><span>${fmt(r.totalPensionEmp)}</span></div>`;
+    pk += `<div class="pension-row"><span class="lbl">${t('pen_match')}</span><span>${fmt(r.pensionMatchAmt)}</span></div>`;
+    if(r.pensionT1amt > 0) pk += `<div class="pension-row"><span class="lbl">${t('pen_t1')}</span><span>${fmt(r.pensionT1amt)}</span></div>`;
+    if(r.pensionT2amt > 0) pk += `<div class="pension-row"><span class="lbl">${t('pen_t2')}</span><span>${fmt(r.pensionT2amt)}</span></div>`;
+    pk += `<div class="pension-row total"><span>${t('pen_total')}</span><span>${fmt(r.pensionTotal)}</span></div>`;
+    pk += `<div class="pension-row" style="margin-top:1rem;"><span class="lbl">${t('pen_tax_saving')} <span style="font-size:0.78rem;">(${fmtPct(r.marginalRate*100)})</span></span><span class="amount-pos">+${fmt(r.pensionTaxSaving)}</span></div>`;
+    pk += `<p style="font-size:0.78rem;color:var(--text-muted);margin-top:6px;">${t('pen_tax_exp')}</p>`;
+    pk += `<div class="collapsible-trigger" onclick="toggleCollapsible('penExpBody')"><span>${t('pen_exp_trigger')}</span><span class="arrow">▼</span></div>`;
+    pk += `<div class="collapsible-body" id="penExpBody"><p>${t('pen_exp')}</p></div>`;
+    document.getElementById('pensionBreakdown').innerHTML = pk;
+  }
+}
+
+function resetForm(){
+  document.querySelectorAll('input[type="number"]').forEach(i => { if(i.id !== 'pensionMatch' && i.id !== 'pensionT1' && i.id !== 'pensionT2' && i.id !== 'ssCap') i.value = ''; });
+  document.querySelectorAll('input[type="checkbox"]').forEach(c => { c.checked = false; });
+  document.getElementById('pensionMatch').value = 50;
+  document.getElementById('pensionT1').value = 1;
+  document.getElementById('pensionT2').value = 10;
+  document.getElementById('ssCap').value = 61214.40;
+  document.querySelectorAll('.toggle-content').forEach(el => el.classList.remove('open'));
+  document.getElementById('hasPensionExtra').checked = true;
+  document.getElementById('pensionExtraSec').classList.add('open');
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('raisePct').textContent = '—';
+  document.getElementById('ticketsError').classList.remove('show');
+  document.getElementById('ticketsAmt') && document.getElementById('ticketsAmt').classList.remove('error');
+  lastResult = null;
+}
+
+function shareResult(){
+  if(!lastResult){ alert('Primero calcula tu neto'); return; }
+  const r = lastResult;
+  const lines = [
+    `=== AstroPayroll · ${t('res_title')} ===`,
+    `${t('ann_gross')}: ${fmt(r.totalGross)}`,
+    `${t('ann_irpf')}: −${fmt(r.totalIRPF)} (${fmtPct(r.effectiveRate*100)})`,
+    `${t('ann_ss')}: −${fmt(r.totalSS + r.totalSol)}`,
+    r.hasPension ? `${t('ann_pension_emp')}: −${fmt(r.totalPensionEmp)}` : '',
+    `${t('ann_net')}: ${fmt(r.totalNet)}`,
+    `${t('hero_net_month')}: ${fmt(r.totalNet/12)}`,
+    r.hasPension ? `${t('pen_total')}: ${fmt(r.pensionTotal)}` : '',
+    `\n${t('disclaimer_title')} ${t('disclaimer_body')}`,
+    `\n— AstroPayroll v${APP_VERSION} · una app de AstroCosas`
+  ].filter(Boolean).join('\n');
+  navigator.clipboard.writeText(lines).then(() => {
+    const el = document.getElementById('shareCopied');
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 2500);
+  });
+}
+
+// Ticket type help text update
+document.querySelectorAll('input[name="ticketsType"]').forEach(r => {
+  r.addEventListener('change', () => {
+    document.getElementById('ticketsTypeHelp').setAttribute('data-i18n', r.value==='flex' ? 'tip_tickets_flex' : 'tip_tickets_ontop');
+    applyTranslations();
+  });
+});
+document.querySelectorAll('input[name="healthType"]').forEach(r => {
+  r.addEventListener('change', () => {
+    document.getElementById('healthTypeHelp').setAttribute('data-i18n', r.value==='flex' ? 'tip_health_flex' : 'tip_health_ontop');
+    applyTranslations();
+  });
+});
+
+// Tramos interactive example
+function renderTramoExample(){
+  const sal = parseFloat(document.getElementById('tramoInput').value)||0;
+  if(sal <= 0){ document.getElementById('tramoExResult').innerHTML=''; return; }
+  const tramos = TRAMOS;
+  const colors = ['#3498db','#2ecc71','#f39c12','#e67e22','#e74c3c','#8e44ad'];
+  let total = 0;
+  let rows = '';
+  let bars = '';
+  tramos.forEach((tr,i) => {
+    if(sal <= tr.from) return;
+    const portion = Math.min(sal, tr.to) - tr.from;
+    const tax = portion * tr.rate;
+    total += tax;
+    rows += `<tr><td>${tr.from.toLocaleString('es-ES')} – ${tr.to===Infinity?'∞':tr.to.toLocaleString('es-ES')} €</td><td>${fmt(portion)}</td><td>${(tr.rate*100).toFixed(0)}%</td><td>${fmt(tax)}</td></tr>`;
+    const pct = Math.min(100, (portion/sal)*100);
+    bars += `<div class="bar-row"><div class="bar-label">${(tr.rate*100).toFixed(0)}%</div><div class="bar-fill" style="flex:${pct};background:${colors[i]};max-width:${pct*2}px;min-width:4px;"></div><div class="bar-val">${fmt(tax)}</div></div>`;
+  });
+  const eff = (total/sal*100).toFixed(2);
+  document.getElementById('tramoExResult').innerHTML = `
+    <div class="breakdown-bars">${bars}</div>
+    <table class="edu-body" style="display:table; margin-top:1rem;"><thead><tr><th>Tramo</th><th>Base</th><th>Tipo</th><th>Cuota</th></tr></thead><tbody>${rows}</tbody></table>
+    <div style="margin-top:0.75rem; display:flex; gap:1.5rem; font-size:0.85rem;">
+      <div><span style="color:var(--text-muted);">Total IRPF: </span><strong class="amount-neg">${fmt(total)}</strong></div>
+      <div><span style="color:var(--text-muted);">Tipo efectivo: </span><strong>${eff} %</strong></div>
+      <div><span style="color:var(--text-muted);">Tipo marginal: </span><strong>${(getMarginalRate(sal)*100).toFixed(0)} %</strong></div>
+    </div>`;
+}
+
+// Init
+populateMonthSelects();
+document.getElementById('hasPensionExtra').checked = true;
+document.getElementById('pensionExtraSec').classList.add('open');
+applyTranslations();
+</script>
+</body>
+</html>
