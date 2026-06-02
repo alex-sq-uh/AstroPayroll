@@ -156,6 +156,8 @@
   .disclaimer { background: #fff8e7; border: 1px solid #f0d070; border-radius: var(--radius); padding: 1rem 1.25rem; margin-top: 2rem; font-size: 0.82rem; color: #6b5300; }
   .disclaimer strong { color: #5a4400; }
   .llm-note { background: #eaf4fb; border: 1px solid #b3d7f0; border-radius: var(--radius); padding: 1rem 1.25rem; margin-top: 0.75rem; font-size: 0.82rem; color: #0d4a6e; }
+  .privacy-note { background: #edfaf2; border: 1px solid #a7d8bd; border-radius: var(--radius); padding: 1rem 1.25rem; margin-top: 0.75rem; font-size: 0.82rem; color: #114b2a; }
+  .privacy-note strong { color: #0c3a20; }
 
   /* HOW IT WORKS */
   .edu-block { margin-bottom: 1.25rem; }
@@ -291,7 +293,7 @@
     <div class="field">
       <label data-i18n="lbl_salary_base">Salario base bruto anual</label>
       <div class="input-wrap">
-        <input type="number" id="salaryBase" placeholder="50.000" min="0">
+        <input type="text" inputmode="decimal" class="money-input" id="salaryBase" placeholder="50.000">
         <span class="unit">€</span>
       </div>
       <div class="tooltip-wrap" style="margin-top:5px;">
@@ -313,14 +315,14 @@
         <div class="field">
           <label data-i18n="lbl_old_salary">Salario anterior (€/año)</label>
           <div class="input-wrap">
-            <input type="number" id="oldSalary" placeholder="48.000" min="0">
+            <input type="text" inputmode="decimal" class="money-input" id="oldSalary" placeholder="48.000">
             <span class="unit">€</span>
           </div>
         </div>
         <div class="field">
           <label data-i18n="lbl_new_salary">Salario nuevo (€/año)</label>
           <div class="input-wrap">
-            <input type="number" id="newSalary" placeholder="50.000" min="0" oninput="calcRaisePct()">
+            <input type="text" inputmode="decimal" class="money-input" id="newSalary" placeholder="50.000" oninput="calcRaisePct()">
             <span class="unit">€</span>
           </div>
         </div>
@@ -354,7 +356,7 @@
             <span class="info-icon" style="margin-left:5px;">i<div class="tooltip-box" data-i18n="tip_bonus">El bonus tributa igual que el salario. El mes que lo cobras, tu empresa recalcula toda la retención del año y aplica el ajuste de golpe en ese mes.</div></span>
           </label>
           <div class="input-wrap">
-            <input type="number" id="bonusAmt" placeholder="10.000" min="0">
+            <input type="text" inputmode="decimal" class="money-input" id="bonusAmt" placeholder="10.000">
             <span class="unit">€</span>
           </div>
         </div>
@@ -383,7 +385,7 @@
           <span class="info-icon" style="margin-left:5px;">i<div class="tooltip-box" data-i18n="tip_car">Si tu empresa te da una asignación de coche y no la usas para un vehículo, ese importe se añade a tu salario y tributa como salario normal. No computa para bonus ni plan de pensiones.</div></span>
         </label>
         <div class="input-wrap">
-          <input type="number" id="carAmt" placeholder="690" min="0">
+          <input type="text" inputmode="decimal" class="money-input" id="carAmt" placeholder="690">
           <span class="unit">€/mes</span>
         </div>
       </div>
@@ -417,7 +419,7 @@
       <div class="field">
         <label data-i18n="lbl_tickets_amt">Importe anual de tickets (€)</label>
         <div class="input-wrap">
-          <input type="number" id="ticketsAmt" placeholder="2.420" min="0" oninput="validateTickets()">
+          <input type="text" inputmode="decimal" class="money-input" id="ticketsAmt" placeholder="2.420" oninput="validateTickets()">
           <span class="unit">€</span>
         </div>
         <div class="field-error" id="ticketsError" data-i18n="err_tickets">El límite legal exento es de 2.750 € (11 €/día × 250 días). No puede superar este importe.</div>
@@ -452,7 +454,7 @@
       <div class="field">
         <label data-i18n="lbl_health_amt">Importe anual del seguro médico (€)</label>
         <div class="input-wrap">
-          <input type="number" id="healthAmt" placeholder="1.200" min="0">
+          <input type="text" inputmode="decimal" class="money-input" id="healthAmt" placeholder="1.200">
           <span class="unit">€</span>
         </div>
       </div>
@@ -475,7 +477,7 @@
           <span class="info-icon" style="margin-left:5px;">i<div class="tooltip-box" data-i18n="tip_life">Lo paga la empresa pero tributa íntegramente como retribución en especie. Se suma a tu base imponible del IRPF.</div></span>
         </label>
         <div class="input-wrap">
-          <input type="number" id="lifeAmt" placeholder="300" min="0">
+          <input type="text" inputmode="decimal" class="money-input" id="lifeAmt" placeholder="300">
           <span class="unit">€</span>
         </div>
       </div>
@@ -556,7 +558,7 @@
             <span class="info-icon" style="margin-left:5px;">i<div class="tooltip-box" data-i18n="tip_ss_cap">Límite anual sobre el que cotizas a la SS. Para 2026 es de 61.214,40 €.</div></span>
           </label>
           <div class="input-wrap">
-            <input type="number" id="ssCap" value="61214.40" min="0" step="100">
+            <input type="text" inputmode="decimal" class="money-input" id="ssCap" value="61214.40">
             <span class="unit">€</span>
           </div>
         </div>
@@ -629,6 +631,10 @@
   <div class="disclaimer">
     <strong data-i18n="disclaimer_title">⚠️ Estimación orientativa.</strong>
     <span data-i18n="disclaimer_body"> Esta calculadora proporciona una estimación basada en los tramos y reglas generales del IRPF en España. No tiene en cuenta situaciones personales como hijos, discapacidad o deducciones autonómicas. Para conocer tu retención exacta consulta con un asesor fiscal o con el equipo de Recursos Humanos de tu empresa.</span>
+  </div>
+  <div class="privacy-note">
+    <strong data-i18n="privacy_title">🔒 Privacidad.</strong>
+    <span data-i18n="privacy_body"> AstroPayroll no almacena ni envía a ningún servidor tus datos personales o financieros. Todos los cálculos se ejecutan localmente en tu navegador y desaparecen al cerrar la pestaña. No usamos cookies, ni analítica, ni rastreadores de terceros.</span>
   </div>
   <div class="llm-note">
     <strong data-i18n="llm_title">💡 ¿Tienes dudas?</strong>
@@ -807,7 +813,7 @@
     <div class="field" style="margin-bottom:1rem;">
       <label data-i18n="tramo_ex_input">Introduce un salario anual (€)</label>
       <div class="input-wrap">
-        <input type="number" id="tramoInput" placeholder="45.000" oninput="renderTramoExample()" style="max-width:220px;">
+        <input type="text" inputmode="decimal" class="money-input" id="tramoInput" placeholder="45.000" oninput="renderTramoExample()" style="max-width:220px;">
         <span class="unit">€</span>
       </div>
     </div>
@@ -919,6 +925,7 @@ const T = {
     monthly_calc_exp:'Tu empresa recalcula la retención de IRPF cada mes. La lógica es: proyecta cuánto ganarás en todo el año desde ese mes, calcula el IRPF anual total, y retiene lo que falta para llegar a ese importe restando lo que ya te ha retenido. Así, si en marzo cobras el bonus, la retención de ese mes sube mucho para compensar.',
     disclaimer_title:'⚠️ Estimación orientativa.', disclaimer_body:' Esta calculadora proporciona una estimación basada en los tramos y reglas generales del IRPF en España. No tiene en cuenta situaciones personales como hijos, discapacidad o deducciones autonómicas. Para conocer tu retención exacta consulta con un asesor fiscal o con el equipo de Recursos Humanos de tu empresa.',
     llm_title:'💡 ¿Tienes dudas?', llm_body:' Esta app está pensada para usarse junto a asistentes de IA como Claude o ChatGPT. Si algo no te queda claro, copia tu desglose y pregúntale directamente: ¿Por qué me retienen tanto en marzo? ¿Qué es el tipo marginal? ¿Me conviene aportar más al plan de pensiones? Son herramientas muy útiles para entender tu nómina.',
+    privacy_title:'🔒 Privacidad.', privacy_body:' AstroPayroll no almacena ni envía a ningún servidor tus datos personales o financieros. Todos los cálculos se ejecutan localmente en tu navegador y desaparecen al cerrar la pestaña. No usamos cookies, ni analítica, ni rastreadores de terceros.',
     how_title:'Entiende tu nómina',
     edu1_title:'🔍 ¿Qué es el IRPF?', edu1_p1:'El IRPF (Impuesto sobre la Renta de las Personas Físicas) es el impuesto que pagas por lo que ganas.', edu1_p2:'Tu empresa lo descuenta automáticamente cada mes de tu nómina antes de pagarte. Eso es la "retención".',
     edu2_title:'📈 ¿Qué significa que haya tramos?', edu2_p1:'El IRPF es progresivo: cuanto más ganas, más pagas en proporción. Pero los porcentajes no se aplican a todo tu salario.', edu2_ex_title:'Ejemplo: base liquidable de 45.000 € (escala Cataluña 2025)',
@@ -994,6 +1001,7 @@ const T = {
     monthly_calc_exp:"La teva empresa recalcula la retenció d'IRPF cada mes. Projecta quant guanyaràs en tot l'any, calcula l'IRPF total i reté el que falta.",
     disclaimer_title:'⚠️ Estimació orientativa.', disclaimer_body:" Aquesta calculadora proporciona una estimació basada en els trams generals de l'IRPF a Espanya. No té en compte situacions personals com fills, discapacitat o deduccions autonòmiques.",
     llm_title:'💡 Tens dubtes?', llm_body:" Aquesta app està pensada per usar-se amb assistents d'IA com Claude o ChatGPT. Si alguna cosa no et queda clara, copia el desglossament i pregunta directament.",
+    privacy_title:'🔒 Privacitat.', privacy_body:" AstroPayroll no emmagatzema ni envia a cap servidor les teves dades personals o financeres. Tots els càlculs s'executen localment al teu navegador i desapareixen en tancar la pestanya. No fem servir galetes, ni analítica, ni rastrejadors de tercers.",
     how_title:'Entén la teva nòmina',
     edu1_title:"🔍 Què és l'IRPF?", edu1_p1:"L'IRPF (Impost sobre la Renda de les Persones Físiques) és l'impost que pagues pel que guanyes.", edu1_p2:'La teva empresa el descompta automàticament cada mes de la nòmina.',
     edu2_title:'📈 Què significa que hi hagi trams?', edu2_p1:"L'IRPF és progressiu: com més guanyes, més pagues en proporció.", edu2_ex_title:'Exemple: base liquidable de 45.000 € (escala Catalunya 2025)',
@@ -1069,6 +1077,7 @@ const T = {
     monthly_calc_exp:"Your company recalculates income tax withholding every month. It projects how much you'll earn for the full year from that month, calculates total annual tax, and withholds what's needed minus what's already been withheld. That's why the bonus month sees a high withholding.",
     disclaimer_title:'⚠️ Indicative estimate.', disclaimer_body:' This calculator provides an estimate based on general Spanish income tax rules. It does not account for personal circumstances such as children, disability, or regional deductions. For your exact withholding, consult a tax advisor or your HR department.',
     llm_title:'💡 Got questions?', llm_body:" This app is designed to be used alongside AI assistants like Claude or ChatGPT. If something isn't clear, copy your breakdown and ask directly: Why is my March payslip so low? What is the marginal rate? Should I contribute more to my pension?",
+    privacy_title:'🔒 Privacy.', privacy_body:" AstroPayroll does not store or send any of your personal or financial data to any server. All calculations run locally in your browser and disappear when you close the tab. No cookies, no analytics, no third-party trackers.",
     how_title:'Understand your payslip',
     edu1_title:'🔍 What is income tax (IRPF)?', edu1_p1:'IRPF (Personal Income Tax) is the tax you pay on what you earn.', edu1_p2:'Your company automatically deducts it from your payslip each month before paying you.',
     edu2_title:'📈 What does having tax brackets mean?', edu2_p1:'IRPF is progressive: the more you earn, the more you pay proportionally. But percentages only apply to the income within each bracket.', edu2_ex_title:'Example: €45,000 taxable base (Catalonia 2025 scale)',
@@ -1117,6 +1126,7 @@ function setLang(lang){
   document.documentElement.lang = lang;
   applyTranslations();
   populateMonthSelects();
+  if(typeof reformatAllMoneyInputs === 'function') reformatAllMoneyInputs();
   if(lastResult) renderResults(lastResult);
 }
 
@@ -1166,8 +1176,8 @@ function toggleCollapsible(id){
 }
 
 function calcRaisePct(){
-  const o = parseFloat(document.getElementById('oldSalary').value)||0;
-  const n = parseFloat(document.getElementById('newSalary').value)||0;
+  const o = parseAmount(document.getElementById('oldSalary').value);
+  const n = parseAmount(document.getElementById('newSalary').value);
   const el = document.getElementById('raisePct');
   if(o>0 && n>0){
     const pct = ((n-o)/o*100).toFixed(2);
@@ -1180,7 +1190,7 @@ function calcRaisePct(){
 }
 
 function validateTickets(){
-  const val = parseFloat(document.getElementById('ticketsAmt').value)||0;
+  const val = parseAmount(document.getElementById('ticketsAmt').value);
   const err = document.getElementById('ticketsError');
   const inp = document.getElementById('ticketsAmt');
   if(val > TICKETS_LIMIT){
@@ -1201,6 +1211,63 @@ function fmtPct(n){
 }
 function fmtInt(n){
   return (n||0).toLocaleString(localeFor(), {maximumFractionDigits:0, useGrouping:true});
+}
+// Totals at the end of the breakdown are shown without decimals.
+function fmtRound(n){
+  return Math.round(n||0).toLocaleString(localeFor(), {maximumFractionDigits:0, useGrouping:true}) + ' €';
+}
+
+// Parse a user-typed amount that may contain thousand separators (ES: '.' / EN: ',')
+// and a decimal separator. Robust to either locale.
+function parseAmount(str){
+  if(str == null || str === '') return 0;
+  const s = String(str).trim().replace(/[^\d.,\-]/g, '');
+  if(!s) return 0;
+  const lastDot = s.lastIndexOf('.');
+  const lastComma = s.lastIndexOf(',');
+  const lastSep = Math.max(lastDot, lastComma);
+  if(lastSep === -1) return parseFloat(s) || 0;
+  const digitsAfter = s.length - lastSep - 1;
+  if(digitsAfter <= 2){
+    // last separator is the decimal point
+    const decimal = s[lastSep];
+    const thousands = decimal === '.' ? ',' : '.';
+    return parseFloat(s.split(thousands).join('').replace(decimal, '.')) || 0;
+  }
+  // it's a thousand separator → strip all of that char
+  return parseFloat(s.split(s[lastSep]).join('')) || 0;
+}
+
+function formatAmountForInput(n){
+  if(n == null || n === '' || isNaN(n)) return '';
+  return Number(n).toLocaleString(localeFor(), {useGrouping:true, maximumFractionDigits:2});
+}
+
+// Attach live formatting to a money-style input (text type, inputmode=decimal).
+function attachMoneyFormat(input, opts){
+  if(!input) return;
+  const reformat = () => {
+    const v = parseAmount(input.value);
+    if(input.value.trim() === '' || isNaN(v) || v === 0){
+      // Preserve empty state if user cleared the field.
+      if(input.value.trim() === '') return;
+    }
+    input.value = formatAmountForInput(v);
+  };
+  input.addEventListener('blur', reformat);
+  input.addEventListener('change', reformat);
+  // Re-run any side-effect handler the field had (e.g. validateTickets, calcRaisePct)
+  if(opts && opts.onCommit){
+    input.addEventListener('blur', opts.onCommit);
+  }
+}
+function reformatAllMoneyInputs(){
+  document.querySelectorAll('.money-input').forEach(inp => {
+    const v = parseAmount(inp.value);
+    if(inp.value.trim() !== '' && !isNaN(v)){
+      inp.value = formatAmountForInput(v);
+    }
+  });
 }
 
 function calcIRPF(base){
@@ -1262,7 +1329,7 @@ function calcSolidarity(annualSalaryForSS, ssCap){
 }
 
 function calculate(){
-  const ticketsAmt = parseFloat(document.getElementById('ticketsAmt').value)||0;
+  const ticketsAmt = parseAmount(document.getElementById('ticketsAmt').value);
   if(ticketsAmt > TICKETS_LIMIT){ validateTickets(); return; }
 
   const hasRaise = document.getElementById('hasRaise').checked;
@@ -1274,35 +1341,35 @@ function calculate(){
   const hasPension = document.getElementById('hasPension').checked;
   const hasPensionExtra = document.getElementById('hasPensionExtra').checked;
 
-  let salaryBase = parseFloat(document.getElementById('salaryBase').value)||0;
+  let salaryBase = parseAmount(document.getElementById('salaryBase').value);
   if(hasRaise){
-    salaryBase = parseFloat(document.getElementById('oldSalary').value)||salaryBase;
+    salaryBase = parseAmount(document.getElementById('oldSalary').value) || salaryBase;
   }
-  const newSalary = hasRaise ? (parseFloat(document.getElementById('newSalary').value)||salaryBase) : salaryBase;
+  const newSalary = hasRaise ? (parseAmount(document.getElementById('newSalary').value) || salaryBase) : salaryBase;
   const raiseMonth = hasRaise ? parseInt(document.getElementById('raiseMonth').value) : 13;
 
-  const bonusAmt   = hasBonus ? (parseFloat(document.getElementById('bonusAmt').value)||0) : 0;
+  const bonusAmt   = hasBonus ? parseAmount(document.getElementById('bonusAmt').value) : 0;
   const bonusMonth = hasBonus ? parseInt(document.getElementById('bonusMonth').value) : 0;
 
-  const carMonthly = hasCar ? (parseFloat(document.getElementById('carAmt').value)||0) : 0;
+  const carMonthly = hasCar ? parseAmount(document.getElementById('carAmt').value) : 0;
   const carAnnual  = carMonthly * 12;
 
   const ticketsType = hasTickets ? document.querySelector('input[name="ticketsType"]:checked').value : 'none';
   const ticketsExempt = hasTickets ? Math.min(ticketsAmt, TICKETS_LIMIT) : 0;
 
   const healthType = hasHealth ? document.querySelector('input[name="healthType"]:checked').value : 'none';
-  const healthAmt  = hasHealth ? (parseFloat(document.getElementById('healthAmt').value)||0) : 0;
+  const healthAmt  = hasHealth ? parseAmount(document.getElementById('healthAmt').value) : 0;
   const healthExempt = Math.min(healthAmt, HEALTH_EXEMPT);
   const healthTaxable = Math.max(0, healthAmt - HEALTH_EXEMPT);
 
-  const lifeAmt = hasLife ? (parseFloat(document.getElementById('lifeAmt').value)||0) : 0;
+  const lifeAmt = hasLife ? parseAmount(document.getElementById('lifeAmt').value) : 0;
 
   const pensionPct   = hasPension ? (parseFloat(document.getElementById('pensionPct').value)||0)/100 : 0;
   const pensionMatch = hasPension ? (parseFloat(document.getElementById('pensionMatch').value)||0)/100 : 0;
   const pensionT1    = hasPension && hasPensionExtra ? (parseFloat(document.getElementById('pensionT1').value)||0)/100 : 0;
   const pensionT2    = hasPension && hasPensionExtra ? (parseFloat(document.getElementById('pensionT2').value)||0)/100 : 0;
-  const ssCap        = hasPension && hasPensionExtra ? (parseFloat(document.getElementById('ssCap').value)||SS_CAP_DEFAULT) : SS_CAP_DEFAULT;
-  const ssCapUsed    = parseFloat(document.getElementById('ssCap').value)||SS_CAP_DEFAULT;
+  const ssCap        = hasPension && hasPensionExtra ? (parseAmount(document.getElementById('ssCap').value)||SS_CAP_DEFAULT) : SS_CAP_DEFAULT;
+  const ssCapUsed    = parseAmount(document.getElementById('ssCap').value) || SS_CAP_DEFAULT;
   const ssCapMonth   = ssCapUsed / 12;
 
   let months = [];
@@ -1484,10 +1551,10 @@ function calculate(){
 function renderResults(r){
   const months = currentLang==='ca' ? MONTHS_CA : currentLang==='en' ? MONTHS_EN : MONTHS_ES;
 
-  // Hero
-  document.getElementById('heroGross').textContent = fmt(r.totalGross);
-  document.getElementById('heroNet').textContent = fmt(r.totalNet);
-  document.getElementById('heroNetMonth').textContent = fmt(r.totalNet/12);
+  // Hero (totales redondeados a 0 decimales para una lectura más clara)
+  document.getElementById('heroGross').textContent = fmtRound(r.totalGross);
+  document.getElementById('heroNet').textContent = fmtRound(r.totalNet);
+  document.getElementById('heroNetMonth').textContent = fmtRound(r.totalNet/12);
   document.getElementById('heroEffRate').textContent = fmtPct(r.effectiveRate*100);
 
   // Annual breakdown
@@ -1515,8 +1582,8 @@ function renderResults(r){
   if(r.hasPension) ann += `<div class="inline-sum neg"><span>${t('ann_pension_emp')}</span><span class="val">−${fmt(r.totalPensionEmp)}</span></div>`;
 
   const totalDed = r.totalIRPF + r.totalSS + r.totalSol + r.totalPensionEmp;
-  ann += `<div class="inline-sum total neg" style="color:var(--danger);"><span>${t('ann_total_ded')}</span><span class="val">−${fmt(totalDed)}</span></div>`;
-  ann += `<div class="inline-sum total pos"><span>${t('ann_net')}</span><span class="val">${fmt(r.totalNet)}</span></div>`;
+  ann += `<div class="inline-sum total neg" style="color:var(--danger);"><span>${t('ann_total_ded')}</span><span class="val">−${fmtRound(totalDed)}</span></div>`;
+  ann += `<div class="inline-sum total pos"><span>${t('ann_net')}</span><span class="val">${fmtRound(r.totalNet)}</span></div>`;
 
   if(r.hasTickets){
     ann += `<div class="section-title" style="margin-top:1rem;">${t('ann_tickets_saving')}</div>`;
@@ -1538,7 +1605,7 @@ function renderResults(r){
     tbl += `<tr class="${cls}"><td>${months[mo.m-1]}${badge}</td><td>${fmt(mo.grossM)}</td><td class="amount-neg">−${fmt(mo.irpfM)}</td><td class="amount-neg">−${fmt(ssTotal)}</td>${hasPenCol?`<td class="amount-neg">−${fmt(mo.pensionEmpM)}</td>`:''}<td class="amount-pos">${fmt(mo.netM)}</td></tr>`;
     gS+=mo.grossM; iS+=mo.irpfM; sS+=mo.ssM; solS+=mo.solM; pS+=mo.pensionEmpM; nS+=mo.netM;
   });
-  tbl += `<tr class="total-row"><td>Total</td><td>${fmt(gS)}</td><td class="amount-neg">−${fmt(iS)}</td><td class="amount-neg">−${fmt(sS+solS)}</td>${hasPenCol?`<td class="amount-neg">−${fmt(pS)}</td>`:''}<td class="amount-pos">${fmt(nS)}</td></tr>`;
+  tbl += `<tr class="total-row"><td>Total</td><td>${fmtRound(gS)}</td><td class="amount-neg">−${fmtRound(iS)}</td><td class="amount-neg">−${fmtRound(sS+solS)}</td>${hasPenCol?`<td class="amount-neg">−${fmtRound(pS)}</td>`:''}<td class="amount-pos">${fmtRound(nS)}</td></tr>`;
   tbl += '</tbody></table>';
   document.getElementById('monthlyTable').innerHTML = tbl;
 
@@ -1608,12 +1675,13 @@ function renderResults(r){
 }
 
 function resetForm(){
-  document.querySelectorAll('input[type="number"]').forEach(i => { if(i.id !== 'pensionMatch' && i.id !== 'pensionT1' && i.id !== 'pensionT2' && i.id !== 'ssCap') i.value = ''; });
+  document.querySelectorAll('.money-input').forEach(i => { if(i.id !== 'ssCap') i.value = ''; });
+  document.querySelectorAll('input[type="number"]').forEach(i => { if(i.id !== 'pensionMatch' && i.id !== 'pensionT1' && i.id !== 'pensionT2') i.value = ''; });
   document.querySelectorAll('input[type="checkbox"]').forEach(c => { c.checked = false; });
   document.getElementById('pensionMatch').value = 50;
   document.getElementById('pensionT1').value = 1;
   document.getElementById('pensionT2').value = 10;
-  document.getElementById('ssCap').value = 61214.40;
+  document.getElementById('ssCap').value = formatAmountForInput(61214.40);
   document.querySelectorAll('.toggle-content').forEach(el => el.classList.remove('open'));
   document.getElementById('hasPensionExtra').checked = true;
   document.getElementById('pensionExtraSec').classList.add('open');
@@ -1662,7 +1730,7 @@ document.querySelectorAll('input[name="healthType"]').forEach(r => {
 
 // Tramos interactive example
 function renderTramoExample(){
-  const sal = parseFloat(document.getElementById('tramoInput').value)||0;
+  const sal = parseAmount(document.getElementById('tramoInput').value);
   if(sal <= 0){ document.getElementById('tramoExResult').innerHTML=''; return; }
   const tramos = TRAMOS;
   const colors = ['#3498db','#2ecc71','#f39c12','#e67e22','#e74c3c','#8e44ad'];
@@ -1694,6 +1762,10 @@ populateMonthSelects();
 document.getElementById('hasPensionExtra').checked = true;
 document.getElementById('pensionExtraSec').classList.add('open');
 applyTranslations();
+
+// Live money-input formatting
+document.querySelectorAll('.money-input').forEach(inp => attachMoneyFormat(inp));
+reformatAllMoneyInputs();
 </script>
 </body>
 </html>
