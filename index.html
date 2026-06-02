@@ -870,6 +870,12 @@ const SOL_LIMITS = [61214.40, 76518.00, 91821.60];
 const SOL_RATES  = [0.0092, 0.0100, 0.0117];
 const HEALTH_EXEMPT = 500;
 const TICKETS_LIMIT = 2750;
+// IRPF base deductions (LIRPF arts. 19 y 20)
+const OTROS_GASTOS = 2000;           // gasto deducible automático
+const MINIMO_PERSONAL = 5550;        // mínimo personal general
+const RT_RED_MAX = 7302;             // reducción rendimientos del trabajo, máximo
+const RT_RED_LOW = 14852;            // hasta este RN se aplica el máximo
+const RT_RED_HIGH = 19747.50;        // a partir de este RN la reducción es 0
 const MONTHS_ES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const MONTHS_CA = ['Gener','Febrer','Març','Abril','Maig','Juny','Juliol','Agost','Setembre','Octubre','Novembre','Desembre'];
 const MONTHS_EN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -934,6 +940,14 @@ const T = {
     tramo_ex_title:'Prueba con tu salario', tramo_ex_input:'Introduce un salario anual (€)',
     month_bonus:'Bonus', month_raise:'Subida',
     ann_gross:'Bruto total anual', ann_salary:'Salario base', ann_car:'Car allowance', ann_bonus:'Bonus bruto', ann_health_spkd:'Retribución en especie: seguro médico', ann_life_spkd:'Retribución en especie: seguro vida',
+    ann_rend_integros:'Rendimientos íntegros del trabajo',
+    ann_irpf_base_title:'Cálculo de la base del IRPF',
+    ann_ss_deduction:'Cotizaciones SS empleado (gasto deducible)',
+    ann_otros_gastos:'Otros gastos (2.000 €/año)',
+    ann_reduccion_rt:'Reducción por rendimientos del trabajo',
+    ann_pension_red:'Aportación plan de pensiones (reducción)',
+    ann_base_liquidable:'Base liquidable IRPF',
+    ann_minimo_exp:'Sobre la base liquidable se aplica la escala progresiva y luego se resta la cuota correspondiente al mínimo personal de {m} (Art. 56 LIRPF).',
     ann_base:'Base imponible', ann_irpf:'IRPF retenido', ann_irpf_rate:'Tipo efectivo', ann_ss:'Seguridad Social (empleado)', ann_solidarity:'Cuota de solidaridad', ann_pension_emp:'Aportación plan pensiones (empleado)', ann_total_ded:'Total deducciones', ann_net:'Neto anual estimado',
     ann_tickets_saving:'Ahorro fiscal tickets restaurante', ann_tickets_exp:'El ahorro equivale al importe exento multiplicado por tu tipo marginal. Ese dinero no paga IRPF.',
     col_mes:'Mes', col_bruto:'Bruto', col_irpf:'IRPF', col_ss:'SS + Solidaridad', col_pension_emp:'Pensión (tú)', col_neto:'Neto',
@@ -1001,6 +1015,14 @@ const T = {
     tramo_ex_title:'Prova amb el teu salari', tramo_ex_input:'Introdueix un salari anual (€)',
     month_bonus:'Bonus', month_raise:'Pujada',
     ann_gross:'Brut total anual', ann_salary:'Salari base', ann_car:'Car allowance', ann_bonus:'Bonus brut', ann_health_spkd:'Retribució en espècie: assegurança mèdica', ann_life_spkd:'Retribució en espècie: assegurança vida',
+    ann_rend_integros:'Rendiments íntegres del treball',
+    ann_irpf_base_title:"Càlcul de la base de l'IRPF",
+    ann_ss_deduction:'Cotitzacions SS empleat (despesa deduïble)',
+    ann_otros_gastos:'Altres despeses (2.000 €/any)',
+    ann_reduccion_rt:'Reducció per rendiments del treball',
+    ann_pension_red:'Aportació pla de pensions (reducció)',
+    ann_base_liquidable:'Base liquidable IRPF',
+    ann_minimo_exp:"Sobre la base liquidable s'aplica l'escala progressiva i després es resta la quota corresponent al mínim personal de {m} (Art. 56 LIRPF).",
     ann_base:'Base imposable', ann_irpf:'IRPF retingut', ann_irpf_rate:'Tipus efectiu', ann_ss:'Seguretat Social (empleat)', ann_solidarity:'Quota de solidaritat', ann_pension_emp:'Aportació pla pensions (empleat)', ann_total_ded:'Total deduccions', ann_net:'Net anual estimat',
     ann_tickets_saving:'Estalvi fiscal tiquets restaurant', ann_tickets_exp:"L'estalvi equival a l'import exempt multiplicat pel teu tipus marginal.",
     col_mes:'Mes', col_bruto:'Brut', col_irpf:'IRPF', col_ss:'SS + Solidaritat', col_pension_emp:'Pensió (tu)', col_neto:'Net',
@@ -1068,6 +1090,14 @@ const T = {
     tramo_ex_title:'Try with your salary', tramo_ex_input:'Enter an annual salary (€)',
     month_bonus:'Bonus', month_raise:'Raise',
     ann_gross:'Total annual gross', ann_salary:'Base salary', ann_car:'Car allowance', ann_bonus:'Gross bonus', ann_health_spkd:'Benefit in kind: health insurance', ann_life_spkd:'Benefit in kind: life insurance',
+    ann_rend_integros:'Gross employment income',
+    ann_irpf_base_title:'How the income tax base is built',
+    ann_ss_deduction:'Employee SS contributions (deductible)',
+    ann_otros_gastos:'Other deductible expenses (€2,000/year)',
+    ann_reduccion_rt:'Employment income reduction',
+    ann_pension_red:'Pension contribution (base reduction)',
+    ann_base_liquidable:'Taxable base (after reductions)',
+    ann_minimo_exp:'The progressive scale is applied to the taxable base, then the tax on the personal minimum of {m} is subtracted (Art. 56 LIRPF).',
     ann_base:'Taxable base', ann_irpf:'Income tax withheld', ann_irpf_rate:'Effective rate', ann_ss:'Social Security (employee)', ann_solidarity:'Solidarity surcharge', ann_pension_emp:'Pension contribution (employee)', ann_total_ded:'Total deductions', ann_net:'Estimated annual net',
     ann_tickets_saving:'Tax saving from meal vouchers', ann_tickets_exp:'The saving equals the exempt amount multiplied by your marginal rate. That money is not subject to income tax.',
     col_mes:'Month', col_bruto:'Gross', col_irpf:'Tax', col_ss:'SS + Solidarity', col_pension_emp:'Pension (you)', col_neto:'Net',
@@ -1183,6 +1213,31 @@ function getMarginalRate(base){
     if(base > TRAMOS[i].from) return TRAMOS[i].rate;
   }
   return TRAMOS[0].rate;
+}
+
+// Reducción por rendimientos del trabajo (LIRPF art. 20, redacción 2025)
+// Input: rendimiento neto del trabajo previo a la reducción (= íntegros − SS − 2.000)
+function reduccionTrabajo(rnt){
+  if(rnt <= 0) return 0;
+  if(rnt <= RT_RED_LOW) return RT_RED_MAX;
+  if(rnt >= RT_RED_HIGH) return 0;
+  // Pendiente lineal hasta 0 en RT_RED_HIGH
+  const slope = RT_RED_MAX / (RT_RED_HIGH - RT_RED_LOW);
+  return Math.max(0, RT_RED_MAX - slope * (rnt - RT_RED_LOW));
+}
+
+// Cuota líquida del IRPF a partir de los componentes del trabajo
+// rendIntegros: salario + bonus + car + retribuciones en especie − retribución flexible exenta
+// ssAnnual:     cotizaciones SS del trabajador (gasto deducible)
+// pension:      aportación del empleado al plan de pensiones (reducción base imponible)
+function calcAnnualIRPF(rendIntegros, ssAnnual, pension){
+  const rntPrevio = Math.max(0, rendIntegros - ssAnnual - OTROS_GASTOS);
+  const reduccion = reduccionTrabajo(rntPrevio);
+  const rntReducido = Math.max(0, rntPrevio - reduccion);
+  const baseLiquidable = Math.max(0, rntReducido - pension);
+  const cuotaIntegra = calcIRPF(baseLiquidable);
+  const cuotaMinimo = calcIRPF(MINIMO_PERSONAL);
+  return { irpf: Math.max(0, cuotaIntegra - cuotaMinimo), baseLiquidable };
 }
 
 function calcSolidarity(annualSalaryForSS, ssCap){
@@ -1315,8 +1370,19 @@ function calculate(){
       projBase += fBaseM;
     }
 
+    // Annual SS base & projected annual pension contribution for the IRPF helper
+    const annSalForSS = ((hasRaise && raiseMonth <= 12) ?
+      (salaryBase * (raiseMonth-1)/12 + newSalary * (13-raiseMonth)/12)
+      : salaryBase) + carAnnual - (ticketsType==='flex'?ticketsExempt:0) - (healthType==='flex'?healthExempt:0);
+    const annualSS = Math.min(annSalForSS, ssCapUsed) * SS_RATE;
+    const weightedSalaryProj = (hasRaise && raiseMonth <= 12) ?
+      (salaryBase*(raiseMonth-1)/12 + newSalary*(13-raiseMonth)/12) : salaryBase;
+    const projectedAnnualPension = hasPension ? weightedSalaryProj * pensionPct : 0;
+
+    // totalProjBase currently subtracts pension; rendimientos íntegros = totalProjBase + pension
     const totalProjBase = accBase + projBase;
-    const annualIRPFProj = calcIRPF(Math.max(0, totalProjBase));
+    const rendIntegros = Math.max(0, totalProjBase + projectedAnnualPension);
+    const { irpf: annualIRPFProj } = calcAnnualIRPF(rendIntegros, annualSS, projectedAnnualPension);
     const targetRetained = annualIRPFProj * (m / 12);
     const irpfM = Math.max(0, targetRetained - accRetained);
     accRetained += irpfM;
@@ -1326,9 +1392,6 @@ function calculate(){
     const ssM = ssBaseM * SS_RATE;
 
     // Solidarity (annual, prorate monthly)
-    const annSalForSS = ((hasRaise && raiseMonth <= 12) ?
-      (salaryBase * (raiseMonth-1)/12 + newSalary * (13-raiseMonth)/12)
-      : salaryBase) + carAnnual - (ticketsType==='flex'?ticketsExempt:0) - (healthType==='flex'?healthExempt:0);
     const annSolTotal = calcSolidarity(annSalForSS, ssCapUsed);
     const solM = annSolTotal / 12;
 
@@ -1354,19 +1417,27 @@ function calculate(){
   }
 
   // Annual summary
-  const annualBase = months.reduce((s, mo) => {
+  // Rendimientos íntegros del trabajo (incluye en especie, descuenta retribución flexible exenta)
+  const annualRendIntegros = months.reduce((s, mo) => {
     const cur = (hasRaise && mo.m >= raiseMonth) ? newSalary : salaryBase;
     const carM2 = hasCar ? carMonthly : 0;
-    const pensM2 = hasPension ? cur*pensionPct/12 : 0;
     const tflexM = (ticketsType==='flex') ? ticketsExempt/12 : 0;
     const hflexM = (healthType==='flex') ? healthExempt/12 : 0;
     const lM = lifeAmt/12;
     const htM = healthTaxable/12;
-    return s + cur/12 + carM2 - pensM2 + lM + htM - tflexM - hflexM + (hasBonus && mo.m===bonusMonth ? bonusAmt : 0);
+    return s + cur/12 + carM2 + lM + htM - tflexM - hflexM + (hasBonus && mo.m===bonusMonth ? bonusAmt : 0);
   }, 0);
 
-  const marginalRate = getMarginalRate(annualBase);
-  const effectiveRate = annualBase > 0 ? totalIRPF / annualBase : 0;
+  // Aplica el cálculo real del IRPF para extraer base liquidable y desglose
+  const rntPrevio = Math.max(0, annualRendIntegros - totalSS - OTROS_GASTOS);
+  const reduccionRT = reduccionTrabajo(rntPrevio);
+  const rntReducido = Math.max(0, rntPrevio - reduccionRT);
+  const baseLiquidable = Math.max(0, rntReducido - totalPensionEmp);
+  // annualBase para la UI = rendimientos íntegros (lo más intuitivo para el usuario)
+  const annualBase = annualRendIntegros;
+
+  const marginalRate = getMarginalRate(baseLiquidable);
+  const effectiveRate = annualRendIntegros > 0 ? totalIRPF / annualRendIntegros : 0;
 
   // Pension company
   const weightedSalary = hasRaise ?
@@ -1398,7 +1469,8 @@ function calculate(){
     hasLife, lifeAmt,
     hasPension, pensionPct, pensionMatchAmt, pensionT1amt, pensionT2amt, pensionTotal, pensionTaxSaving,
     marginalRate, effectiveRate, weightedSalary, hasCar,
-    annualBase, ssCapUsed, pensionT1, pensionT2
+    annualBase, annualRendIntegros, baseLiquidable, reduccionRT, otrosGastos: OTROS_GASTOS, minimoPersonal: MINIMO_PERSONAL,
+    ssCapUsed, pensionT1, pensionT2
   };
 
   renderResults(lastResult);
@@ -1422,7 +1494,16 @@ function renderResults(r){
   if(r.hasBonus) ann += `<div class="inline-sum"><span>${t('ann_bonus')}</span><span class="val">${fmt(r.bonusAmt)}</span></div>`;
   if(r.hasHealth && r.healthTaxable > 0) ann += `<div class="inline-sum"><span>${t('ann_health_spkd')}</span><span class="val">${fmt(r.healthTaxable)}</span></div>`;
   if(r.hasLife) ann += `<div class="inline-sum"><span>${t('ann_life_spkd')}</span><span class="val">${fmt(r.lifeAmt)}</span></div>`;
-  ann += `<div class="inline-sum" style="font-weight:600; border-top:1px solid var(--border); padding-top:8px; margin-top:4px;"><span>${t('ann_base')}</span><span class="val">${fmt(r.annualBase)}</span></div>`;
+  ann += `<div class="inline-sum" style="font-weight:600; border-top:1px solid var(--border); padding-top:8px; margin-top:4px;"><span>${t('ann_rend_integros')}</span><span class="val">${fmt(r.annualRendIntegros)}</span></div>`;
+
+  // Cómo se construye la base imponible del IRPF
+  ann += `<div class="section-title" style="margin-top:1rem;">${t('ann_irpf_base_title')}</div>`;
+  ann += `<div class="inline-sum neg"><span>${t('ann_ss_deduction')}</span><span class="val">−${fmt(r.totalSS)}</span></div>`;
+  ann += `<div class="inline-sum neg"><span>${t('ann_otros_gastos')}</span><span class="val">−${fmt(r.otrosGastos)}</span></div>`;
+  if(r.reduccionRT > 0) ann += `<div class="inline-sum neg"><span>${t('ann_reduccion_rt')}</span><span class="val">−${fmt(r.reduccionRT)}</span></div>`;
+  if(r.hasPension && r.totalPensionEmp > 0) ann += `<div class="inline-sum neg"><span>${t('ann_pension_red')}</span><span class="val">−${fmt(r.totalPensionEmp)}</span></div>`;
+  ann += `<div class="inline-sum" style="font-weight:600; border-top:1px solid var(--border); padding-top:8px; margin-top:4px;"><span>${t('ann_base_liquidable')}</span><span class="val">${fmt(r.baseLiquidable)}</span></div>`;
+  ann += `<p style="font-size:0.78rem;color:var(--text-muted);margin-top:4px;">${t('ann_minimo_exp').replace('{m}', fmt(r.minimoPersonal))}</p>`;
 
   ann += `<div class="section-title" style="margin-top:1rem;">${t('ann_total_ded')}</div>`;
   ann += `<div class="inline-sum neg"><span>${t('ann_irpf')} <span style="color:var(--text-muted);font-size:0.8rem;">(${fmtPct(r.effectiveRate*100)} ${t('ann_irpf_rate')})</span></span><span class="val">−${fmt(r.totalIRPF)}</span></div>`;
