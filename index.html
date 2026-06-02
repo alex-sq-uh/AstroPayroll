@@ -291,7 +291,7 @@
     <div class="field">
       <label data-i18n="lbl_salary_base">Salario base bruto anual</label>
       <div class="input-wrap">
-        <input type="number" id="salaryBase" placeholder="50000" min="0">
+        <input type="number" id="salaryBase" placeholder="50.000" min="0">
         <span class="unit">€</span>
       </div>
       <div class="tooltip-wrap" style="margin-top:5px;">
@@ -313,14 +313,14 @@
         <div class="field">
           <label data-i18n="lbl_old_salary">Salario anterior (€/año)</label>
           <div class="input-wrap">
-            <input type="number" id="oldSalary" placeholder="48000" min="0">
+            <input type="number" id="oldSalary" placeholder="48.000" min="0">
             <span class="unit">€</span>
           </div>
         </div>
         <div class="field">
           <label data-i18n="lbl_new_salary">Salario nuevo (€/año)</label>
           <div class="input-wrap">
-            <input type="number" id="newSalary" placeholder="50000" min="0" oninput="calcRaisePct()">
+            <input type="number" id="newSalary" placeholder="50.000" min="0" oninput="calcRaisePct()">
             <span class="unit">€</span>
           </div>
         </div>
@@ -354,7 +354,7 @@
             <span class="info-icon" style="margin-left:5px;">i<div class="tooltip-box" data-i18n="tip_bonus">El bonus tributa igual que el salario. El mes que lo cobras, tu empresa recalcula toda la retención del año y aplica el ajuste de golpe en ese mes.</div></span>
           </label>
           <div class="input-wrap">
-            <input type="number" id="bonusAmt" placeholder="10000" min="0">
+            <input type="number" id="bonusAmt" placeholder="10.000" min="0">
             <span class="unit">€</span>
           </div>
         </div>
@@ -417,7 +417,7 @@
       <div class="field">
         <label data-i18n="lbl_tickets_amt">Importe anual de tickets (€)</label>
         <div class="input-wrap">
-          <input type="number" id="ticketsAmt" placeholder="2420" min="0" oninput="validateTickets()">
+          <input type="number" id="ticketsAmt" placeholder="2.420" min="0" oninput="validateTickets()">
           <span class="unit">€</span>
         </div>
         <div class="field-error" id="ticketsError" data-i18n="err_tickets">El límite legal exento es de 2.750 € (11 €/día × 250 días). No puede superar este importe.</div>
@@ -452,7 +452,7 @@
       <div class="field">
         <label data-i18n="lbl_health_amt">Importe anual del seguro médico (€)</label>
         <div class="input-wrap">
-          <input type="number" id="healthAmt" placeholder="1200" min="0">
+          <input type="number" id="healthAmt" placeholder="1.200" min="0">
           <span class="unit">€</span>
         </div>
       </div>
@@ -827,7 +827,7 @@
     <div class="field" style="margin-bottom:1rem;">
       <label data-i18n="tramo_ex_input">Introduce un salario anual (€)</label>
       <div class="input-wrap">
-        <input type="number" id="tramoInput" placeholder="45000" oninput="renderTramoExample()" style="max-width:220px;">
+        <input type="number" id="tramoInput" placeholder="45.000" oninput="renderTramoExample()" style="max-width:220px;">
         <span class="unit">€</span>
       </div>
     </div>
@@ -1200,8 +1200,16 @@ function validateTickets(){
   }
 }
 
-function fmt(n){ return n.toLocaleString(currentLang==='en'?'en-GB':'es-ES', {minimumFractionDigits:2, maximumFractionDigits:2})+' €'; }
-function fmtPct(n){ return n.toLocaleString(currentLang==='en'?'en-GB':'es-ES', {minimumFractionDigits:2, maximumFractionDigits:2})+' %'; }
+function localeFor(){ return currentLang==='en' ? 'en-GB' : 'es-ES'; }
+function fmt(n){
+  return (n||0).toLocaleString(localeFor(), {minimumFractionDigits:2, maximumFractionDigits:2, useGrouping:true}) + ' €';
+}
+function fmtPct(n){
+  return (n||0).toLocaleString(localeFor(), {minimumFractionDigits:2, maximumFractionDigits:2, useGrouping:true}) + ' %';
+}
+function fmtInt(n){
+  return (n||0).toLocaleString(localeFor(), {maximumFractionDigits:0, useGrouping:true});
+}
 
 function calcIRPF(base){
   let tax = 0;
@@ -1676,7 +1684,7 @@ function renderTramoExample(){
     const portion = Math.min(sal, tr.to) - tr.from;
     const tax = portion * tr.rate;
     total += tax;
-    rows += `<tr><td>${tr.from.toLocaleString('es-ES')} – ${tr.to===Infinity?'∞':tr.to.toLocaleString('es-ES')} €</td><td>${fmt(portion)}</td><td>${(tr.rate*100).toFixed(0)}%</td><td>${fmt(tax)}</td></tr>`;
+    rows += `<tr><td>${fmtInt(tr.from)} – ${tr.to===Infinity?'∞':fmtInt(tr.to)} €</td><td>${fmt(portion)}</td><td>${(tr.rate*100).toFixed(0)}%</td><td>${fmt(tax)}</td></tr>`;
     const pct = Math.min(100, (portion/sal)*100);
     bars += `<div class="bar-row"><div class="bar-label">${(tr.rate*100).toFixed(0)}%</div><div class="bar-fill" style="flex:${pct};background:${colors[i]};max-width:${pct*2}px;min-width:4px;"></div><div class="bar-val">${fmt(tax)}</div></div>`;
   });
