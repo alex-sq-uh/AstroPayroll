@@ -738,7 +738,7 @@
     </div>
     <div class="edu-body">
       <p data-i18n="edu9_p1">La Seguridad Social es el sistema de cotizaciones que financia la sanidad pública, las pensiones, el paro y las bajas. Tanto tú como tu empresa cotizáis cada mes (la empresa paga una cantidad bastante mayor que tú).</p>
-      <p data-i18n="edu9_p2">Lo que pagas tú como empleado incluye: contingencias comunes (4,70%), desempleo (1,55%), formación profesional (0,10%) y la cuota MEI (0,58%). La base de cotización tiene un tope máximo anual: por encima de ese importe, no pagas más.</p>
+      <p data-i18n="edu9_p2">Lo que pagas tú como empleado en 2026 incluye: contingencias comunes (4,70%), desempleo (1,55% en contrato indefinido), formación profesional (0,10%) y MEI (0,15%). Total: 6,50% sobre la base de cotización, que tiene un tope máximo anual (61.214,40 €): por encima de ese importe, no pagas más por estos conceptos.</p>
     </div>
   </div>
 
@@ -747,16 +747,16 @@
       <span data-i18n="edu10_title">⚡ ¿Qué es la cuota de solidaridad?</span><span>▼</span>
     </div>
     <div class="edu-body">
-      <p data-i18n="edu10_p1">Entró en vigor en 2025. Es una cotización adicional que pagan los empleados con salarios que superan el tope máximo de cotización de la SS. Se aplica por tramos sobre el exceso:</p>
+      <p data-i18n="edu10_p1">Entró en vigor en 2025. Es una cotización adicional sobre el salario que supera el tope máximo de cotización de la SS. Se reparte entre empresa y empleado en proporción ~5:1, igual que el resto de contingencias comunes. Estos son los tipos que paga <strong>el empleado</strong> en 2026:</p>
       <div class="example-box">
         <table>
-          <tr><th data-i18n="col_tramo">Tramo del exceso</th><th data-i18n="col_tipo">Tipo</th></tr>
-          <tr><td data-i18n="sol_t1">De 0 € a 15.303,60 € de exceso</td><td>0,92%</td></tr>
-          <tr><td data-i18n="sol_t2">De 15.303,60 € a 30.607,20 € de exceso</td><td>1,00%</td></tr>
-          <tr><td data-i18n="sol_t3">Más de 30.607,20 € de exceso</td><td>1,17%</td></tr>
+          <tr><th data-i18n="col_tramo">Tramo del exceso</th><th data-i18n="col_tipo">Tipo empleado</th></tr>
+          <tr><td data-i18n="sol_t1">De 0 € a 15.303,60 € de exceso</td><td>0,19%</td></tr>
+          <tr><td data-i18n="sol_t2">De 15.303,60 € a 30.607,20 € de exceso</td><td>0,21%</td></tr>
+          <tr><td data-i18n="sol_t3">Más de 30.607,20 € de exceso</td><td>0,24%</td></tr>
         </table>
       </div>
-      <p data-i18n="edu10_p2">Solo afecta a quienes superan el tope de cotización (61.214,40 € en 2026).</p>
+      <p data-i18n="edu10_p2">Solo afecta a quienes superan el tope de cotización (61.214,40 € en 2026). La empresa paga aproximadamente cinco veces más por estos mismos tramos, pero esa parte nunca aparece en la nómina del trabajador.</p>
     </div>
   </div>
 
@@ -864,10 +864,15 @@ const TRAMOS = [
   {from:60000,  to:300000,  rate:0.45},
   {from:300000, to:Infinity,rate:0.47}
 ];
-const SS_RATE = 0.0693;
+// Cotización SS empleado 2026 (régimen general, contrato indefinido):
+//   CC 4,70% + Desempleo 1,55% + FP 0,10% + MEI 0,15% = 6,50%
+const SS_RATE = 0.0650;
 const SS_CAP_DEFAULT = 61214.40;
 const SOL_LIMITS = [61214.40, 76518.00, 91821.60];
-const SOL_RATES  = [0.0092, 0.0100, 0.0117];
+// Cuota de solidaridad 2026: SOLO la parte que paga el empleado
+// (el total se reparte ~1:5 con la empresa). Tipos confirmados para 2026:
+//   Tramo 1 (0–25% exceso): 0,19% · Tramo 2 (25–50%): 0,21% · Tramo 3 (>50%): 0,24%
+const SOL_RATES  = [0.0019, 0.0021, 0.0024];
 const HEALTH_EXEMPT = 500;
 const TICKETS_LIMIT = 2750;
 // IRPF base deductions (LIRPF arts. 19 y 20)
@@ -931,8 +936,8 @@ const T = {
     edu6_title:'🔄 ¿Qué es la retribución flexible?', edu6_p1:'Cambias parte de tu salario bruto por beneficios con ventaja fiscal.', edu6_p2:'Esos importes dejan de tributar en IRPF y de cotizar a la SS (hasta los límites legales).',
     edu7_title:'😱 ¿Por qué me retienen muchísimo el mes del bonus?', edu7_p1:'Tu empresa recalcula toda la retención del año en ese momento.', edu7_p2:'Es un ajuste: no pagas más en total, pero ese mes la retención es mucho mayor.',
     edu8_title:'🏦 ¿Por qué es tan bueno el plan de pensiones de empresa?', edu8_p1:'Triple ventaja: ahorras para el futuro, reduces IRPF ahora, y la empresa añade dinero extra.', edu8_p2:'El dinero tributará en la jubilación, probablemente en un tramo más bajo.',
-    edu9_title:'🏛️ ¿Qué es la Seguridad Social?', edu9_p1:'El sistema que financia la sanidad, pensiones y desempleo.', edu9_p2:'Pagas: CC 4,70% + desempleo 1,55% + FP 0,10% + MEI 0,58%. Con tope máximo anual.',
-    edu10_title:'⚡ ¿Qué es la cuota de solidaridad?', edu10_p1:'Cotización adicional para salarios que superan el tope de la SS.', edu10_p2:'Solo afecta a quienes superan el tope de cotización (61.214,40 € en 2026).',
+    edu9_title:'🏛️ ¿Qué es la Seguridad Social?', edu9_p1:'El sistema que financia la sanidad, pensiones y desempleo.', edu9_p2:'En 2026 pagas como empleado: CC 4,70% + desempleo 1,55% + FP 0,10% + MEI 0,15% = 6,50% sobre la base, con tope anual de 61.214,40 €.',
+    edu10_title:'⚡ ¿Qué es la cuota de solidaridad?', edu10_p1:'Cotización adicional sobre el salario que supera el tope de la SS. Se reparte ~5:1 entre empresa y trabajador.', edu10_p2:'Tipos que paga el empleado en 2026: 0,19% / 0,21% / 0,24% según el tramo del exceso. Solo afecta si superas 61.214,40 €.',
     sol_t1:'De 0 € a 15.303,60 € de exceso', sol_t2:'De 15.303,60 € a 30.607,20 € de exceso', sol_t3:'Más de 30.607,20 € de exceso',
     tramos_title:'Tramos del IRPF 2026', tramos_sub:'Tipos estatales. Las comunidades autónomas añaden tipos complementarios.',
     col_tramo:'Tramo', col_tipo:'Tipo', col_cuota:'Cuota', col_cuota_tramo:'Lo que pagas en este tramo', col_desc:'Explicación', col_base:'Base en tramo', col_total:'Total IRPF',
@@ -1006,8 +1011,8 @@ const T = {
     edu6_title:'🔄 Què és la retribució flexible?', edu6_p1:'Canvies part del teu salari brut per beneficis amb avantatge fiscal.', edu6_p2:"Aquests imports deixen de tributar a l'IRPF i de cotitzar a la SS.",
     edu7_title:'😱 Per què em retenen molt el mes del bonus?', edu7_p1:"La teva empresa recalcula tota la retenció de l'any en aquell moment.", edu7_p2:"És un ajustament: no pagues més en total, però aquell mes la retenció és molt més alta.",
     edu8_title:'🏦 Per què és tan bo el pla de pensions?', edu8_p1:"Triple avantatge: estalvies per al futur, reduceixes l'IRPF ara, i l'empresa afegeix diners extra.", edu8_p2:'Els diners tributaran en la jubilació, probablement en un tram més baix.',
-    edu9_title:"🏛️ Què és la Seguretat Social?", edu9_p1:'El sistema que finança la sanitat, pensions i atur.', edu9_p2:'Pagues: CC 4,70% + atur 1,55% + FP 0,10% + MEI 0,58%.',
-    edu10_title:'⚡ Què és la quota de solidaritat?', edu10_p1:'Cotització addicional per a salaris que superen el topall de la SS.', edu10_p2:'Només afecta qui supera el topall de cotització (61.214,40 € el 2026).',
+    edu9_title:"🏛️ Què és la Seguretat Social?", edu9_p1:'El sistema que finança la sanitat, pensions i atur.', edu9_p2:'El 2026 pagues com a empleat: CC 4,70% + atur 1,55% + FP 0,10% + MEI 0,15% = 6,50% sobre la base, amb topall anual de 61.214,40 €.',
+    edu10_title:'⚡ Què és la quota de solidaritat?', edu10_p1:"Cotització addicional sobre el salari que supera el topall de la SS. Es reparteix ~5:1 entre empresa i treballador.", edu10_p2:"Tipus que paga l'empleat el 2026: 0,19% / 0,21% / 0,24% segons el tram de l'excés. Només afecta si superes 61.214,40 €.",
     sol_t1:"De 0 € a 15.303,60 € d'excés", sol_t2:"De 15.303,60 € a 30.607,20 € d'excés", sol_t3:"Més de 30.607,20 € d'excés",
     tramos_title:'Trams de l\'IRPF 2026', tramos_sub:'Tipus estatals. Les comunitats autònomes afegeixen tipus complementaris.',
     col_tramo:'Tram', col_tipo:'Tipus', col_cuota:'Quota', col_cuota_tramo:'El que pagues en aquest tram', col_desc:'Explicació', col_base:'Base en tram', col_total:'Total IRPF',
@@ -1081,8 +1086,8 @@ const T = {
     edu6_title:'🔄 What is flexible remuneration?', edu6_p1:'You exchange part of your gross salary for tax-advantaged benefits.', edu6_p2:'Those amounts stop being subject to income tax and social security (within legal limits).',
     edu7_title:'😱 Why is my bonus month withholding so high?', edu7_p1:'Your company recalculates the full-year withholding the month the bonus is paid.', edu7_p2:"It's an adjustment: you don't pay more overall, but that month the deduction is much higher.",
     edu8_title:'🏦 Why is the company pension plan so good?', edu8_p1:'Triple benefit: you save for the future, reduce your tax bill now, and the company adds free money.', edu8_p2:"The money will be taxed when you withdraw it at retirement, likely at a lower rate.",
-    edu9_title:'🏛️ What is Social Security?', edu9_p1:'The system that funds healthcare, pensions, and unemployment.', edu9_p2:'You pay: CC 4.70% + unemployment 1.55% + FP 0.10% + MEI 0.58%. With an annual cap.',
-    edu10_title:'⚡ What is the solidarity surcharge?', edu10_p1:'An additional contribution for salaries that exceed the SS contribution cap.', edu10_p2:'Only affects those who exceed the cap (€61,214.40 in 2026).',
+    edu9_title:'🏛️ What is Social Security?', edu9_p1:'The system that funds healthcare, pensions, and unemployment.', edu9_p2:'In 2026 you pay as an employee: CC 4.70% + unemployment 1.55% + FP 0.10% + MEI 0.15% = 6.50% on the contribution base, with an annual cap of €61,214.40.',
+    edu10_title:'⚡ What is the solidarity surcharge?', edu10_p1:'Extra contribution on the part of the salary above the SS cap. Split roughly 5:1 between employer and employee.', edu10_p2:'Employee rates in 2026: 0.19% / 0.21% / 0.24% by excess tier. Only affects those who exceed €61,214.40.',
     sol_t1:'From €0 to €15,303.60 of excess', sol_t2:'From €15,303.60 to €30,607.20 of excess', sol_t3:'More than €30,607.20 of excess',
     tramos_title:'2026 Income Tax Brackets', tramos_sub:'State rates. Autonomous communities add complementary rates.',
     col_tramo:'Bracket', col_tipo:'Rate', col_cuota:'Tax due', col_cuota_tramo:'What you pay in this bracket', col_desc:'Explanation', col_base:'Income in bracket', col_total:'Total tax',
