@@ -291,37 +291,34 @@
   <!-- BLOQUE 1: SALARIO -->
   <div class="card">
     <div class="card-title"><div class="icon">💼</div> <span data-i18n="blk_salary">Salario base</span></div>
-    <div class="field">
-      <label data-i18n="lbl_salary_base">Salario base bruto anual</label>
-      <div class="input-wrap">
-        <input type="text" inputmode="decimal" class="money-input" id="salaryBase" placeholder="50.000">
-        <span class="unit">€</span>
-      </div>
-      <div class="tooltip-wrap" style="margin-top:5px;">
-        <span class="info-icon">i<div class="tooltip-box" data-i18n="tip_salary">Es el sueldo que aparece en tu contrato antes de que te descuenten nada. No incluye bonus ni extras.</div></span>
-        <span style="font-size:0.78rem; color:var(--text-muted);" data-i18n="tip_salary_short">El sueldo de tu contrato antes de descuentos</span>
+
+    <!-- Sin subida: campo único -->
+    <div id="salarySimple">
+      <div class="field">
+        <label data-i18n="lbl_salary_base">Salario base bruto anual</label>
+        <div class="input-wrap">
+          <input type="text" inputmode="decimal" class="money-input" id="salaryBase" placeholder="50.000">
+          <span class="unit">€</span>
+        </div>
+        <div class="tooltip-wrap" style="margin-top:5px;">
+          <span class="info-icon">i<div class="tooltip-box" data-i18n="tip_salary">Es el sueldo que aparece en tu contrato antes de que te descuenten nada. No incluye bonus ni extras.</div></span>
+          <span style="font-size:0.78rem; color:var(--text-muted);" data-i18n="tip_salary_short">El sueldo de tu contrato antes de descuentos</span>
+        </div>
       </div>
     </div>
 
-    <!-- SUBIDA SALARIAL -->
-    <div class="toggle-row" style="margin-top:1rem;">
-      <div>
-        <div class="toggle-label" data-i18n="toggle_raise">¿Tienes subida salarial este año?</div>
-        <div class="toggle-sub" data-i18n="toggle_raise_sub">Recalcularemos mes a mes como lo haría tu empresa</div>
-      </div>
-      <label class="toggle"><input type="checkbox" id="hasRaise" onchange="toggleSection('raiseSec',this)"><div class="toggle-slider"></div></label>
-    </div>
-    <div class="toggle-content" id="raiseSec">
+    <!-- Con subida: dos campos + mes -->
+    <div id="salaryRaise" style="display:none;">
       <div class="field-row">
         <div class="field">
-          <label data-i18n="lbl_old_salary">Salario anterior (€/año)</label>
+          <label data-i18n="lbl_old_salary_v2">Salario base bruto anual inicial</label>
           <div class="input-wrap">
             <input type="text" inputmode="decimal" class="money-input" id="oldSalary" placeholder="48.000">
             <span class="unit">€</span>
           </div>
         </div>
         <div class="field">
-          <label data-i18n="lbl_new_salary">Salario nuevo (€/año)</label>
+          <label data-i18n="lbl_new_salary_v2">Salario después de la subida</label>
           <div class="input-wrap">
             <input type="text" inputmode="decimal" class="money-input" id="newSalary" placeholder="50.000" oninput="calcRaisePct()">
             <span class="unit">€</span>
@@ -332,11 +329,20 @@
         <span style="font-size:0.82rem; color:var(--text-muted);" data-i18n="lbl_raise_pct">Incremento:</span>
         <span class="badge-pct green" id="raisePct">—</span>
       </div>
-      <div class="field">
-        <label data-i18n="lbl_raise_month">Mes de la subida</label>
+      <div class="field" style="max-width:220px;">
+        <label data-i18n="lbl_raise_month">Mes en el que ocurre</label>
         <select id="raiseMonth"></select>
       </div>
       <div class="field-help" data-i18n="help_raise">La retención se recalculará desde ese mes en adelante, igual que lo haría tu empresa.</div>
+    </div>
+
+    <!-- Toggle subida -->
+    <div class="toggle-row" style="margin-top:1rem;">
+      <div>
+        <div class="toggle-label" data-i18n="toggle_raise">¿Tienes subida salarial este año?</div>
+        <div class="toggle-sub" data-i18n="toggle_raise_sub">Recalcularemos mes a mes como lo haría tu empresa</div>
+      </div>
+      <label class="toggle"><input type="checkbox" id="hasRaise" onchange="toggleRaiseMode(this.checked)"><div class="toggle-slider"></div></label>
     </div>
   </div>
 
@@ -894,7 +900,8 @@ const T = {
     calc_title:'¿Cuánto me queda neto?', calc_subtitle:'Introduce tu salario y te calculamos el desglose real mes a mes.',
     blk_salary:'Salario base', lbl_salary_base:'Salario base bruto anual', tip_salary:'Es el sueldo que aparece en tu contrato antes de que te descuenten nada. No incluye bonus ni extras.', tip_salary_short:'El sueldo de tu contrato antes de descuentos',
     toggle_raise:'¿Tienes subida salarial este año?', toggle_raise_sub:'Recalcularemos mes a mes como lo haría tu empresa',
-    lbl_old_salary:'Salario anterior (€/año)', lbl_new_salary:'Salario nuevo (€/año)', lbl_raise_pct:'Incremento:', lbl_raise_month:'Mes de la subida',
+    lbl_old_salary:'Salario anterior (€/año)', lbl_new_salary:'Salario nuevo (€/año)', lbl_raise_pct:'Incremento:', lbl_raise_month:'Mes en el que ocurre',
+    lbl_old_salary_v2:'Salario base bruto anual inicial', lbl_new_salary_v2:'Salario después de la subida',
     help_raise:'La retención se recalculará desde ese mes en adelante, igual que lo haría tu empresa.',
     blk_bonus:'Bonus', toggle_bonus_sub:'Pago variable anual', lbl_bonus:'Importe del bonus bruto', tip_bonus:'El bonus tributa igual que el salario. El mes que lo cobras, tu empresa recalcula toda la retención del año y aplica el ajuste de golpe en ese mes.',
     lbl_bonus_month:'Mes en que se cobra', help_bonus:'Los meses anteriores al bonus tu empresa calcula la retención sin contar con él. Cuando se decide, ajusta todo de golpe.',
@@ -970,7 +977,8 @@ const T = {
     calc_title:'Quant em queda net?', calc_subtitle:'Introdueix el teu salari i calculem el desglossament real mes a mes.',
     blk_salary:'Salari base', lbl_salary_base:'Salari base brut anual', tip_salary:'És el sou que apareix al teu contracte abans de cap descompte.', tip_salary_short:'El sou del teu contracte abans de descomptes',
     toggle_raise:'Tens pujada salarial enguany?', toggle_raise_sub:'Recalcularem mes a mes com ho faria la teva empresa',
-    lbl_old_salary:'Salari anterior (€/any)', lbl_new_salary:'Salari nou (€/any)', lbl_raise_pct:'Increment:', lbl_raise_month:'Mes de la pujada',
+    lbl_old_salary:'Salari anterior (€/any)', lbl_new_salary:'Salari nou (€/any)', lbl_raise_pct:'Increment:', lbl_raise_month:'Mes en què ocorre',
+    lbl_old_salary_v2:'Salari base brut anual inicial', lbl_new_salary_v2:'Salari després de la pujada',
     help_raise:"La retenció es recalcularà des d'aquell mes en endavant.",
     blk_bonus:'Bonus', toggle_bonus_sub:'Pagament variable anual', lbl_bonus:'Import del bonus brut', tip_bonus:'El bonus tributa igual que el salari. El mes que el cobres, la teva empresa recalcula tota la retenció de l\'any.',
     lbl_bonus_month:'Mes en què es cobra', help_bonus:"Els mesos anteriors al bonus, l'empresa calcula la retenció sense comptar-lo.",
@@ -1046,7 +1054,8 @@ const T = {
     calc_title:'How much do I take home?', calc_subtitle:'Enter your salary and we calculate your real monthly breakdown.',
     blk_salary:'Base salary', lbl_salary_base:'Annual gross base salary', tip_salary:'The salary stated in your contract before any deductions. Does not include bonuses or extras.', tip_salary_short:'Your contract salary before deductions',
     toggle_raise:'Getting a salary raise this year?', toggle_raise_sub:"We'll recalculate month by month like your company would",
-    lbl_old_salary:'Previous salary (€/year)', lbl_new_salary:'New salary (€/year)', lbl_raise_pct:'Increase:', lbl_raise_month:'Month of the raise',
+    lbl_old_salary:'Previous salary (€/year)', lbl_new_salary:'New salary (€/year)', lbl_raise_pct:'Increase:', lbl_raise_month:'Month it takes effect',
+    lbl_old_salary_v2:'Initial annual gross base salary', lbl_new_salary_v2:'Salary after the raise',
     help_raise:'Tax withholding will be recalculated from that month onwards.',
     blk_bonus:'Bonus', toggle_bonus_sub:'Annual variable pay', lbl_bonus:'Gross bonus amount', tip_bonus:'Bonuses are taxed like salary. The month you receive it, your company recalculates the full-year withholding and applies the adjustment all at once.',
     lbl_bonus_month:'Month it is paid', help_bonus:"In months before the bonus, your company calculates withholding without it. When it's decided, they adjust everything at once.",
@@ -1176,6 +1185,26 @@ function toggleCollapsible(id){
   body.classList.toggle('open');
   const trigger = body.previousElementSibling;
   if(trigger) trigger.classList.toggle('open', body.classList.contains('open'));
+}
+
+function toggleRaiseMode(on){
+  document.getElementById('salarySimple').style.display = on ? 'none' : '';
+  document.getElementById('salaryRaise').style.display  = on ? '' : 'none';
+  if(!on){
+    // Clear raise fields when toggled off so they don't interfere
+    document.getElementById('oldSalary').value = '';
+    document.getElementById('newSalary').value = '';
+    document.getElementById('raisePct').textContent = '—';
+    document.getElementById('raisePct').className = 'badge-pct';
+  } else {
+    // Pre-fill oldSalary from the simple field if it has a value
+    const base = document.getElementById('salaryBase').value;
+    if(base && !document.getElementById('oldSalary').value){
+      document.getElementById('oldSalary').value = base;
+    }
+    // Focus new salary
+    setTimeout(() => document.getElementById('newSalary').focus(), 50);
+  }
 }
 
 function calcRaisePct(){
@@ -1344,10 +1373,11 @@ function calculate(){
   const hasPension = document.getElementById('hasPension').checked;
   const hasPensionExtra = document.getElementById('hasPensionExtra').checked;
 
-  let salaryBase = parseAmount(document.getElementById('salaryBase').value);
-  if(hasRaise){
-    salaryBase = parseAmount(document.getElementById('oldSalary').value) || salaryBase;
-  }
+  // When raise mode is active the card shows oldSalary/newSalary; otherwise salaryBase.
+  let salaryBase = hasRaise
+    ? parseAmount(document.getElementById('oldSalary').value)
+    : parseAmount(document.getElementById('salaryBase').value);
+  if(!salaryBase) salaryBase = 0;
   const newSalary = hasRaise ? (parseAmount(document.getElementById('newSalary').value) || salaryBase) : salaryBase;
   const raiseMonth = hasRaise ? parseInt(document.getElementById('raiseMonth').value) : 13;
 
@@ -1684,6 +1714,7 @@ function resetForm(){
   document.querySelectorAll('.money-input').forEach(i => { if(i.id !== 'ssCap') i.value = ''; });
   document.querySelectorAll('input[type="number"]').forEach(i => { if(i.id !== 'pensionMatch' && i.id !== 'pensionT1' && i.id !== 'pensionT2') i.value = ''; });
   document.querySelectorAll('input[type="checkbox"]').forEach(c => { c.checked = false; });
+  toggleRaiseMode(false);
   document.getElementById('pensionMatch').value = 50;
   document.getElementById('pensionT1').value = 1;
   document.getElementById('pensionT2').value = 10;
