@@ -265,7 +265,7 @@
     </svg>
     <div class="brand-text">
       <span class="name">Astro<span class="accent">Payroll</span></span>
-      <span class="ver">v2.1</span>
+      <span class="ver">v2.2</span>
     </div>
   </div>
   <div class="nav-links">
@@ -843,13 +843,13 @@
       <text x="32" y="35" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-weight="800" font-size="15" fill="#1a2b5e">€</text>
     </svg>
     <span>AstroPayroll</span>
-    <span class="ver-tag">v2.1</span>
+    <span class="ver-tag">v2.2</span>
   </div>
   <div data-i18n="footer_astrocosas">Una app de <a href="#" target="_blank" rel="noopener">AstroCosas</a> · Hecha con ☕ y datos fiscales 2026</div>
 </footer>
 
 <script>
-const APP_VERSION = '2.1';
+const APP_VERSION = '2.2';
 // Escala IRPF 2025 — Cataluña (suma estatal + autonómico)
 // Fuente: https://taxdown.es/irpf/tabla-tramos
 const TRAMOS = [
@@ -939,7 +939,7 @@ const T = {
     monthly_calc_exp:'Tu empresa recalcula la retención de IRPF cada mes. La lógica es: proyecta cuánto ganarás en todo el año desde ese mes, calcula el IRPF anual total, y retiene lo que falta para llegar a ese importe restando lo que ya te ha retenido. Así, si en marzo cobras el bonus, la retención de ese mes sube mucho para compensar.',
     disclaimer_title:'⚠️ Estimación orientativa.', disclaimer_body:' Esta calculadora proporciona una estimación basada en los tramos y reglas generales del IRPF en España. No tiene en cuenta situaciones personales como hijos, discapacidad o deducciones autonómicas. Para conocer tu retención exacta consulta con un asesor fiscal o con el equipo de Recursos Humanos de tu empresa.',
     llm_title:'💡 ¿Tienes dudas?', llm_body:' Esta app está pensada para usarse junto a asistentes de IA como Claude o ChatGPT. Si algo no te queda claro, copia tu desglose y pregúntale directamente: ¿Por qué me retienen tanto en marzo? ¿Qué es el tipo marginal? ¿Me conviene aportar más al plan de pensiones? Son herramientas muy útiles para entender tu nómina.',
-    privacy_title:'🔒 Privacidad.', privacy_body:' AstroPayroll no almacena ni envía tus datos personales o financieros a ningún servidor. Todos los cálculos se ejecutan localmente en tu navegador. Usamos Umami Analytics (sin cookies, sin identificadores personales) únicamente para contar visitas y acciones básicas de navegación — nunca se envían salarios, tipos impositivos ni ningún dato financiero.',
+    privacy_title:'🔒 Privacidad.', privacy_body:' AstroPayroll no almacena ni envía tus datos personales o financieros a ningún servidor. Todos los cálculos se ejecutan localmente en tu navegador. Usamos Umami Analytics (sin cookies, sin identificadores personales) únicamente para contar visitas y acciones básicas de navegación — nunca se guardan datos de salarios, tipos impositivos ni ningún dato financiero.',
     how_title:'Entiende tu nómina',
     edu1_title:'🔍 ¿Qué es el IRPF?', edu1_p1:'El IRPF (Impuesto sobre la Renta de las Personas Físicas) es el impuesto que pagas por lo que ganas.', edu1_p2:'Tu empresa lo descuenta automáticamente cada mes de tu nómina antes de pagarte. Eso es la "retención".',
     edu2_title:'📈 ¿Qué significa que haya tramos?', edu2_p1:'El IRPF es progresivo: cuanto más ganas, más pagas en proporción. Pero los porcentajes no se aplican a todo tu salario.', edu2_ex_title:'Ejemplo: base liquidable de 45.000 € (escala Cataluña 2025)',
