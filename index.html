@@ -265,7 +265,7 @@
     </svg>
     <div class="brand-text">
       <span class="name">Astro<span class="accent">Payroll</span></span>
-      <span class="ver">v2.0</span>
+      <span class="ver">v2.1</span>
     </div>
   </div>
   <div class="nav-links">
@@ -843,13 +843,13 @@
       <text x="32" y="35" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-weight="800" font-size="15" fill="#1a2b5e">€</text>
     </svg>
     <span>AstroPayroll</span>
-    <span class="ver-tag">v2.0</span>
+    <span class="ver-tag">v2.1</span>
   </div>
   <div data-i18n="footer_astrocosas">Una app de <a href="#" target="_blank" rel="noopener">AstroCosas</a> · Hecha con ☕ y datos fiscales 2026</div>
 </footer>
 
 <script>
-const APP_VERSION = '2.0';
+const APP_VERSION = '2.1';
 // Escala IRPF 2025 — Cataluña (suma estatal + autonómico)
 // Fuente: https://taxdown.es/irpf/tabla-tramos
 const TRAMOS = [
@@ -982,7 +982,7 @@ const T = {
     pen_company_title:'Contribución de la empresa (no la decides tú)', pen_company_note:'Las aportaciones de la empresa son retribución en especie: se suman a tus rendimientos íntegros y se deducen dentro del límite de 8.500 €/año de los planes de empleo. No salen de tu salario.',
     pen_company_excess_warn:'La empresa aporta {x} por encima del límite de 8.500 €/año.',
     pen_vol_title:'Parte voluntaria (tu 4% + match 50% empresa)', pen_vol_deductible:'Reducción en IRPF', pen_vol_excess_warn:'{x} de esta parte supera el límite y no reduce tu IRPF este año (deducible en los 5 ejercicios siguientes).',
-    pen_inv_title:'Parte involuntaria (aportación obligatoria de la empresa)', pen_inv_deductible:'Reducción en IRPF', pen_inv_excess_warn:'{x} de esta parte supera el límite y no reduce el IRPF este año.',
+    pen_inv_title:'Parte involuntaria (aportación de la empresa)', pen_inv_deductible:'Reducción en IRPF', pen_inv_excess_warn:'{x} de esta parte supera el límite y no reduce el IRPF este año.',
     pen_total_deductible:'Reducción total en IRPF',
     ann_pension_company_spkd:'Contribución empresa al plan (en especie)',
     ann_pension_red_vol:'Reducción: tu aportación + match empresa', ann_pension_red_inv:'Reducción: aportación obligatoria empresa',
@@ -1071,7 +1071,7 @@ const T = {
     pen_company_title:'Contribució de l\'empresa (no la decideixes tu)', pen_company_note:"Les aportacions de l'empresa són retribució en espècie: se sumen als teus rendiments íntegres i es dedueixen dins del límit de 8.500 €/any dels plans d'ocupació. No surten del teu salari.",
     pen_company_excess_warn:'L\'empresa aporta {x} per sobre del límit de 8.500 €/any.',
     pen_vol_title:'Part voluntària (el teu 4% + match 50% empresa)', pen_vol_deductible:'Reducció en IRPF', pen_vol_excess_warn:'{x} d\'aquesta part supera el límit i no redueix el teu IRPF enguany (deduïble en els 5 exercicis següents).',
-    pen_inv_title:'Part involuntària (aportació obligatòria de l\'empresa)', pen_inv_deductible:'Reducció en IRPF', pen_inv_excess_warn:'{x} d\'aquesta part supera el límit i no redueix l\'IRPF enguany.',
+    pen_inv_title:'Part involuntària (aportació de l\'empresa)', pen_inv_deductible:'Reducció en IRPF', pen_inv_excess_warn:'{x} d\'aquesta part supera el límit i no redueix l\'IRPF enguany.',
     pen_total_deductible:'Reducció total en IRPF',
     ann_pension_company_spkd:'Contribució empresa al pla (en espècie)',
     ann_pension_red_vol:'Reducció: la teva aportació + match empresa', ann_pension_red_inv:'Reducció: aportació obligatòria empresa',
@@ -1160,7 +1160,7 @@ const T = {
     pen_company_title:'Company contribution (you do not decide it)', pen_company_note:'Company contributions are benefits in kind: they are added to your gross income and deducted within the €8,500/year limit specific to employment plans. They do not come out of your salary.',
     pen_company_excess_warn:'The company contributes {x} above the €8,500/year limit.',
     pen_vol_title:'Voluntary part (your 4% + 50% company match)', pen_vol_deductible:'Income tax reduction', pen_vol_excess_warn:'{x} of this part exceeds the limit and does not reduce your income tax this year (carryable forward 5 years).',
-    pen_inv_title:'Involuntary part (mandatory company contribution)', pen_inv_deductible:'Income tax reduction', pen_inv_excess_warn:'{x} of this part exceeds the limit and does not reduce income tax this year.',
+    pen_inv_title:'Involuntary part (company contribution)', pen_inv_deductible:'Income tax reduction', pen_inv_excess_warn:'{x} of this part exceeds the limit and does not reduce income tax this year.',
     pen_total_deductible:'Total income tax reduction',
     ann_pension_company_spkd:'Company contribution to plan (in kind)',
     ann_pension_red_vol:'Reduction: your contribution + company match', ann_pension_red_inv:'Reduction: mandatory company contribution',
