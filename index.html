@@ -356,7 +356,7 @@
     </svg>
     <div class="brand-text">
       <span class="name">Astro<span class="accent">Payroll</span></span>
-      <span class="ver">v2.13</span>
+      <span class="ver">v2.14</span>
     </div>
   </div>
   <div class="nav-links">
@@ -1053,13 +1053,13 @@
       <text x="32" y="35" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-weight="800" font-size="15" fill="#1a2b5e">€</text>
     </svg>
     <span>AstroPayroll</span>
-    <span class="ver-tag">v2.13</span>
+    <span class="ver-tag">v2.14</span>
   </div>
   <div data-i18n="footer_astrocosas">Una app de <a href="#" target="_blank" rel="noopener">AstroCosas</a> · Datos fiscales 2026</div>
 </footer>
 
 <script>
-const APP_VERSION = '2.13';
+const APP_VERSION = '2.14';
 // Escala IRPF 2025 — Cataluña (suma estatal + autonómico)
 // Fuente: https://taxdown.es/irpf/tabla-tramos
 const TRAMOS = [
@@ -1164,7 +1164,7 @@ const T = {
     flex_col_item:'Concepto', flex_col_amt:'Anual', flex_col_exempt:'Exento', flex_col_funding:'Modalidad', flex_col_irpf:'Ahorro IRPF', flex_col_ss:'Ahorro SS', flex_col_total:'Total ahorro',
     flex_col_total_row:'Total',
     flex_funding_company_short:'Empresa', flex_funding_worker_short:'Trabajador',
-    flex_marginal_note:'Tipo marginal aplicado al ahorro IRPF: {r}. La columna "Ahorro SS" sólo aparece cuando el concepto se paga con el salario base del trabajador (6,50% del exento).',
+    flex_marginal_note:'Tipo marginal aplicado al ahorro IRPF: {r}. El ahorro SS solo aparece cuando el concepto lo paga el trabajador con su salario base. Equivale al 6,50% del exento, pero cae a 0 si tu base ya supera el tope de cotización (61.214,40 €/año en 2026): por encima de ese tope reducir el bruto no cambia lo que pagas de SS.',
     blk_pension:'Plan de pensiones de empresa', toggle_pension_sub:'Reduce tu base imponible y tu empresa aporta también',
     lbl_pension_pct:'Tu aportación sobre el salario base', tip_pension_pct:'Este importe se descuenta de tu salario bruto y reduce tu base imponible. Es dinero tuyo que va al plan, pero pagas menos IRPF ahora.',
     lbl_pension_match:'Match de la empresa (%)', tip_pension_match:'Por cada euro que aportas tú, la empresa aporta este porcentaje adicional. No sale de tu salario, es dinero extra para tu plan.',
@@ -1295,7 +1295,7 @@ const T = {
     flex_col_item:'Concepte', flex_col_amt:'Anual', flex_col_exempt:'Exempt', flex_col_funding:'Modalitat', flex_col_irpf:'Estalvi IRPF', flex_col_ss:'Estalvi SS', flex_col_total:'Estalvi total',
     flex_col_total_row:'Total',
     flex_funding_company_short:'Empresa', flex_funding_worker_short:'Treballador',
-    flex_marginal_note:"Tipus marginal aplicat a l'estalvi IRPF: {r}. La columna \"Estalvi SS\" només apareix quan el concepte es paga amb el salari base del treballador (6,50% de l'exempt).",
+    flex_marginal_note:"Tipus marginal aplicat a l'estalvi IRPF: {r}. L'estalvi SS només apareix quan el concepte el paga el treballador amb el seu salari base. Equival al 6,50% de l'exempt, però cau a 0 si la teva base ja supera el topall de cotització (61.214,40 €/any el 2026): per sobre d'aquest topall reduir el brut no canvia el que pagues de SS.",
     blk_pension:"Pla de pensions d'empresa", toggle_pension_sub:'Redueix la teva base imposable i la teva empresa també aporta',
     lbl_pension_pct:'La teva aportació sobre el salari base', tip_pension_pct:"Aquest import es descompta del teu salari brut i redueix la base imposable.",
     lbl_pension_match:"Match de l'empresa (%)", tip_pension_match:"Per cada euro que aportes tu, l'empresa aporta aquest percentatge addicional.",
@@ -1426,7 +1426,7 @@ const T = {
     flex_col_item:'Item', flex_col_amt:'Annual', flex_col_exempt:'Exempt', flex_col_funding:'Funding', flex_col_irpf:'Tax saving', flex_col_ss:'SS saving', flex_col_total:'Total saving',
     flex_col_total_row:'Total',
     flex_funding_company_short:'Company', flex_funding_worker_short:'Employee',
-    flex_marginal_note:'Marginal rate applied to tax saving: {r}. The "SS saving" column only appears when the item is paid from the employee\'s base salary (6.50% of the exempt amount).',
+    flex_marginal_note:'Marginal rate applied to the tax saving: {r}. The SS saving only appears when the item is paid from the employee\'s base salary. It equals 6.50% of the exempt amount, but drops to 0 once your contribution base is already above the SS cap (€61,214.40/year in 2026): above that cap, lowering your gross does not change the SS you pay.',
     blk_pension:'Company pension plan', toggle_pension_sub:'Reduces your taxable base and your company also contributes',
     lbl_pension_pct:'Your contribution on base salary', tip_pension_pct:'This amount is deducted from your gross salary and reduces your taxable base. It is your money going to the plan, but you pay less tax now.',
     lbl_pension_match:'Company match (%)', tip_pension_match:"For every euro you contribute, the company adds this percentage. It doesn't come from your salary.",
@@ -2185,21 +2185,46 @@ function calculate(){
   // de la empresa es neutra (se suma a ingresos y se deduce), no te ahorra IRPF adicional.
   const pensionTaxSaving = (hasPension ? penB.dedWorker : 0) * marginalRate;
 
+  // ── Ahorro real de SS por retribución flexible aportada por el trabajador ──
+  // Solo cuenta como ahorro la parte que efectivamente reduce la base de cotización: por
+  // encima del tope SS (61.214,40 € en 2026) cotizas siempre lo mismo, así que reducir
+  // el bruto no ahorra nada. Lo mismo para la cuota de solidaridad (que cae al bajar el
+  // exceso sobre el tope, dentro de sus propios tramos).
+  const fullSalForSS = weightedSalaryProj + carAnnual;
+  const totalFlexExemptWorker =
+    (ticketsType==='flex' ? ticketsExempt : 0) +
+    (transType  ==='flex' ? transExempt   : 0) +
+    (guardType  ==='flex' ? guardExempt   : 0) +
+    (healthType ==='flex' ? healthExempt  : 0);
+  const ssBaseNoFlex   = Math.min(fullSalForSS, ssCapUsed);
+  const ssBaseWithFlex = Math.min(Math.max(0, fullSalForSS - totalFlexExemptWorker), ssCapUsed);
+  const realSSSaving   = Math.max(0, ssBaseNoFlex - ssBaseWithFlex) * SS_RATE;
+  const realSolSaving  = Math.max(0,
+    calcSolidarity(fullSalForSS, ssCapUsed) -
+    calcSolidarity(Math.max(0, fullSalForSS - totalFlexExemptWorker), ssCapUsed)
+  );
+  const realSSandSolSaving = realSSSaving + realSolSaving;
+  // Tasa efectiva de ahorro SS+Solidaridad por euro exento (apportionada proporcionalmente).
+  // Cae a 0 si todo el sueldo ya está sobre el tope.
+  const ssSavingPerExemptEuro = totalFlexExemptWorker > 0
+    ? realSSandSolSaving / totalFlexExemptWorker
+    : SS_RATE;
+
   // Ticket saving
   const ticketSaving = ticketsExempt * marginalRate;
-  const ticketSSSaving = (ticketsType==='flex') ? ticketsExempt * SS_RATE : 0;
+  const ticketSSSaving = (ticketsType==='flex') ? ticketsExempt * ssSavingPerExemptEuro : 0;
 
   // Transport saving
   const transSaving = transExempt * marginalRate;
-  const transSSSaving = (transType==='flex') ? transExempt * SS_RATE : 0;
+  const transSSSaving = (transType==='flex') ? transExempt * ssSavingPerExemptEuro : 0;
 
   // Guard saving
   const guardSaving = guardExempt * marginalRate;
-  const guardSSSaving = (guardType==='flex') ? guardExempt * SS_RATE : 0;
+  const guardSSSaving = (guardType==='flex') ? guardExempt * ssSavingPerExemptEuro : 0;
 
   // Health saving
   const healthSavingIRPF = healthExempt * marginalRate;
-  const healthSavingSS   = (healthType==='flex') ? healthExempt * SS_RATE : 0;
+  const healthSavingSS   = (healthType==='flex') ? healthExempt * ssSavingPerExemptEuro : 0;
 
   // ── Valoración de beneficios (lo que vale tu paquete, percibido en cash o en especie) ──
   // Si la retribución flexible se aporta "por el trabajador" (modo flex), NO entra en la
@@ -2216,10 +2241,11 @@ function calculate(){
   const benefitPensionCompany = pensionCompanyAnnual;
   const benefitTotal = benefitSalary + benefitBonus + benefitCar + benefitTickets + benefitTrans + benefitGuard + benefitHealth + benefitLife + benefitOtros + benefitPensionCompany;
   // Ahorro fiscal de la retribución flexible (solo modalidad flex: IRPF + SS del empleado)
-  const flexSavingTickets = (ticketsType==='flex') ? ticketsExempt * (marginalRate + SS_RATE) : 0;
-  const flexSavingTrans   = (transType==='flex')   ? transExempt   * (marginalRate + SS_RATE) : 0;
-  const flexSavingGuard   = (guardType==='flex')   ? guardExempt   * (marginalRate + SS_RATE) : 0;
-  const flexSavingHealth  = (healthType==='flex')  ? healthExempt  * (marginalRate + SS_RATE) : 0;
+  // El ahorro SS usa la tasa efectiva por euro exento (puede ser 0 si se cotiza sobre el tope).
+  const flexSavingTickets = (ticketsType==='flex') ? ticketsExempt * marginalRate + ticketSSSaving : 0;
+  const flexSavingTrans   = (transType==='flex')   ? transExempt   * marginalRate + transSSSaving  : 0;
+  const flexSavingGuard   = (guardType==='flex')   ? guardExempt   * marginalRate + guardSSSaving  : 0;
+  const flexSavingHealth  = (healthType==='flex')  ? healthExempt  * marginalRate + healthSavingSS : 0;
   const flexSavingTotal = flexSavingTickets + flexSavingTrans + flexSavingGuard + flexSavingHealth;
 
   // Ahorro IRPF únicamente (sin SS) — para el hero. Incluye AMBOS modos: cuando la
@@ -2386,16 +2412,15 @@ function renderResults(r){
   // importe exento, el ahorro IRPF (= exento × marginal) y el ahorro SS sólo si la modalidad
   // es "aportado por el trabajador" (la empresa paga lo mismo aunque se rebaje la base).
   const flexItems = [];
-  const pushFlex = (active, labelKey, totalAmt, exempt, type) => {
+  const pushFlex = (active, labelKey, totalAmt, exempt, type, ssSav) => {
     if(!active || exempt <= 0) return;
     const irpfSav = exempt * r.marginalRate;
-    const ssSav   = (type === 'flex') ? exempt * SS_RATE : 0;
     flexItems.push({ labelKey, totalAmt, exempt, type, irpfSav, ssSav });
   };
-  pushFlex(r.hasTickets, 'flex_item_tickets', r.ticketsAmt, r.ticketsExempt, r.ticketsType);
-  pushFlex(r.hasTrans,   'flex_item_trans',   r.transAmt,   r.transExempt,   r.transType);
-  pushFlex(r.hasGuard,   'flex_item_guard',   r.guardAmt,   r.guardExempt,   r.guardType);
-  pushFlex(r.hasHealth,  'flex_item_health',  r.healthAmt,  r.healthExempt + 0, r.healthType);
+  pushFlex(r.hasTickets, 'flex_item_tickets', r.ticketsAmt, r.ticketsExempt, r.ticketsType, r.ticketSSSaving);
+  pushFlex(r.hasTrans,   'flex_item_trans',   r.transAmt,   r.transExempt,   r.transType,   r.transSSSaving);
+  pushFlex(r.hasGuard,   'flex_item_guard',   r.guardAmt,   r.guardExempt,   r.guardType,   r.guardSSSaving);
+  pushFlex(r.hasHealth,  'flex_item_health',  r.healthAmt,  r.healthExempt,  r.healthType,  r.healthSavingSS);
   if(flexItems.length){
     document.getElementById('flexSummaryCard').style.display = '';
     let fk = `<table class="rtable"><thead><tr><th>${t('flex_col_item')}</th><th>${t('flex_col_amt')}</th><th>${t('flex_col_exempt')}</th><th>${t('flex_col_funding')}</th><th>${t('flex_col_irpf')}</th><th>${t('flex_col_ss')}</th><th>${t('flex_col_total')}</th></tr></thead><tbody>`;
