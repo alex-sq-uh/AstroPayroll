@@ -265,7 +265,7 @@
     </svg>
     <div class="brand-text">
       <span class="name">Astro<span class="accent">Payroll</span></span>
-      <span class="ver">v2.2</span>
+      <span class="ver">v2.3</span>
     </div>
   </div>
   <div class="nav-links">
@@ -393,7 +393,7 @@
           <span class="info-icon" style="margin-left:5px;">i<div class="tooltip-box" data-i18n="tip_car">Si tu empresa te da una asignación de coche y no la usas para un vehículo, ese importe se añade a tu salario y tributa como salario normal. No computa para bonus ni plan de pensiones.</div></span>
         </label>
         <div class="input-wrap">
-          <input type="text" inputmode="decimal" class="money-input" id="carAmt" value="8280" placeholder="8.280">
+          <input type="text" inputmode="decimal" class="money-input" id="carAmt" placeholder="8.280">
           <span class="unit">€/año</span>
         </div>
       </div>
@@ -427,10 +427,45 @@
       <div class="field">
         <label data-i18n="lbl_tickets_amt">Importe anual de tickets (€)</label>
         <div class="input-wrap">
-          <input type="text" inputmode="decimal" class="money-input" id="ticketsAmt" value="2420" placeholder="2.420" oninput="validateTickets()">
+          <input type="text" inputmode="decimal" class="money-input" id="ticketsAmt" placeholder="2.420" oninput="validateTickets()">
           <span class="unit">€</span>
         </div>
         <div class="field-error" id="ticketsError" data-i18n="err_tickets">El límite legal exento es de 2.750 € (11 €/día × 250 días). No puede superar este importe.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOQUE 4b: TICKETS TRANSPORTE -->
+  <div class="card">
+    <div class="toggle-row">
+      <div>
+        <div class="card-title" style="margin-bottom:2px;"><div class="icon">🚇</div> <span data-i18n="blk_trans">Tickets transporte</span></div>
+        <div class="toggle-sub" data-i18n="toggle_trans_sub">Límite exento: 1.500 €/año</div>
+      </div>
+      <label class="toggle"><input type="checkbox" id="hasTrans" onchange="toggleSection('transSec',this)"><div class="toggle-slider"></div></label>
+    </div>
+    <div class="toggle-content" id="transSec">
+      <div class="field">
+        <label data-i18n="lbl_trans_type">¿Cómo funciona tu abono transporte?</label>
+        <div class="radio-group">
+          <div class="radio-opt">
+            <input type="radio" name="transType" id="transOnTop" value="ontop" checked>
+            <label for="transOnTop" data-i18n="trans_ontop">Beneficio adicional (on top)</label>
+          </div>
+          <div class="radio-opt">
+            <input type="radio" name="transType" id="transFlex" value="flex">
+            <label for="transFlex" data-i18n="trans_flex">Retribución flexible</label>
+          </div>
+        </div>
+        <div class="field-help" id="transTypeHelp" data-i18n="tip_trans_ontop">La empresa te da el abono transporte encima de tu sueldo. El importe exento (hasta 1.500 €) no tributa en IRPF ni cotiza a la SS.</div>
+      </div>
+      <div class="field">
+        <label data-i18n="lbl_trans_amt">Importe anual de transporte (€)</label>
+        <div class="input-wrap">
+          <input type="text" inputmode="decimal" class="money-input" id="transAmt" placeholder="1.500" oninput="validateTrans()">
+          <span class="unit">€</span>
+        </div>
+        <div class="field-error" id="transError" data-i18n="err_trans">El límite legal exento es de 1.500 €/año (136,36 €/mes). No puede superar este importe.</div>
       </div>
     </div>
   </div>
@@ -462,7 +497,7 @@
       <div class="field">
         <label data-i18n="lbl_health_amt">Importe anual del seguro médico (€)</label>
         <div class="input-wrap">
-          <input type="text" inputmode="decimal" class="money-input" id="healthAmt" value="980" placeholder="980">
+          <input type="text" inputmode="decimal" class="money-input" id="healthAmt" placeholder="980">
           <span class="unit">€</span>
         </div>
       </div>
@@ -485,7 +520,7 @@
           <span class="info-icon" style="margin-left:5px;">i<div class="tooltip-box" data-i18n="tip_life">Lo paga la empresa pero tributa íntegramente como retribución en especie. Se suma a tu base imponible del IRPF.</div></span>
         </label>
         <div class="input-wrap">
-          <input type="text" inputmode="decimal" class="money-input" id="lifeAmt" value="552" placeholder="552">
+          <input type="text" inputmode="decimal" class="money-input" id="lifeAmt" placeholder="552">
           <span class="unit">€</span>
         </div>
       </div>
@@ -525,7 +560,7 @@
           <span class="info-icon" style="margin-left:5px;">i<div class="tooltip-box" data-i18n="tip_pension_match">Por cada euro que aportas tú, la empresa aporta este porcentaje adicional. No sale de tu salario, es dinero extra para tu plan.</div></span>
         </label>
         <div class="input-wrap">
-          <input type="number" id="pensionMatch" value="50" min="0" max="200">
+          <input type="number" id="pensionMatch" placeholder="50" min="0" max="200">
           <span class="unit">%</span>
         </div>
       </div>
@@ -545,7 +580,7 @@
               <span class="info-icon" style="margin-left:5px;">i<div class="tooltip-box" data-i18n="tip_pension_t1">La empresa aporta este % sobre la parte de tu salario base que está por debajo del tope máximo de cotización de la SS.</div></span>
             </label>
             <div class="input-wrap">
-              <input type="number" id="pensionT1" value="1" min="0" step="0.5">
+              <input type="number" id="pensionT1" placeholder="1" min="0" step="0.5">
               <span class="unit">%</span>
             </div>
           </div>
@@ -555,7 +590,7 @@
               <span class="info-icon" style="margin-left:5px;">i<div class="tooltip-box" data-i18n="tip_pension_t2">La empresa aporta este % sobre la parte de tu salario base que supera el tope de cotización.</div></span>
             </label>
             <div class="input-wrap">
-              <input type="number" id="pensionT2" value="10" min="0" step="0.5">
+              <input type="number" id="pensionT2" placeholder="10" min="0" step="0.5">
               <span class="unit">%</span>
             </div>
           </div>
@@ -566,7 +601,7 @@
             <span class="info-icon" style="margin-left:5px;">i<div class="tooltip-box" data-i18n="tip_ss_cap">Límite anual sobre el que cotizas a la SS. Para 2026 es de 61.214,40 €.</div></span>
           </label>
           <div class="input-wrap">
-            <input type="text" inputmode="decimal" class="money-input" id="ssCap" value="61214.40">
+            <input type="text" inputmode="decimal" class="money-input" id="ssCap" placeholder="61.214,40">
             <span class="unit">€</span>
           </div>
         </div>
@@ -597,9 +632,21 @@
       </div>
     </div>
 
-    <!-- RESUMEN ANUAL -->
+    <!-- VALORACIÓN DE BENEFICIOS -->
     <div class="card">
-      <div class="card-title"><div class="icon">📊</div> <span data-i18n="res_annual">Desglose anual</span></div>
+      <div class="card-title"><div class="icon">🎁</div> <span data-i18n="res_valuation">Valoración de salario y beneficios</span></div>
+      <div id="valuationBreakdown"></div>
+    </div>
+
+    <!-- INFORMACIÓN IMPORTANTE -->
+    <div class="card" id="infoCard">
+      <div class="card-title"><div class="icon">💡</div> <span data-i18n="res_info">Información importante</span></div>
+      <div id="infoBreakdown"></div>
+    </div>
+
+    <!-- DEL BRUTO AL NETO -->
+    <div class="card">
+      <div class="card-title"><div class="icon">📊</div> <span data-i18n="res_annual">Del bruto al neto</span></div>
       <div id="annualBreakdown"></div>
     </div>
 
@@ -620,12 +667,6 @@
     <div class="card" id="bonusCard" style="display:none;">
       <div class="card-title"><div class="icon">🎯</div> <span data-i18n="res_bonus">Tu bonus</span></div>
       <div id="bonusBreakdown"></div>
-    </div>
-
-    <!-- BENEFICIOS -->
-    <div class="card" id="benefitsCard" style="display:none;">
-      <div class="card-title"><div class="icon">✨</div> <span data-i18n="res_benefits">Beneficios y ahorro fiscal</span></div>
-      <div id="benefitsBreakdown"></div>
     </div>
 
     <!-- PLAN PENSIONES -->
@@ -843,13 +884,13 @@
       <text x="32" y="35" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-weight="800" font-size="15" fill="#1a2b5e">€</text>
     </svg>
     <span>AstroPayroll</span>
-    <span class="ver-tag">v2.2</span>
+    <span class="ver-tag">v2.3</span>
   </div>
   <div data-i18n="footer_astrocosas">Una app de <a href="#" target="_blank" rel="noopener">AstroCosas</a> · Hecha con ☕ y datos fiscales 2026</div>
 </footer>
 
 <script>
-const APP_VERSION = '2.2';
+const APP_VERSION = '2.3';
 // Escala IRPF 2025 — Cataluña (suma estatal + autonómico)
 // Fuente: https://taxdown.es/irpf/tabla-tramos
 const TRAMOS = [
@@ -878,6 +919,7 @@ const SOL_LIMITS = [61214.40, 76518.00, 91821.60];
 const SOL_RATES  = [0.0019, 0.0021, 0.0024];
 const HEALTH_EXEMPT = 500;
 const TICKETS_LIMIT = 2750;
+const TRANS_LIMIT = 1500;   // abono transporte exento (Art. 42.3.b LIRPF): 1.500 €/año (136,36 €/mes)
 // IRPF base deductions (LIRPF arts. 19 y 20)
 const OTROS_GASTOS = 2000;           // gasto deducible automático
 const MINIMO_PERSONAL = 5550;        // mínimo personal general
@@ -917,6 +959,11 @@ const T = {
     tip_tickets_ontop:'La empresa te da los tickets encima de tu sueldo. El importe exento (hasta 2.750 €) no tributa en IRPF ni cotiza a la SS.',
     tip_tickets_flex:'Los tickets salen de tu salario bruto. El importe exento reduce tu base imponible de IRPF y tu base de cotización a la SS.',
     lbl_tickets_amt:'Importe anual de tickets (€)', err_tickets:'El límite legal exento es de 2.750 € (11 €/día × 250 días). No puede superar este importe.',
+    blk_trans:'Tickets transporte', toggle_trans_sub:'Límite exento: 1.500 €/año', lbl_trans_type:'¿Cómo funciona tu abono transporte?',
+    trans_ontop:'Beneficio adicional (on top)', trans_flex:'Retribución flexible',
+    tip_trans_ontop:'La empresa te da el abono transporte encima de tu sueldo. El importe exento (hasta 1.500 €) no tributa en IRPF ni cotiza a la SS.',
+    tip_trans_flex:'El abono transporte sale de tu salario bruto. El importe exento reduce tu base imponible de IRPF y tu base de cotización a la SS.',
+    lbl_trans_amt:'Importe anual de transporte (€)', err_trans:'El límite legal exento es de 1.500 €/año (136,36 €/mes). No puede superar este importe.',
     blk_health:'Seguro médico', toggle_health_sub:'Lo paga la empresa', lbl_health_type:'¿Cómo funciona tu seguro médico?',
     health_ontop:'Beneficio adicional (on top)', health_flex:'Retribución flexible',
     tip_health_ontop:'La empresa paga el seguro encima de tu sueldo. Hasta 500 €/año está exento de IRPF. El exceso tributa como retribución en especie.',
@@ -934,7 +981,13 @@ const T = {
     lbl_ss_cap:'Tope máximo base cotización SS (€/año)', tip_ss_cap:'Límite anual sobre el que cotizas a la SS. Para 2026 es de 61.214,40 €.',
     btn_calc:'Calcular mi neto', btn_reset:'Resetear', btn_share:'Compartir resultado', share_ok:'¡Copiado!',
     res_title:'Tu resumen anual estimado', hero_gross:'Bruto anual', hero_net:'Neto anual', hero_net_month:'Neto mensual medio', hero_eff_rate:'Tipo efectivo IRPF',
-    res_annual:'Desglose anual', res_monthly:'Desglose mes a mes', res_bonus:'Tu bonus', res_benefits:'Beneficios y ahorro fiscal', res_pension:'Tu plan de pensiones',
+    res_annual:'Del bruto al neto', res_monthly:'Desglose mes a mes', res_bonus:'Tu bonus', res_benefits:'Beneficios y ahorro fiscal', res_pension:'Tu plan de pensiones',
+    res_valuation:'Valoración de salario y beneficios', res_info:'Información importante',
+    val_salary:'Salario base', val_bonus:'Bonus', val_car:'Car allowance', val_tickets:'Tickets restaurante', val_trans:'Tickets transporte', val_health:'Seguro médico', val_life:'Seguro de vida y accidentes', val_pension_company:'Aportación de la empresa al plan',
+    val_total:'Valoración total del paquete', val_flex_saving_total:'Ahorro fiscal por retribución flexible',
+    info_flex_title:'Ahorro por retribución flexible', info_flex_total:'Ahorro total estimado',
+    info_pension_title:'Aportación total anual al plan de pensiones', info_pension_emp:'Aportada por ti (empleado)', info_pension_company:'Aportada por la empresa', info_pension_total:'Total al plan',
+    ann_percibido_title:'Importes percibidos (bruto)', ann_net_exp:'Este es el importe neto que te ingresan en la cuenta a lo largo del año.',
     show_calc:'Ver cómo se calcula la retención mensual',
     monthly_calc_exp:'Tu empresa recalcula la retención de IRPF cada mes. La lógica es: proyecta cuánto ganarás en todo el año desde ese mes, calcula el IRPF anual total, y retiene lo que falta para llegar a ese importe restando lo que ya te ha retenido. Así, si en marzo cobras el bonus, la retención de ese mes sube mucho para compensar.',
     disclaimer_title:'⚠️ Estimación orientativa.', disclaimer_body:' Esta calculadora proporciona una estimación basada en los tramos y reglas generales del IRPF en España. No tiene en cuenta situaciones personales como hijos, discapacidad o deducciones autonómicas. Para conocer tu retención exacta consulta con un asesor fiscal o con el equipo de Recursos Humanos de tu empresa.',
@@ -1006,6 +1059,11 @@ const T = {
     tip_tickets_ontop:"L'empresa et dóna els tiquets a sobre del sou. L'import exempt (fins a 2.750 €) no tributa.",
     tip_tickets_flex:"Els tiquets surten del teu salari brut. L'import exempt redueix la base imposable.",
     lbl_tickets_amt:'Import anual de tiquets (€)', err_tickets:"El límit legal exempt és de 2.750 € (11 €/dia × 250 dies). No pot superar aquest import.",
+    blk_trans:'Tiquets transport', toggle_trans_sub:'Límit exempt: 1.500 €/any', lbl_trans_type:'Com funciona el teu abonament de transport?',
+    trans_ontop:'Benefici addicional (on top)', trans_flex:'Retribució flexible',
+    tip_trans_ontop:"L'empresa et dóna l'abonament de transport a sobre del sou. L'import exempt (fins a 1.500 €) no tributa.",
+    tip_trans_flex:"L'abonament de transport surt del teu salari brut. L'import exempt redueix la base imposable i la base de cotització.",
+    lbl_trans_amt:'Import anual de transport (€)', err_trans:'El límit legal exempt és de 1.500 €/any (136,36 €/mes). No pot superar aquest import.',
     blk_health:'Assegurança mèdica', toggle_health_sub:"La paga l'empresa", lbl_health_type:'Com funciona la teva assegurança mèdica?',
     health_ontop:'Benefici addicional (on top)', health_flex:'Retribució flexible',
     tip_health_ontop:"L'empresa paga l'assegurança a sobre del teu sou. Fins a 500 €/any és exempt d'IRPF.",
@@ -1023,7 +1081,13 @@ const T = {
     lbl_ss_cap:'Topall màxim base cotització SS (€/any)', tip_ss_cap:'Límit anual sobre el qual cotitzes a la SS. Per al 2026 és de 61.214,40 €.',
     btn_calc:'Calcular el meu net', btn_reset:'Reiniciar', btn_share:'Compartir resultat', share_ok:'Copiat!',
     res_title:'El teu resum anual estimat', hero_gross:'Brut anual', hero_net:'Net anual', hero_net_month:'Net mensual mitjà', hero_eff_rate:'Tipus efectiu IRPF',
-    res_annual:'Desglossament anual', res_monthly:'Desglossament mes a mes', res_bonus:'El teu bonus', res_benefits:'Beneficis i estalvi fiscal', res_pension:'El teu pla de pensions',
+    res_annual:'Del brut al net', res_monthly:'Desglossament mes a mes', res_bonus:'El teu bonus', res_benefits:'Beneficis i estalvi fiscal', res_pension:'El teu pla de pensions',
+    res_valuation:'Valoració de salari i beneficis', res_info:'Informació important',
+    val_salary:'Salari base', val_bonus:'Bonus', val_car:'Car allowance', val_tickets:'Tiquets restaurant', val_trans:'Tiquets transport', val_health:'Assegurança mèdica', val_life:'Assegurança de vida i accidents', val_pension_company:"Aportació de l'empresa al pla",
+    val_total:'Valoració total del paquet', val_flex_saving_total:'Estalvi fiscal per retribució flexible',
+    info_flex_title:'Estalvi per retribució flexible', info_flex_total:'Estalvi total estimat',
+    info_pension_title:'Aportació total anual al pla de pensions', info_pension_emp:'Aportada per tu (empleat)', info_pension_company:"Aportada per l'empresa", info_pension_total:'Total al pla',
+    ann_percibido_title:'Imports percebuts (brut)', ann_net_exp:"Aquest és l'import net que t'ingressen al compte al llarg de l'any.",
     show_calc:'Veure com es calcula la retenció mensual',
     monthly_calc_exp:"La teva empresa recalcula la retenció d'IRPF cada mes. Projecta quant guanyaràs en tot l'any, calcula l'IRPF total i reté el que falta.",
     disclaimer_title:'⚠️ Estimació orientativa.', disclaimer_body:" Aquesta calculadora proporciona una estimació basada en els trams generals de l'IRPF a Espanya. No té en compte situacions personals com fills, discapacitat o deduccions autonòmiques.",
@@ -1095,6 +1159,11 @@ const T = {
     tip_tickets_ontop:'The company gives you vouchers on top of your salary. The exempt amount (up to €2,750) is free of income tax and social security.',
     tip_tickets_flex:'Vouchers come out of your gross salary. The exempt amount reduces your taxable base and SS contribution base.',
     lbl_tickets_amt:'Annual meal voucher amount (€)', err_tickets:'The legal tax-exempt limit is €2,750 (€11/day × 250 days). Cannot exceed this amount.',
+    blk_trans:'Transport vouchers', toggle_trans_sub:'Tax-exempt limit: €1,500/year', lbl_trans_type:'How does your transport pass work?',
+    trans_ontop:'Additional benefit (on top of salary)', trans_flex:'Flexible remuneration',
+    tip_trans_ontop:'The company gives you the transport pass on top of your salary. The exempt amount (up to €1,500) is free of income tax and social security.',
+    tip_trans_flex:'The transport pass comes out of your gross salary. The exempt amount reduces your taxable base and SS contribution base.',
+    lbl_trans_amt:'Annual transport amount (€)', err_trans:'The legal tax-exempt limit is €1,500/year (€136.36/month). Cannot exceed this amount.',
     blk_health:'Health insurance', toggle_health_sub:'Paid by the company', lbl_health_type:'How does your health insurance work?',
     health_ontop:'Additional benefit (on top of salary)', health_flex:'Flexible remuneration',
     tip_health_ontop:'The company pays the insurance on top of your salary. Up to €500/year is exempt from income tax. The excess is taxed as a benefit in kind.',
@@ -1112,7 +1181,13 @@ const T = {
     lbl_ss_cap:'Max SS contribution base cap (€/year)', tip_ss_cap:'Annual limit on which you contribute to social security. For 2026 it is €61,214.40.',
     btn_calc:'Calculate my take-home', btn_reset:'Reset', btn_share:'Share result', share_ok:'Copied!',
     res_title:'Your estimated annual summary', hero_gross:'Annual gross', hero_net:'Annual net', hero_net_month:'Average monthly net', hero_eff_rate:'Effective tax rate',
-    res_annual:'Annual breakdown', res_monthly:'Month-by-month breakdown', res_bonus:'Your bonus', res_benefits:'Benefits & tax savings', res_pension:'Your pension plan',
+    res_annual:'From gross to net', res_monthly:'Month-by-month breakdown', res_bonus:'Your bonus', res_benefits:'Benefits & tax savings', res_pension:'Your pension plan',
+    res_valuation:'Salary & benefits valuation', res_info:'Key information',
+    val_salary:'Base salary', val_bonus:'Bonus', val_car:'Car allowance', val_tickets:'Meal vouchers', val_trans:'Transport vouchers', val_health:'Health insurance', val_life:'Life & accident insurance', val_pension_company:'Company contribution to plan',
+    val_total:'Total package valuation', val_flex_saving_total:'Tax saving from flexible remuneration',
+    info_flex_title:'Flexible remuneration saving', info_flex_total:'Total estimated saving',
+    info_pension_title:'Total annual pension contribution', info_pension_emp:'Contributed by you (employee)', info_pension_company:'Contributed by the company', info_pension_total:'Total to plan',
+    ann_percibido_title:'Amounts received (gross)', ann_net_exp:'This is the net amount deposited into your account over the year.',
     show_calc:'How is monthly withholding calculated?',
     monthly_calc_exp:"Your company recalculates income tax withholding every month. It projects how much you'll earn for the full year from that month, calculates total annual tax, and withholds what's needed minus what's already been withheld. That's why the bonus month sees a high withholding.",
     disclaimer_title:'⚠️ Indicative estimate.', disclaimer_body:' This calculator provides an estimate based on general Spanish income tax rules. It does not account for personal circumstances such as children, disability, or regional deductions. For your exact withholding, consult a tax advisor or your HR department.',
@@ -1276,6 +1351,19 @@ function validateTickets(){
   }
 }
 
+function validateTrans(){
+  const val = parseAmount(document.getElementById('transAmt').value);
+  const err = document.getElementById('transError');
+  const inp = document.getElementById('transAmt');
+  if(val > TRANS_LIMIT){
+    err.classList.add('show');
+    inp.classList.add('error');
+  } else {
+    err.classList.remove('show');
+    inp.classList.remove('error');
+  }
+}
+
 function localeFor(){ return currentLang==='en' ? 'en-GB' : 'es-ES'; }
 function fmt(n){
   return (n||0).toLocaleString(localeFor(), {minimumFractionDigits:2, maximumFractionDigits:2, useGrouping:true}) + ' €';
@@ -1311,6 +1399,16 @@ function parseAmount(str){
   // it's a thousand separator → strip all of that char
   return parseFloat(s.split(s[lastSep]).join('')) || 0;
 }
+
+// Lee el contenido de un campo; si está vacío usa el placeholder (valor sugerido por defecto).
+function fieldRaw(id){
+  const el = document.getElementById(id);
+  if(!el) return '';
+  const v = (el.value != null) ? String(el.value).trim() : '';
+  return v !== '' ? v : (el.placeholder || '');
+}
+function fieldAmount(id){ return parseAmount(fieldRaw(id)); }
+function fieldPct(id){ return (parseFloat(String(fieldRaw(id)).replace(',', '.')) || 0); }
 
 function formatAmountForInput(n){
   if(n == null || n === '' || isNaN(n)) return '';
@@ -1467,48 +1565,53 @@ function calcSolidarity(annualSalaryForSS, ssCap){
 }
 
 function calculate(){
-  const ticketsAmt = parseAmount(document.getElementById('ticketsAmt').value);
+  const ticketsAmt = fieldAmount('ticketsAmt');
   if(ticketsAmt > TICKETS_LIMIT){ validateTickets(); return; }
+  const transAmt = fieldAmount('transAmt');
+  if(transAmt > TRANS_LIMIT){ validateTrans(); return; }
 
   const hasRaise = document.getElementById('hasRaise').checked;
   const hasBonus = document.getElementById('hasBonus').checked;
   const hasCar   = document.getElementById('hasCar').checked;
   const hasTickets = document.getElementById('hasTickets').checked;
+  const hasTrans   = document.getElementById('hasTrans').checked;
   const hasHealth  = document.getElementById('hasHealth').checked;
   const hasLife    = document.getElementById('hasLife').checked;
   const hasPension = document.getElementById('hasPension').checked;
   const hasPensionExtra = document.getElementById('hasPensionExtra').checked;
 
   // When raise mode is active the card shows oldSalary/newSalary; otherwise salaryBase.
-  let salaryBase = hasRaise
-    ? parseAmount(document.getElementById('oldSalary').value)
-    : parseAmount(document.getElementById('salaryBase').value);
+  let salaryBase = hasRaise ? fieldAmount('oldSalary') : fieldAmount('salaryBase');
   if(!salaryBase) salaryBase = 0;
-  const newSalary = hasRaise ? (parseAmount(document.getElementById('newSalary').value) || salaryBase) : salaryBase;
+  const newSalary = hasRaise ? (fieldAmount('newSalary') || salaryBase) : salaryBase;
   const raiseMonth = hasRaise ? parseInt(document.getElementById('raiseMonth').value) : 13;
 
-  const bonusAmt   = hasBonus ? parseAmount(document.getElementById('bonusAmt').value) : 0;
+  const bonusAmt   = hasBonus ? fieldAmount('bonusAmt') : 0;
   const bonusMonth = hasBonus ? parseInt(document.getElementById('bonusMonth').value) : 0;
 
-  const carAnnual  = hasCar ? parseAmount(document.getElementById('carAmt').value) : 0;
+  const carAnnual  = hasCar ? fieldAmount('carAmt') : 0;
   const carMonthly = carAnnual / 12;
 
   const ticketsType = hasTickets ? document.querySelector('input[name="ticketsType"]:checked').value : 'none';
   const ticketsExempt = hasTickets ? Math.min(ticketsAmt, TICKETS_LIMIT) : 0;
+  const ticketsTaxable = hasTickets ? Math.max(0, ticketsAmt - TICKETS_LIMIT) : 0;
+
+  const transType = hasTrans ? document.querySelector('input[name="transType"]:checked').value : 'none';
+  const transExempt = hasTrans ? Math.min(transAmt, TRANS_LIMIT) : 0;
+  const transTaxable = hasTrans ? Math.max(0, transAmt - TRANS_LIMIT) : 0;
 
   const healthType = hasHealth ? document.querySelector('input[name="healthType"]:checked').value : 'none';
-  const healthAmt  = hasHealth ? parseAmount(document.getElementById('healthAmt').value) : 0;
+  const healthAmt  = hasHealth ? fieldAmount('healthAmt') : 0;
   const healthExempt = Math.min(healthAmt, HEALTH_EXEMPT);
   const healthTaxable = Math.max(0, healthAmt - HEALTH_EXEMPT);
 
-  const lifeAmt = hasLife ? parseAmount(document.getElementById('lifeAmt').value) : 0;
+  const lifeAmt = hasLife ? fieldAmount('lifeAmt') : 0;
 
-  const pensionPct   = hasPension ? (parseFloat(document.getElementById('pensionPct').value)||0)/100 : 0;
-  const pensionMatch = hasPension ? (parseFloat(document.getElementById('pensionMatch').value)||0)/100 : 0;
-  const pensionT1    = hasPension && hasPensionExtra ? (parseFloat(document.getElementById('pensionT1').value)||0)/100 : 0;
-  const pensionT2    = hasPension && hasPensionExtra ? (parseFloat(document.getElementById('pensionT2').value)||0)/100 : 0;
-  const ssCap        = hasPension && hasPensionExtra ? (parseAmount(document.getElementById('ssCap').value)||SS_CAP_DEFAULT) : SS_CAP_DEFAULT;
-  const ssCapUsed    = parseAmount(document.getElementById('ssCap').value) || SS_CAP_DEFAULT;
+  const pensionPct   = hasPension ? fieldPct('pensionPct')/100 : 0;
+  const pensionMatch = hasPension ? fieldPct('pensionMatch')/100 : 0;
+  const pensionT1    = hasPension && hasPensionExtra ? fieldPct('pensionT1')/100 : 0;
+  const pensionT2    = hasPension && hasPensionExtra ? fieldPct('pensionT2')/100 : 0;
+  const ssCapUsed    = fieldAmount('ssCap') || SS_CAP_DEFAULT;
   const ssCapMonth   = ssCapUsed / 12;
 
   // ── Plan de pensiones: cifras anuales y límite legal de deducción (Art. 52 LIRPF) ──
@@ -1556,10 +1659,11 @@ function calculate(){
 
     // Gross for the month (what lands in the payslip)
     let grossM = curSalaryMonth + carM;
-    // In flex mode, tickets/health reduce the gross shown
+    // In flex mode, tickets/transport/health reduce the gross shown
     const ticketsFlexM = (ticketsType === 'flex') ? (ticketsExempt / 12) : 0;
+    const transFlexM   = (transType   === 'flex') ? (transExempt   / 12) : 0;
     const healthFlexM  = (healthType  === 'flex') ? (healthExempt / 12)  : 0;
-    grossM -= ticketsFlexM + healthFlexM;
+    grossM -= ticketsFlexM + transFlexM + healthFlexM;
 
     let bonusPay = 0;
     if(hasBonus && m === bonusMonth){ bonusPay = bonusAmt; grossM += bonusPay; }
@@ -1573,17 +1677,18 @@ function calculate(){
       const pCarM = hasCar ? carMonthly : 0;
       const pPensM = hasPension ? (pensionSalaryBase * pensionPct / 12) : 0;
       const pTickFlex = (ticketsType==='flex') ? ticketsExempt/12 : 0;
+      const pTransFlex = (transType==='flex') ? transExempt/12 : 0;
       const pHealthFlex = (healthType==='flex') ? healthExempt/12 : 0;
       const pLifeM = lifeAmt/12;
       const pHealthTaxM = healthTaxable/12;
-      let pBaseM = pSalM + pCarM - pPensM + pLifeM + pHealthTaxM - pTickFlex - pHealthFlex;
+      let pBaseM = pSalM + pCarM - pPensM + pLifeM + pHealthTaxM - pTickFlex - pTransFlex - pHealthFlex;
       // El bonus se asume conocido desde enero: siempre se incluye en el mes que toca.
       if(hasBonus && pm === bonusMonth) pBaseM += bonusAmt;
       accBase += pBaseM;  // (sin cambio — el bonus ya se sumaba en el mes correcto aquí)
     }
 
     // Current month base
-    let curBaseM = curSalaryMonth + carM - pensionEmpM + lifeM + healthTaxableM - ticketsFlexM - healthFlexM;
+    let curBaseM = curSalaryMonth + carM - pensionEmpM + lifeM + healthTaxableM - ticketsFlexM - transFlexM - healthFlexM;
     if(hasBonus && m === bonusMonth) curBaseM += bonusAmt;
 
     // Project remaining months (including current)
@@ -1595,10 +1700,11 @@ function calculate(){
       const fCarM = hasCar ? carMonthly : 0;
       const fPensM = hasPension ? (pensionSalaryBase * pensionPct / 12) : 0;
       const fTickFlex = (ticketsType==='flex') ? ticketsExempt/12 : 0;
+      const fTransFlex = (transType==='flex') ? transExempt/12 : 0;
       const fHealthFlex = (healthType==='flex') ? healthExempt/12 : 0;
       const fLifeM = lifeAmt/12;
       const fHealthTaxM = healthTaxable/12;
-      let fBaseM = fSalM + fCarM - fPensM + fLifeM + fHealthTaxM - fTickFlex - fHealthFlex;
+      let fBaseM = fSalM + fCarM - fPensM + fLifeM + fHealthTaxM - fTickFlex - fTransFlex - fHealthFlex;
       // El bonus se asume 0 hasta que se cobra: solo entra en la proyección a partir del
       // mes en que se paga (m >= bonusMonth). Antes de ese mes la empresa no lo conoce ni
       // retiene por él, lo que genera un pico de retención en el mes del bonus.
@@ -1609,7 +1715,7 @@ function calculate(){
     // Annual SS base & projected annual pension contribution for the IRPF helper
     const annSalForSS = ((hasRaise && raiseMonth <= 12) ?
       (salaryBase * (raiseMonth-1)/12 + newSalary * (13-raiseMonth)/12)
-      : salaryBase) + carAnnual - (ticketsType==='flex'?ticketsExempt:0) - (healthType==='flex'?healthExempt:0);
+      : salaryBase) + carAnnual - (ticketsType==='flex'?ticketsExempt:0) - (transType==='flex'?transExempt:0) - (healthType==='flex'?healthExempt:0);
     const annualSS = Math.min(annSalForSS, ssCapUsed) * SS_RATE;
     // La cuota de solidaridad del trabajador también es cotización a la SS y, por tanto,
     // gasto deducible del rendimiento del trabajo (Art. 19.2.a LIRPF).
@@ -1628,7 +1734,7 @@ function calculate(){
     accRetained += irpfM;
 
     // SS
-    const ssBaseM = Math.min(curSalaryMonth + carM - ticketsFlexM - healthFlexM, ssCapMonth);
+    const ssBaseM = Math.min(curSalaryMonth + carM - ticketsFlexM - transFlexM - healthFlexM, ssCapMonth);
     const ssM = ssBaseM * SS_RATE;
 
     // Solidarity (annual, prorate monthly) — ya calculada arriba como annSolProj
@@ -1662,12 +1768,13 @@ function calculate(){
     const cur = (hasRaise && mo.m >= raiseMonth) ? newSalary : salaryBase;
     const carM2 = hasCar ? carMonthly : 0;
     const tflexM = (ticketsType==='flex') ? ticketsExempt/12 : 0;
+    const trflexM = (transType==='flex') ? transExempt/12 : 0;
     const hflexM = (healthType==='flex') ? healthExempt/12 : 0;
     const lM = lifeAmt/12;
     // On-top: el seguro médico entra ENTERO como retribución en especie (la exención
     // de 500 € se descuenta después en la base). Flex: solo la parte que excede el límite.
     const htM = (healthType==='flex') ? healthTaxable/12 : healthAmt/12;
-    return s + cur/12 + carM2 + lM + htM - tflexM - hflexM + (hasBonus && mo.m===bonusMonth ? bonusAmt : 0);
+    return s + cur/12 + carM2 + lM + htM - tflexM - trflexM - hflexM + (hasBonus && mo.m===bonusMonth ? bonusAmt : 0);
   }, 0)
   // Las contribuciones de la empresa al plan son retribución en especie → rendimiento íntegro.
   + pensionCompanyAnnual;
@@ -1700,13 +1807,34 @@ function calculate(){
   const ticketSaving = ticketsExempt * marginalRate;
   const ticketSSSaving = (ticketsType==='flex') ? ticketsExempt * SS_RATE : 0;
 
+  // Transport saving
+  const transSaving = transExempt * marginalRate;
+  const transSSSaving = (transType==='flex') ? transExempt * SS_RATE : 0;
+
   // Health saving
   const healthSavingIRPF = healthExempt * marginalRate;
   const healthSavingSS   = (healthType==='flex') ? healthExempt * SS_RATE : 0;
 
+  // ── Valoración de beneficios (lo que vale tu paquete, percibido en cash o en especie) ──
+  const benefitSalary   = weightedSalary;                 // salario anual
+  const benefitBonus    = hasBonus ? bonusAmt : 0;
+  const benefitCar      = hasCar ? carAnnual : 0;
+  const benefitTickets  = hasTickets ? ticketsAmt : 0;
+  const benefitTrans    = hasTrans ? transAmt : 0;
+  const benefitHealth   = (hasHealth && healthType !== 'flex') ? healthAmt : 0; // solo on-top suma valor extra
+  const benefitLife     = hasLife ? lifeAmt : 0;
+  const benefitPensionCompany = pensionCompanyAnnual;
+  const benefitTotal = benefitSalary + benefitBonus + benefitCar + benefitTickets + benefitTrans + benefitHealth + benefitLife + benefitPensionCompany;
+  // Ahorro fiscal de la retribución flexible (solo modalidad flex: IRPF + SS del empleado)
+  const flexSavingTickets = (ticketsType==='flex') ? ticketsExempt * (marginalRate + SS_RATE) : 0;
+  const flexSavingTrans   = (transType==='flex')   ? transExempt   * (marginalRate + SS_RATE) : 0;
+  const flexSavingHealth  = (healthType==='flex')  ? healthExempt  * (marginalRate + SS_RATE) : 0;
+  const flexSavingTotal = flexSavingTickets + flexSavingTrans + flexSavingHealth;
+
   lastResult = {
     months, totalGross, totalIRPF, totalSS, totalSol, totalPensionEmp, totalNet,
-    carAnnual, bonusAmt, hasBonus, hasTickets, ticketsExempt, ticketsType, ticketSaving, ticketSSSaving,
+    carAnnual, bonusAmt, hasBonus, hasTickets, ticketsAmt, ticketsExempt, ticketsType, ticketSaving, ticketSSSaving,
+    hasTrans, transAmt, transExempt, transType, transSaving, transSSSaving,
     hasHealth, healthAmt, healthTaxable, healthExemptOnTop, healthSavingIRPF, healthSavingSS, healthType,
     hasLife, lifeAmt,
     hasPension, pensionPct, pensionMatchAmt, pensionT1amt, pensionT2amt, pensionTotal, pensionTaxSaving,
@@ -1717,7 +1845,10 @@ function calculate(){
     pensionDedVoluntaria: penB.dedVoluntaria, pensionDedInvoluntaria: penB.dedInvoluntaria,
     pensionVoluntariaContrib: penB.voluntariaContrib, pensionInvoluntariaContrib: penB.involuntariaContrib,
     pensionVoluntariaExcess: penB.voluntariaExcess, pensionInvoluntariaExcess: penB.involuntariaExcess,
-    pensionCoefMax: penB.coefMax
+    pensionCoefMax: penB.coefMax,
+    // Valoración de beneficios
+    benefitSalary, benefitBonus, benefitCar, benefitTickets, benefitTrans, benefitHealth, benefitLife, benefitPensionCompany, benefitTotal,
+    flexSavingTickets, flexSavingTrans, flexSavingHealth, flexSavingTotal
   };
 
   renderResults(lastResult);
@@ -1737,8 +1868,41 @@ function renderResults(r){
   document.getElementById('heroNetMonth').textContent = fmtRound(r.totalNet/12);
   document.getElementById('heroEffRate').textContent = fmtPct(r.effectiveRate*100);
 
-  // Annual breakdown
-  let ann = `<div class="section-title">${t('ann_gross')}</div>`;
+  // ── Valoración de salario y beneficios ──
+  let val = `<div class="inline-sum"><span>${t('val_salary')}</span><span class="val">${fmt(r.benefitSalary)}</span></div>`;
+  if(r.hasBonus) val += `<div class="inline-sum"><span>${t('val_bonus')}</span><span class="val">${fmt(r.benefitBonus)}</span></div>`;
+  if(r.hasCar) val += `<div class="inline-sum"><span>${t('val_car')}</span><span class="val">${fmt(r.benefitCar)}</span></div>`;
+  if(r.hasTickets) val += `<div class="inline-sum"><span>${t('val_tickets')}</span><span class="val">${fmt(r.benefitTickets)}</span></div>`;
+  if(r.hasTrans) val += `<div class="inline-sum"><span>${t('val_trans')}</span><span class="val">${fmt(r.benefitTrans)}</span></div>`;
+  if(r.benefitHealth > 0) val += `<div class="inline-sum"><span>${t('val_health')}</span><span class="val">${fmt(r.benefitHealth)}</span></div>`;
+  if(r.hasLife) val += `<div class="inline-sum"><span>${t('val_life')}</span><span class="val">${fmt(r.benefitLife)}</span></div>`;
+  if(r.benefitPensionCompany > 0) val += `<div class="inline-sum"><span>${t('val_pension_company')}</span><span class="val">${fmt(r.benefitPensionCompany)}</span></div>`;
+  val += `<div class="inline-sum total pos"><span>${t('val_total')}</span><span class="val">${fmtRound(r.benefitTotal)}</span></div>`;
+  if(r.flexSavingTotal > 0){
+    val += `<div class="inline-sum pos" style="margin-top:6px;"><span>${t('val_flex_saving_total')}</span><span class="val">+${fmt(r.flexSavingTotal)}</span></div>`;
+  }
+  document.getElementById('valuationBreakdown').innerHTML = val;
+
+  // ── Información importante ──
+  let info = '';
+  if(r.flexSavingTotal > 0){
+    info += `<div class="section-title">${t('info_flex_title')}</div>`;
+    if(r.flexSavingTickets > 0) info += `<div class="inline-sum pos"><span>${t('val_tickets')}</span><span>+${fmt(r.flexSavingTickets)}</span></div>`;
+    if(r.flexSavingTrans > 0) info += `<div class="inline-sum pos"><span>${t('val_trans')}</span><span>+${fmt(r.flexSavingTrans)}</span></div>`;
+    if(r.flexSavingHealth > 0) info += `<div class="inline-sum pos"><span>${t('val_health')}</span><span>+${fmt(r.flexSavingHealth)}</span></div>`;
+    info += `<div class="inline-sum total pos"><span>${t('info_flex_total')}</span><span>+${fmt(r.flexSavingTotal)}</span></div>`;
+  }
+  if(r.hasPension){
+    info += `<div class="section-title" ${r.flexSavingTotal>0?'style="margin-top:1rem;"':''}>${t('info_pension_title')}</div>`;
+    info += `<div class="inline-sum"><span>${t('info_pension_emp')}</span><span>${fmt(r.pensionEmpAnnual)}</span></div>`;
+    info += `<div class="inline-sum"><span>${t('info_pension_company')}</span><span>${fmt(r.pensionCompanyAnnual)}</span></div>`;
+    info += `<div class="inline-sum total"><span>${t('info_pension_total')}</span><span>${fmtRound(r.pensionTotal)}</span></div>`;
+  }
+  document.getElementById('infoCard').style.display = (r.flexSavingTotal > 0 || r.hasPension) ? '' : 'none';
+  document.getElementById('infoBreakdown').innerHTML = info;
+
+  // Annual breakdown — Del bruto al neto
+  let ann = `<div class="section-title">${t('ann_percibido_title')}</div>`;
   ann += `<div class="inline-sum"><span>${t('ann_salary')}</span><span class="val">${fmt(r.weightedSalary)}</span></div>`;
   if(r.hasCar) ann += `<div class="inline-sum"><span>${t('ann_car')}</span><span class="val">${fmt(r.carAnnual)}</span></div>`;
   if(r.hasBonus) ann += `<div class="inline-sum"><span>${t('ann_bonus')}</span><span class="val">${fmt(r.bonusAmt)}</span></div>`;
@@ -1769,12 +1933,7 @@ function renderResults(r){
   const totalDed = r.totalIRPF + r.totalSS + r.totalSol + r.totalPensionEmp;
   ann += `<div class="inline-sum total neg" style="color:var(--danger);"><span>${t('ann_total_ded')}</span><span class="val">−${fmtRound(totalDed)}</span></div>`;
   ann += `<div class="inline-sum total pos"><span>${t('ann_net')}</span><span class="val">${fmtRound(r.totalNet)}</span></div>`;
-
-  if(r.hasTickets){
-    ann += `<div class="section-title" style="margin-top:1rem;">${t('ann_tickets_saving')}</div>`;
-    ann += `<div class="inline-sum pos"><span>${t('ann_tickets_saving')} <span style="color:var(--text-muted);font-size:0.8rem;">(${fmtPct(r.marginalRate*100)})</span></span><span class="val">+${fmt(r.ticketSaving)}</span></div>`;
-    ann += `<p style="font-size:0.78rem;color:var(--text-muted);margin-top:4px;">${t('ann_tickets_exp')}</p>`;
-  }
+  ann += `<p style="font-size:0.78rem;color:var(--text-muted);margin-top:4px;">${t('ann_net_exp')}</p>`;
 
   document.getElementById('annualBreakdown').innerHTML = ann;
 
@@ -1814,34 +1973,6 @@ function renderResults(r){
     document.getElementById('bonusBreakdown').innerHTML = bk;
   } else { document.getElementById('bonusCard').style.display='none'; }
 
-  // Benefits card
-  const showBen = r.hasTickets || r.hasHealth || r.hasLife;
-  document.getElementById('benefitsCard').style.display = showBen ? '' : 'none';
-  if(showBen){
-    let bk = '';
-    if(r.hasTickets){
-      const total = r.ticketSaving + r.ticketSSSaving;
-      bk += `<div class="section-title">${t('ben_tickets')}</div>`;
-      bk += `<div class="inline-sum"><span>${t('ben_marginal')}</span><span>${fmtPct(r.marginalRate*100)}</span></div>`;
-      bk += `<div class="inline-sum pos"><span>${t('ben_saving_irpf')}</span><span>+${fmt(r.ticketSaving)}</span></div>`;
-      if(r.ticketSSSaving > 0) bk += `<div class="inline-sum pos"><span>${t('ben_saving_ss')}</span><span>+${fmt(r.ticketSSSaving)}</span></div>`;
-      bk += `<div class="inline-sum total pos"><span>${t('ben_saving_total')}</span><span>+${fmt(total)}</span></div>`;
-    }
-    if(r.hasHealth){
-      const total = r.healthSavingIRPF + r.healthSavingSS;
-      bk += `<div class="section-title" style="margin-top:1rem;">${t('ben_health')}</div>`;
-      bk += `<div class="inline-sum pos"><span>${t('ben_saving_irpf')}</span><span>+${fmt(r.healthSavingIRPF)}</span></div>`;
-      if(r.healthSavingSS > 0) bk += `<div class="inline-sum pos"><span>${t('ben_saving_ss')}</span><span>+${fmt(r.healthSavingSS)}</span></div>`;
-      bk += `<div class="inline-sum total pos"><span>${t('ben_saving_total')}</span><span>+${fmt(total)}</span></div>`;
-    }
-    if(r.hasLife){
-      bk += `<div class="section-title" style="margin-top:1rem;">${t('ben_life')}</div>`;
-      bk += `<div class="inline-sum"><span>Importe</span><span>${fmt(r.lifeAmt)}</span></div>`;
-      bk += `<div class="inline-sum neg"><span>${t('ann_irpf')}</span><span>−${fmt(r.lifeAmt * r.marginalRate)}</span></div>`;
-    }
-    document.getElementById('benefitsBreakdown').innerHTML = bk;
-  }
-
   // Pension card
   document.getElementById('pensionCard').style.display = r.hasPension ? '' : 'none';
   if(r.hasPension){
@@ -1880,21 +2011,19 @@ function renderResults(r){
 }
 
 function resetForm(){
-  document.querySelectorAll('.money-input').forEach(i => { if(i.id !== 'ssCap') i.value = ''; });
-  document.querySelectorAll('input[type="number"]').forEach(i => { if(i.id !== 'pensionMatch' && i.id !== 'pensionT1' && i.id !== 'pensionT2') i.value = ''; });
+  // Sin valores iniciales: se limpian todos los campos y los placeholders (gris) actúan
+  // como valores sugeridos por defecto.
+  document.querySelectorAll('.money-input').forEach(i => { i.value = ''; });
+  document.querySelectorAll('input[type="number"]').forEach(i => { i.value = ''; });
   document.querySelectorAll('input[type="checkbox"]').forEach(c => { c.checked = false; });
   toggleRaiseMode(false);
-  document.getElementById('pensionMatch').value = 50;
-  document.getElementById('pensionT1').value = 1;
-  document.getElementById('pensionT2').value = 10;
-  document.getElementById('ssCap').value = formatAmountForInput(61214.40);
   document.querySelectorAll('.toggle-content').forEach(el => el.classList.remove('open'));
   document.getElementById('hasPensionExtra').checked = true;
   document.getElementById('pensionExtraSec').classList.add('open');
   document.getElementById('results').style.display = 'none';
   document.getElementById('raisePct').textContent = '—';
-  document.getElementById('ticketsError').classList.remove('show');
-  document.getElementById('ticketsAmt') && document.getElementById('ticketsAmt').classList.remove('error');
+  ['ticketsError','transError'].forEach(id => document.getElementById(id) && document.getElementById(id).classList.remove('show'));
+  ['ticketsAmt','transAmt'].forEach(id => document.getElementById(id) && document.getElementById(id).classList.remove('error'));
   lastResult = null;
 }
 
@@ -1931,6 +2060,12 @@ document.querySelectorAll('input[name="ticketsType"]').forEach(r => {
 document.querySelectorAll('input[name="healthType"]').forEach(r => {
   r.addEventListener('change', () => {
     document.getElementById('healthTypeHelp').setAttribute('data-i18n', r.value==='flex' ? 'tip_health_flex' : 'tip_health_ontop');
+    applyTranslations();
+  });
+});
+document.querySelectorAll('input[name="transType"]').forEach(r => {
+  r.addEventListener('change', () => {
+    document.getElementById('transTypeHelp').setAttribute('data-i18n', r.value==='flex' ? 'tip_trans_flex' : 'tip_trans_ontop');
     applyTranslations();
   });
 });
