@@ -1445,8 +1445,9 @@ function calculate(){
       const pLifeM = lifeAmt/12;
       const pHealthTaxM = healthTaxable/12;
       let pBaseM = pSalM + pCarM - pPensM + pLifeM + pHealthTaxM - pTickFlex - pHealthFlex;
+      // El bonus se asume conocido desde enero: siempre se incluye en el mes que toca.
       if(hasBonus && pm === bonusMonth) pBaseM += bonusAmt;
-      accBase += pBaseM;
+      accBase += pBaseM;  // (sin cambio — el bonus ya se sumaba en el mes correcto aquí)
     }
 
     // Current month base
@@ -1466,10 +1467,10 @@ function calculate(){
       const fLifeM = lifeAmt/12;
       const fHealthTaxM = healthTaxable/12;
       let fBaseM = fSalM + fCarM - fPensM + fLifeM + fHealthTaxM - fTickFlex - fHealthFlex;
-      // Bonus: only include in the projection from the month it is known onwards
-      // (i.e. when we are calculating the bonus month or later). Before that month,
-      // the company doesn't know the bonus yet and doesn't retain for it.
-      if(hasBonus && fm === bonusMonth && m >= bonusMonth) fBaseM += bonusAmt;
+      // El bonus se asume conocido desde enero y siempre se proyecta en el mes que toca,
+      // independientemente del mes actual que estamos calculando. Esto produce una retención
+      // mensual uniforme y más alta durante todo el año, sin spike en el mes del bonus.
+      if(hasBonus && fm === bonusMonth) fBaseM += bonusAmt;
       projBase += fBaseM;
     }
 
