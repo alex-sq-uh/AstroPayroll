@@ -265,7 +265,7 @@
     </svg>
     <div class="brand-text">
       <span class="name">Astro<span class="accent">Payroll</span></span>
-      <span class="ver">v1.6</span>
+      <span class="ver">v1.7</span>
     </div>
   </div>
   <div class="nav-links">
@@ -843,13 +843,13 @@
       <text x="32" y="35" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-weight="800" font-size="15" fill="#1a2b5e">€</text>
     </svg>
     <span>AstroPayroll</span>
-    <span class="ver-tag">v1.6</span>
+    <span class="ver-tag">v1.7</span>
   </div>
   <div data-i18n="footer_astrocosas">Una app de <a href="#" target="_blank" rel="noopener">AstroCosas</a> · Hecha con ☕ y datos fiscales 2026</div>
 </footer>
 
 <script>
-const APP_VERSION = '1.6';
+const APP_VERSION = '1.7';
 // Escala IRPF 2025 — Cataluña (suma estatal + autonómico)
 // Fuente: https://taxdown.es/irpf/tabla-tramos
 const TRAMOS = [
@@ -962,6 +962,7 @@ const T = {
     ann_irpf_base_title:'Cálculo de la base del IRPF',
     ann_ss_deduction:'Cotizaciones SS empleado (gasto deducible)',
     ann_sol_deduction:'Cuota de solidaridad (gasto deducible)',
+    ann_health_exempt:'Exención seguro médico (Art. 42.3)',
     ann_otros_gastos:'Otros gastos (2.000 €/año)',
     ann_reduccion_rt:'Reducción por rendimientos del trabajo',
     ann_pension_red:'Reducción por aportación a plan de pensiones',
@@ -1050,6 +1051,7 @@ const T = {
     ann_irpf_base_title:"Càlcul de la base de l'IRPF",
     ann_ss_deduction:'Cotitzacions SS empleat (despesa deduïble)',
     ann_sol_deduction:'Quota de solidaritat (despesa deduïble)',
+    ann_health_exempt:'Exempció assegurança mèdica (Art. 42.3)',
     ann_otros_gastos:'Altres despeses (2.000 €/any)',
     ann_reduccion_rt:'Reducció per rendiments del treball',
     ann_pension_red:'Reducció per aportació a pla de pensions',
@@ -1138,6 +1140,7 @@ const T = {
     ann_irpf_base_title:'How the income tax base is built',
     ann_ss_deduction:'Employee SS contributions (deductible)',
     ann_sol_deduction:'Solidarity surcharge (deductible)',
+    ann_health_exempt:'Health insurance exemption (Art. 42.3)',
     ann_otros_gastos:'Other deductible expenses (€2,000/year)',
     ann_reduccion_rt:'Employment income reduction',
     ann_pension_red:'Reduction for pension plan contributions',
@@ -1658,15 +1661,21 @@ function calculate(){
     const tflexM = (ticketsType==='flex') ? ticketsExempt/12 : 0;
     const hflexM = (healthType==='flex') ? healthExempt/12 : 0;
     const lM = lifeAmt/12;
-    const htM = healthTaxable/12;
+    // On-top: el seguro médico entra ENTERO como retribución en especie (la exención
+    // de 500 € se descuenta después en la base). Flex: solo la parte que excede el límite.
+    const htM = (healthType==='flex') ? healthTaxable/12 : healthAmt/12;
     return s + cur/12 + carM2 + lM + htM - tflexM - hflexM + (hasBonus && mo.m===bonusMonth ? bonusAmt : 0);
   }, 0)
   // Las contribuciones de la empresa al plan son retribución en especie → rendimiento íntegro.
   + pensionCompanyAnnual;
 
+  // Exención del seguro médico (hasta 500 €/año) en modo on-top: se incluyó el importe
+  // completo en los rendimientos íntegros y aquí se descuenta (Art. 42.3.c LIRPF).
+  const healthExemptOnTop = (hasHealth && healthType !== 'flex') ? healthExempt : 0;
+
   // Aplica el cálculo real del IRPF para extraer base liquidable y desglose.
   // OJO: solo la parte DEDUCIBLE de las aportaciones al plan reduce la base (Art. 52 LIRPF).
-  const rntPrevio = Math.max(0, annualRendIntegros - totalSS - totalSol - OTROS_GASTOS);
+  const rntPrevio = Math.max(0, annualRendIntegros - healthExemptOnTop - totalSS - totalSol - OTROS_GASTOS);
   const reduccionRT = reduccionTrabajo(rntPrevio);
   const rntReducido = Math.max(0, rntPrevio - reduccionRT);
   const baseLiquidable = Math.max(0, rntReducido - pensionDeductibleAnnual);
@@ -1695,7 +1704,7 @@ function calculate(){
   lastResult = {
     months, totalGross, totalIRPF, totalSS, totalSol, totalPensionEmp, totalNet,
     carAnnual, bonusAmt, hasBonus, hasTickets, ticketsExempt, ticketsType, ticketSaving, ticketSSSaving,
-    hasHealth, healthAmt, healthTaxable, healthSavingIRPF, healthSavingSS, healthType,
+    hasHealth, healthAmt, healthTaxable, healthExemptOnTop, healthSavingIRPF, healthSavingSS, healthType,
     hasLife, lifeAmt,
     hasPension, pensionPct, pensionMatchAmt, pensionT1amt, pensionT2amt, pensionTotal, pensionTaxSaving,
     marginalRate, effectiveRate, weightedSalary, hasCar,
@@ -1730,7 +1739,8 @@ function renderResults(r){
   ann += `<div class="inline-sum"><span>${t('ann_salary')}</span><span class="val">${fmt(r.weightedSalary)}</span></div>`;
   if(r.hasCar) ann += `<div class="inline-sum"><span>${t('ann_car')}</span><span class="val">${fmt(r.carAnnual)}</span></div>`;
   if(r.hasBonus) ann += `<div class="inline-sum"><span>${t('ann_bonus')}</span><span class="val">${fmt(r.bonusAmt)}</span></div>`;
-  if(r.hasHealth && r.healthTaxable > 0) ann += `<div class="inline-sum"><span>${t('ann_health_spkd')}</span><span class="val">${fmt(r.healthTaxable)}</span></div>`;
+  if(r.hasHealth && r.healthType !== 'flex' && r.healthAmt > 0) ann += `<div class="inline-sum"><span>${t('ann_health_spkd')}</span><span class="val">${fmt(r.healthAmt)}</span></div>`;
+  else if(r.hasHealth && r.healthTaxable > 0) ann += `<div class="inline-sum"><span>${t('ann_health_spkd')}</span><span class="val">${fmt(r.healthTaxable)}</span></div>`;
   if(r.hasLife) ann += `<div class="inline-sum"><span>${t('ann_life_spkd')}</span><span class="val">${fmt(r.lifeAmt)}</span></div>`;
   if(r.hasPension && r.pensionCompanyAnnual > 0) ann += `<div class="inline-sum"><span>${t('ann_pension_company_spkd')}</span><span class="val">${fmt(r.pensionCompanyAnnual)}</span></div>`;
   ann += `<div class="inline-sum" style="font-weight:600; border-top:1px solid var(--border); padding-top:8px; margin-top:4px;"><span>${t('ann_rend_integros')}</span><span class="val">${fmt(r.annualRendIntegros)}</span></div>`;
@@ -1739,6 +1749,7 @@ function renderResults(r){
   ann += `<div class="section-title" style="margin-top:1rem;">${t('ann_irpf_base_title')}</div>`;
   ann += `<div class="inline-sum neg"><span>${t('ann_ss_deduction')}</span><span class="val">−${fmt(r.totalSS)}</span></div>`;
   if(r.totalSol > 0) ann += `<div class="inline-sum neg"><span>${t('ann_sol_deduction')}</span><span class="val">−${fmt(r.totalSol)}</span></div>`;
+  if(r.healthExemptOnTop > 0) ann += `<div class="inline-sum neg"><span>${t('ann_health_exempt')}</span><span class="val">−${fmt(r.healthExemptOnTop)}</span></div>`;
   ann += `<div class="inline-sum neg"><span>${t('ann_otros_gastos')}</span><span class="val">−${fmt(r.otrosGastos)}</span></div>`;
   if(r.reduccionRT > 0) ann += `<div class="inline-sum neg"><span>${t('ann_reduccion_rt')}</span><span class="val">−${fmt(r.reduccionRT)}</span></div>`;
   if(r.hasPension && r.pensionDedVoluntaria > 0) ann += `<div class="inline-sum neg"><span>${t('ann_pension_red_vol')}</span><span class="val">−${fmt(r.pensionDedVoluntaria)}</span></div>`;
