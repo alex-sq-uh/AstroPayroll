@@ -246,6 +246,24 @@
   /* PROGRESS BAR FOR TRAMOS */
   .tramo-vis { display: flex; height: 12px; border-radius: 6px; overflow: hidden; margin: 1rem 0; }
   .tramo-vis-seg { height: 100%; transition: flex 0.3s; }
+
+  /* DYNAMIC ROWS (otros beneficios) */
+  .otro-row { display: grid; grid-template-columns: 1.4fr 1fr 0.7fr auto; gap: 8px; align-items: end; margin-bottom: 8px; }
+  .otro-row .field { margin-bottom: 0; }
+  .otro-row label { font-size: 0.7rem; }
+  .otro-row .btn-remove { background: var(--danger-bg); color: var(--danger); border: 1px solid #f3c4be; border-radius: 8px; width: 36px; height: 38px; cursor: pointer; font-weight: 700; font-size: 1.1rem; line-height: 1; padding: 0; }
+  .otro-row .btn-remove:hover { background: #f8dad4; }
+  .btn-add-row { background: var(--surface2); color: var(--secondary); border: 1.5px dashed var(--secondary); border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 600; cursor: pointer; margin-top: 4px; }
+  .btn-add-row:hover { background: #e6effa; }
+  .annual-hint { font-size: 0.78rem; color: var(--text-muted); margin-top: 6px; font-style: italic; }
+  .annual-hint strong { color: var(--primary); font-style: normal; }
+  @media (max-width: 600px) {
+    .otro-row { grid-template-columns: 1fr 1fr; grid-template-areas: 'name name' 'monthly months' 'remove remove'; }
+    .otro-row .field-name { grid-area: name; }
+    .otro-row .field-monthly { grid-area: monthly; }
+    .otro-row .field-months { grid-area: months; }
+    .otro-row .btn-remove { grid-area: remove; width: 100%; height: 32px; }
+  }
 </style>
 </head>
 <body>
@@ -274,7 +292,7 @@
     </svg>
     <div class="brand-text">
       <span class="name">Astro<span class="accent">Payroll</span></span>
-      <span class="ver">v2.8</span>
+      <span class="ver">v2.9</span>
     </div>
   </div>
   <div class="nav-links">
@@ -414,33 +432,40 @@
     <div class="toggle-row">
       <div>
         <div class="card-title" style="margin-bottom:2px;"><div class="icon">🍽️</div> <span data-i18n="blk_tickets">Tickets restaurante</span></div>
-        <div class="toggle-sub" data-i18n="toggle_tickets_sub">Límite exento: 2.750 €/año</div>
+        <div class="toggle-sub" data-i18n="toggle_tickets_sub">Retribución flexible · Límite exento: 2.750 €/año</div>
       </div>
       <label class="toggle"><input type="checkbox" id="hasTickets" onchange="toggleSection('ticketsSec',this)"><div class="toggle-slider"></div></label>
     </div>
     <div class="toggle-content" id="ticketsSec">
       <div class="field">
-        <label data-i18n="lbl_tickets_type">¿Cómo funcionan tus tickets?</label>
-        <div class="radio-group">
-          <div class="radio-opt">
+        <label data-i18n="lbl_flex_funding">¿Cómo se aporta esta retribución flexible?</label>
+        <div class="radio-group" style="flex-direction:column; gap:6px;">
+          <div class="radio-opt" style="flex:none; min-width:0;">
             <input type="radio" name="ticketsType" id="ticketsOnTop" value="ontop" checked>
-            <label for="ticketsOnTop" data-i18n="tickets_ontop">Beneficio adicional (on top)</label>
+            <label for="ticketsOnTop" data-i18n="flex_company">Aportado por la empresa (adicional al salario base)</label>
           </div>
-          <div class="radio-opt">
+          <div class="radio-opt" style="flex:none; min-width:0;">
             <input type="radio" name="ticketsType" id="ticketsFlex" value="flex">
-            <label for="ticketsFlex" data-i18n="tickets_flex">Retribución flexible</label>
+            <label for="ticketsFlex" data-i18n="flex_worker">Aportado por el trabajador (pagado con su salario base)</label>
           </div>
         </div>
         <div class="field-help" id="ticketsTypeHelp" data-i18n="tip_tickets_ontop">La empresa te da los tickets encima de tu sueldo. El importe exento (hasta 2.750 €) no tributa en IRPF ni cotiza a la SS.</div>
       </div>
-      <div class="field">
-        <label data-i18n="lbl_tickets_amt">Importe anual de tickets (€)</label>
-        <div class="input-wrap">
-          <input type="text" inputmode="decimal" class="money-input" id="ticketsAmt" placeholder="2.420" oninput="validateTickets()">
-          <span class="unit">€</span>
+      <div class="field-row">
+        <div class="field">
+          <label data-i18n="lbl_monthly_amt">Importe mensual (€)</label>
+          <div class="input-wrap">
+            <input type="text" inputmode="decimal" class="money-input" id="ticketsMonthly" placeholder="220,00" oninput="recalcTicketsAnnual()">
+            <span class="unit">€</span>
+          </div>
         </div>
-        <div class="field-error" id="ticketsError" data-i18n="err_tickets">El límite legal exento es de 2.750 € (11 €/día × 250 días). No puede superar este importe.</div>
+        <div class="field">
+          <label data-i18n="lbl_num_months">Nº meses al año</label>
+          <input type="number" id="ticketsMonths" min="1" max="12" step="1" placeholder="11" oninput="recalcTicketsAnnual()">
+        </div>
       </div>
+      <div class="annual-hint" id="ticketsAnnualHint"></div>
+      <div class="field-error" id="ticketsError" data-i18n="err_tickets" style="margin-top:6px;">El límite legal exento es de 2.750 € (11 €/día × 250 días). No puede superar este importe.</div>
     </div>
   </div>
 
@@ -449,33 +474,81 @@
     <div class="toggle-row">
       <div>
         <div class="card-title" style="margin-bottom:2px;"><div class="icon">🚇</div> <span data-i18n="blk_trans">Tickets transporte</span></div>
-        <div class="toggle-sub" data-i18n="toggle_trans_sub">Límite exento: 1.500 €/año</div>
+        <div class="toggle-sub" data-i18n="toggle_trans_sub">Retribución flexible · Límite exento: 1.500 €/año</div>
       </div>
       <label class="toggle"><input type="checkbox" id="hasTrans" onchange="toggleSection('transSec',this)"><div class="toggle-slider"></div></label>
     </div>
     <div class="toggle-content" id="transSec">
       <div class="field">
-        <label data-i18n="lbl_trans_type">¿Cómo funciona tu abono transporte?</label>
-        <div class="radio-group">
-          <div class="radio-opt">
+        <label data-i18n="lbl_flex_funding">¿Cómo se aporta esta retribución flexible?</label>
+        <div class="radio-group" style="flex-direction:column; gap:6px;">
+          <div class="radio-opt" style="flex:none; min-width:0;">
             <input type="radio" name="transType" id="transOnTop" value="ontop" checked>
-            <label for="transOnTop" data-i18n="trans_ontop">Beneficio adicional (on top)</label>
+            <label for="transOnTop" data-i18n="flex_company">Aportado por la empresa (adicional al salario base)</label>
           </div>
-          <div class="radio-opt">
+          <div class="radio-opt" style="flex:none; min-width:0;">
             <input type="radio" name="transType" id="transFlex" value="flex">
-            <label for="transFlex" data-i18n="trans_flex">Retribución flexible</label>
+            <label for="transFlex" data-i18n="flex_worker">Aportado por el trabajador (pagado con su salario base)</label>
           </div>
         </div>
         <div class="field-help" id="transTypeHelp" data-i18n="tip_trans_ontop">La empresa te da el abono transporte encima de tu sueldo. El importe exento (hasta 1.500 €) no tributa en IRPF ni cotiza a la SS.</div>
       </div>
-      <div class="field">
-        <label data-i18n="lbl_trans_amt">Importe anual de transporte (€)</label>
-        <div class="input-wrap">
-          <input type="text" inputmode="decimal" class="money-input" id="transAmt" placeholder="1.500" oninput="validateTrans()">
-          <span class="unit">€</span>
+      <div class="field-row">
+        <div class="field">
+          <label data-i18n="lbl_monthly_amt">Importe mensual (€)</label>
+          <div class="input-wrap">
+            <input type="text" inputmode="decimal" class="money-input" id="transMonthly" placeholder="125,00" oninput="recalcTransAnnual()">
+            <span class="unit">€</span>
+          </div>
         </div>
-        <div class="field-error" id="transError" data-i18n="err_trans">El límite legal exento es de 1.500 €/año (136,36 €/mes). No puede superar este importe.</div>
+        <div class="field">
+          <label data-i18n="lbl_num_months">Nº meses al año</label>
+          <input type="number" id="transMonths" min="1" max="12" step="1" placeholder="12" oninput="recalcTransAnnual()">
+        </div>
       </div>
+      <div class="annual-hint" id="transAnnualHint"></div>
+      <div class="field-error" id="transError" data-i18n="err_trans" style="margin-top:6px;">El límite legal exento es de 1.500 €/año (136,36 €/mes). No puede superar este importe.</div>
+    </div>
+  </div>
+
+  <!-- BLOQUE 4c: TICKET GUARDERÍA -->
+  <div class="card">
+    <div class="toggle-row">
+      <div>
+        <div class="card-title" style="margin-bottom:2px;"><div class="icon">🧸</div> <span data-i18n="blk_guard">Ticket guardería</span></div>
+        <div class="toggle-sub" data-i18n="toggle_guard_sub">Retribución flexible · Sin límite (Art. 42.3.b LIRPF)</div>
+      </div>
+      <label class="toggle"><input type="checkbox" id="hasGuard" onchange="toggleSection('guardSec',this)"><div class="toggle-slider"></div></label>
+    </div>
+    <div class="toggle-content" id="guardSec">
+      <div class="field">
+        <label data-i18n="lbl_flex_funding">¿Cómo se aporta esta retribución flexible?</label>
+        <div class="radio-group" style="flex-direction:column; gap:6px;">
+          <div class="radio-opt" style="flex:none; min-width:0;">
+            <input type="radio" name="guardType" id="guardOnTop" value="ontop" checked>
+            <label for="guardOnTop" data-i18n="flex_company">Aportado por la empresa (adicional al salario base)</label>
+          </div>
+          <div class="radio-opt" style="flex:none; min-width:0;">
+            <input type="radio" name="guardType" id="guardFlex" value="flex">
+            <label for="guardFlex" data-i18n="flex_worker">Aportado por el trabajador (pagado con su salario base)</label>
+          </div>
+        </div>
+        <div class="field-help" id="guardTypeHelp" data-i18n="tip_guard_ontop">La empresa te paga la guardería encima de tu sueldo. El cheque guardería está exento sin límite cuantitativo: no tributa en IRPF ni cotiza a la SS.</div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label data-i18n="lbl_monthly_amt">Importe mensual (€)</label>
+          <div class="input-wrap">
+            <input type="text" inputmode="decimal" class="money-input" id="guardMonthly" placeholder="200,00" oninput="recalcGuardAnnual()">
+            <span class="unit">€</span>
+          </div>
+        </div>
+        <div class="field">
+          <label data-i18n="lbl_num_months">Nº meses al año</label>
+          <input type="number" id="guardMonths" min="1" max="12" step="1" placeholder="11" oninput="recalcGuardAnnual()">
+        </div>
+      </div>
+      <div class="annual-hint" id="guardAnnualHint"></div>
     </div>
   </div>
 
@@ -533,6 +606,23 @@
           <span class="unit">€</span>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- BLOQUE 6b: OTROS BENEFICIOS EN ESPECIE -->
+  <div class="card">
+    <div class="toggle-row">
+      <div>
+        <div class="card-title" style="margin-bottom:2px;"><div class="icon">🎁</div> <span data-i18n="blk_otros">Otros beneficios en especie</span></div>
+        <div class="toggle-sub" data-i18n="toggle_otros_sub">Otros conceptos que paga la empresa y tributan en IRPF</div>
+      </div>
+      <label class="toggle"><input type="checkbox" id="hasOtros" onchange="toggleSection('otrosSec',this)"><div class="toggle-slider"></div></label>
+    </div>
+    <div class="toggle-content" id="otrosSec">
+      <div class="field-help" style="margin-bottom:10px;" data-i18n="help_otros">Añade cualquier beneficio en especie que tu empresa pague por ti (gimnasio, vivienda, plataformas, etc.). Se suman como retribución en especie y tributan al tipo marginal.</div>
+      <div id="otrosList"></div>
+      <button type="button" class="btn-add-row" onclick="addOtroRow()" data-i18n="btn_add_otro">+ Añadir otro beneficio</button>
+      <div class="annual-hint" id="otrosAnnualHint" style="margin-top:10px;"></div>
     </div>
   </div>
 
@@ -636,10 +726,9 @@
     <div class="result-hero">
       <h2 data-i18n="res_title">Tu resumen anual estimado</h2>
       <div class="hero-grid">
-        <div class="hero-stat"><div class="val" id="heroGross">—</div><div class="lbl" data-i18n="hero_gross">Bruto anual</div></div>
-        <div class="hero-stat"><div class="val" id="heroNet">—</div><div class="lbl" data-i18n="hero_net">Neto anual</div></div>
-        <div class="hero-stat"><div class="val" id="heroNetMonth">—</div><div class="lbl" data-i18n="hero_net_month">Neto mensual medio</div></div>
-        <div class="hero-stat"><div class="val" id="heroEffRate">—</div><div class="lbl" data-i18n="hero_eff_rate">Tipo efectivo IRPF</div></div>
+        <div class="hero-stat"><div class="val" id="heroValuation">—</div><div class="lbl" data-i18n="hero_valuation">Valoración del salario + beneficios</div></div>
+        <div class="hero-stat"><div class="val" id="heroNet">—</div><div class="lbl" data-i18n="hero_net_take">Salario neto a recibir</div></div>
+        <div class="hero-stat"><div class="val" id="heroFlexSaving">—</div><div class="lbl" data-i18n="hero_flex_saving">Ahorro IRPF de retribución flexible</div></div>
       </div>
     </div>
 
@@ -889,13 +978,13 @@
       <text x="32" y="35" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-weight="800" font-size="15" fill="#1a2b5e">€</text>
     </svg>
     <span>AstroPayroll</span>
-    <span class="ver-tag">v2.8</span>
+    <span class="ver-tag">v2.9</span>
   </div>
   <div data-i18n="footer_astrocosas">Una app de <a href="#" target="_blank" rel="noopener">AstroCosas</a> · Hecha con ☕ y datos fiscales 2026</div>
 </footer>
 
 <script>
-const APP_VERSION = '2.8';
+const APP_VERSION = '2.9';
 // Escala IRPF 2025 — Cataluña (suma estatal + autonómico)
 // Fuente: https://taxdown.es/irpf/tabla-tramos
 const TRAMOS = [
@@ -960,16 +1049,31 @@ const T = {
     blk_bonus:'Bonus', toggle_bonus_sub:'Pago variable anual', lbl_bonus:'Importe del bonus bruto', tip_bonus:'El bonus tributa igual que el salario. El mes que lo cobras, tu empresa recalcula toda la retención del año y aplica el ajuste de golpe en ese mes.',
     lbl_bonus_month:'Mes en que se cobra', help_bonus:'Los meses anteriores al bonus tu empresa calcula la retención sin contar con él. Cuando se decide, ajusta todo de golpe.',
     blk_car:'Car allowance', toggle_car_sub:'Asignación de coche', lbl_car:'Importe anual del car allowance', tip_car:'Si tu empresa te da una asignación de coche y no la usas para un vehículo, ese importe se añade a tu salario y tributa como salario normal. No computa para bonus ni plan de pensiones.',
-    blk_tickets:'Tickets restaurante', toggle_tickets_sub:'Límite exento: 2.750 €/año', lbl_tickets_type:'¿Cómo funcionan tus tickets?',
-    tickets_ontop:'Beneficio adicional (on top)', tickets_flex:'Retribución flexible',
+    lbl_flex_funding:'¿Cómo se aporta esta retribución flexible?',
+    flex_company:'Aportado por la empresa (adicional al salario base)',
+    flex_worker:'Aportado por el trabajador (pagado con su salario base)',
+    lbl_monthly_amt:'Importe mensual (€)', lbl_num_months:'Nº meses al año',
+    hint_annual:'Importe anual:',
+    blk_tickets:'Tickets restaurante', toggle_tickets_sub:'Retribución flexible · Límite exento: 2.750 €/año', lbl_tickets_type:'¿Cómo funcionan tus tickets?',
+    tickets_ontop:'Aportado por la empresa (adicional al salario base)', tickets_flex:'Aportado por el trabajador (pagado con su salario base)',
     tip_tickets_ontop:'La empresa te da los tickets encima de tu sueldo. El importe exento (hasta 2.750 €) no tributa en IRPF ni cotiza a la SS.',
     tip_tickets_flex:'Los tickets salen de tu salario bruto. El importe exento reduce tu base imponible de IRPF y tu base de cotización a la SS.',
     lbl_tickets_amt:'Importe anual de tickets (€)', err_tickets:'El límite legal exento es de 2.750 € (11 €/día × 250 días). No puede superar este importe.',
-    blk_trans:'Tickets transporte', toggle_trans_sub:'Límite exento: 1.500 €/año', lbl_trans_type:'¿Cómo funciona tu abono transporte?',
-    trans_ontop:'Beneficio adicional (on top)', trans_flex:'Retribución flexible',
+    blk_trans:'Tickets transporte', toggle_trans_sub:'Retribución flexible · Límite exento: 1.500 €/año', lbl_trans_type:'¿Cómo funciona tu abono transporte?',
+    trans_ontop:'Aportado por la empresa (adicional al salario base)', trans_flex:'Aportado por el trabajador (pagado con su salario base)',
     tip_trans_ontop:'La empresa te da el abono transporte encima de tu sueldo. El importe exento (hasta 1.500 €) no tributa en IRPF ni cotiza a la SS.',
     tip_trans_flex:'El abono transporte sale de tu salario bruto. El importe exento reduce tu base imponible de IRPF y tu base de cotización a la SS.',
     lbl_trans_amt:'Importe anual de transporte (€)', err_trans:'El límite legal exento es de 1.500 €/año (136,36 €/mes). No puede superar este importe.',
+    blk_guard:'Ticket guardería', toggle_guard_sub:'Retribución flexible · Sin límite (Art. 42.3.b LIRPF)',
+    tip_guard_ontop:'La empresa te paga la guardería encima de tu sueldo. El cheque guardería está exento sin límite cuantitativo: no tributa en IRPF ni cotiza a la SS.',
+    tip_guard_flex:'El cheque guardería sale de tu salario bruto. Está exento sin límite cuantitativo: reduce tu base imponible de IRPF y tu base de cotización a la SS.',
+    blk_otros:'Otros beneficios en especie', toggle_otros_sub:'Otros conceptos que paga la empresa y tributan en IRPF',
+    help_otros:'Añade cualquier beneficio en especie que tu empresa pague por ti (gimnasio, vivienda, plataformas, etc.). Se suman como retribución en especie y tributan al tipo marginal.',
+    btn_add_otro:'+ Añadir otro beneficio',
+    lbl_otro_name:'Nombre', hint_otros_total:'Total anual:',
+    val_guard:'Ticket guardería', val_otro_prefix:'Beneficio en especie:',
+    ann_otros_spkd:'Otros beneficios en especie',
+    hero_valuation:'Valoración del salario + beneficios', hero_net_take:'Salario neto a recibir', hero_flex_saving:'Ahorro IRPF de retribución flexible',
     blk_health:'Seguro médico', toggle_health_sub:'Lo paga la empresa', lbl_health_type:'¿Cómo funciona tu seguro médico?',
     health_ontop:'Beneficio adicional (on top)', health_flex:'Retribución flexible',
     tip_health_ontop:'La empresa paga el seguro encima de tu sueldo. Hasta 500 €/año está exento de IRPF. El exceso tributa como retribución en especie.',
@@ -1061,16 +1165,31 @@ const T = {
     blk_bonus:'Bonus', toggle_bonus_sub:'Pagament variable anual', lbl_bonus:'Import del bonus brut', tip_bonus:'El bonus tributa igual que el salari. El mes que el cobres, la teva empresa recalcula tota la retenció de l\'any.',
     lbl_bonus_month:'Mes en què es cobra', help_bonus:"Els mesos anteriors al bonus, l'empresa calcula la retenció sense comptar-lo.",
     blk_car:'Car allowance', toggle_car_sub:'Assignació de cotxe', lbl_car:'Import anual del car allowance', tip_car:"Si l'empresa et dóna una assignació de cotxe i no la uses, es suma al salari i tributa normalment.",
-    blk_tickets:'Tiquets restaurant', toggle_tickets_sub:'Límit exempt: 2.750 €/any', lbl_tickets_type:'Com funcionen els teus tiquets?',
-    tickets_ontop:'Benefici addicional (on top)', tickets_flex:'Retribució flexible',
+    lbl_flex_funding:'Com s\'aporta aquesta retribució flexible?',
+    flex_company:"Aportat per l'empresa (addicional al salari base)",
+    flex_worker:'Aportat pel treballador (pagat amb el seu salari base)',
+    lbl_monthly_amt:'Import mensual (€)', lbl_num_months:'Nº mesos a l\'any',
+    hint_annual:'Import anual:',
+    blk_tickets:'Tiquets restaurant', toggle_tickets_sub:'Retribució flexible · Límit exempt: 2.750 €/any', lbl_tickets_type:'Com funcionen els teus tiquets?',
+    tickets_ontop:"Aportat per l'empresa (addicional al salari base)", tickets_flex:'Aportat pel treballador (pagat amb el seu salari base)',
     tip_tickets_ontop:"L'empresa et dóna els tiquets a sobre del sou. L'import exempt (fins a 2.750 €) no tributa.",
     tip_tickets_flex:"Els tiquets surten del teu salari brut. L'import exempt redueix la base imposable.",
     lbl_tickets_amt:'Import anual de tiquets (€)', err_tickets:"El límit legal exempt és de 2.750 € (11 €/dia × 250 dies). No pot superar aquest import.",
-    blk_trans:'Tiquets transport', toggle_trans_sub:'Límit exempt: 1.500 €/any', lbl_trans_type:'Com funciona el teu abonament de transport?',
-    trans_ontop:'Benefici addicional (on top)', trans_flex:'Retribució flexible',
+    blk_trans:'Tiquets transport', toggle_trans_sub:'Retribució flexible · Límit exempt: 1.500 €/any', lbl_trans_type:'Com funciona el teu abonament de transport?',
+    trans_ontop:"Aportat per l'empresa (addicional al salari base)", trans_flex:'Aportat pel treballador (pagat amb el seu salari base)',
     tip_trans_ontop:"L'empresa et dóna l'abonament de transport a sobre del sou. L'import exempt (fins a 1.500 €) no tributa.",
     tip_trans_flex:"L'abonament de transport surt del teu salari brut. L'import exempt redueix la base imposable i la base de cotització.",
     lbl_trans_amt:'Import anual de transport (€)', err_trans:'El límit legal exempt és de 1.500 €/any (136,36 €/mes). No pot superar aquest import.',
+    blk_guard:'Tiquet guarderia', toggle_guard_sub:'Retribució flexible · Sense límit (Art. 42.3.b LIRPF)',
+    tip_guard_ontop:"L'empresa et paga la guarderia a sobre del sou. El xec guarderia està exempt sense límit quantitatiu.",
+    tip_guard_flex:"El xec guarderia surt del teu salari brut. Està exempt sense límit quantitatiu: redueix la base imposable i la base de cotització.",
+    blk_otros:'Altres beneficis en espècie', toggle_otros_sub:"Altres conceptes que paga l'empresa i tributen en IRPF",
+    help_otros:"Afegeix qualsevol benefici en espècie que la teva empresa pagui per tu (gimnàs, habitatge, plataformes, etc.). Se sumen com a retribució en espècie i tributen al tipus marginal.",
+    btn_add_otro:'+ Afegir un altre benefici',
+    lbl_otro_name:'Nom', hint_otros_total:'Total anual:',
+    val_guard:'Tiquet guarderia', val_otro_prefix:'Benefici en espècie:',
+    ann_otros_spkd:'Altres beneficis en espècie',
+    hero_valuation:'Valoració del salari + beneficis', hero_net_take:'Salari net a rebre', hero_flex_saving:"Estalvi IRPF de retribució flexible",
     blk_health:'Assegurança mèdica', toggle_health_sub:"La paga l'empresa", lbl_health_type:'Com funciona la teva assegurança mèdica?',
     health_ontop:'Benefici addicional (on top)', health_flex:'Retribució flexible',
     tip_health_ontop:"L'empresa paga l'assegurança a sobre del teu sou. Fins a 500 €/any és exempt d'IRPF.",
@@ -1162,16 +1281,31 @@ const T = {
     blk_bonus:'Bonus', toggle_bonus_sub:'Annual variable pay', lbl_bonus:'Gross bonus amount', tip_bonus:'Bonuses are taxed like salary. The month you receive it, your company recalculates the full-year withholding and applies the adjustment all at once.',
     lbl_bonus_month:'Month it is paid', help_bonus:"In months before the bonus, your company calculates withholding without it. When it's decided, they adjust everything at once.",
     blk_car:'Car allowance', toggle_car_sub:'Vehicle allowance', lbl_car:'Annual car allowance amount', tip_car:"If your company gives you a car allowance and you don't use it for a vehicle, it's added to your salary and taxed normally. It doesn't count for bonus or pension calculations.",
-    blk_tickets:'Meal vouchers', toggle_tickets_sub:'Tax-exempt limit: €2,750/year', lbl_tickets_type:'How do your meal vouchers work?',
-    tickets_ontop:'Additional benefit (on top of salary)', tickets_flex:'Flexible remuneration',
+    lbl_flex_funding:'How is this flexible remuneration funded?',
+    flex_company:'Funded by the company (on top of base salary)',
+    flex_worker:'Funded by the employee (paid from base salary)',
+    lbl_monthly_amt:'Monthly amount (€)', lbl_num_months:'Number of months per year',
+    hint_annual:'Annual amount:',
+    blk_tickets:'Meal vouchers', toggle_tickets_sub:'Flexible remuneration · Tax-exempt limit: €2,750/year', lbl_tickets_type:'How do your meal vouchers work?',
+    tickets_ontop:'Funded by the company (on top of base salary)', tickets_flex:'Funded by the employee (paid from base salary)',
     tip_tickets_ontop:'The company gives you vouchers on top of your salary. The exempt amount (up to €2,750) is free of income tax and social security.',
     tip_tickets_flex:'Vouchers come out of your gross salary. The exempt amount reduces your taxable base and SS contribution base.',
     lbl_tickets_amt:'Annual meal voucher amount (€)', err_tickets:'The legal tax-exempt limit is €2,750 (€11/day × 250 days). Cannot exceed this amount.',
-    blk_trans:'Transport vouchers', toggle_trans_sub:'Tax-exempt limit: €1,500/year', lbl_trans_type:'How does your transport pass work?',
-    trans_ontop:'Additional benefit (on top of salary)', trans_flex:'Flexible remuneration',
+    blk_trans:'Transport vouchers', toggle_trans_sub:'Flexible remuneration · Tax-exempt limit: €1,500/year', lbl_trans_type:'How does your transport pass work?',
+    trans_ontop:'Funded by the company (on top of base salary)', trans_flex:'Funded by the employee (paid from base salary)',
     tip_trans_ontop:'The company gives you the transport pass on top of your salary. The exempt amount (up to €1,500) is free of income tax and social security.',
     tip_trans_flex:'The transport pass comes out of your gross salary. The exempt amount reduces your taxable base and SS contribution base.',
     lbl_trans_amt:'Annual transport amount (€)', err_trans:'The legal tax-exempt limit is €1,500/year (€136.36/month). Cannot exceed this amount.',
+    blk_guard:'Childcare voucher', toggle_guard_sub:'Flexible remuneration · No cap (Art. 42.3.b LIRPF)',
+    tip_guard_ontop:'The company pays for childcare on top of your salary. The childcare voucher is exempt with no cap: no income tax and no social security.',
+    tip_guard_flex:'The childcare voucher comes out of your gross salary. It is exempt with no cap: it reduces your taxable base and SS contribution base.',
+    blk_otros:'Other benefits in kind', toggle_otros_sub:'Other items paid by the company that are taxed as benefits in kind',
+    help_otros:'Add any benefit in kind your company pays for you (gym, housing, platforms, etc.). They add to your in-kind income and are taxed at the marginal rate.',
+    btn_add_otro:'+ Add another benefit',
+    lbl_otro_name:'Name', hint_otros_total:'Annual total:',
+    val_guard:'Childcare voucher', val_otro_prefix:'Benefit in kind:',
+    ann_otros_spkd:'Other benefits in kind',
+    hero_valuation:'Salary + benefits valuation', hero_net_take:'Take-home net salary', hero_flex_saving:'Income tax saving from flexible remuneration',
     blk_health:'Health insurance', toggle_health_sub:'Paid by the company', lbl_health_type:'How does your health insurance work?',
     health_ontop:'Additional benefit (on top of salary)', health_flex:'Flexible remuneration',
     tip_health_ontop:'The company pays the insurance on top of your salary. Up to €500/year is exempt from income tax. The excess is taxed as a benefit in kind.',
@@ -1347,30 +1481,112 @@ function calcRaisePct(){
   }
 }
 
-function validateTickets(){
-  const val = parseAmount(document.getElementById('ticketsAmt').value);
-  const err = document.getElementById('ticketsError');
-  const inp = document.getElementById('ticketsAmt');
-  if(val > TICKETS_LIMIT){
-    err.classList.add('show');
-    inp.classList.add('error');
-  } else {
-    err.classList.remove('show');
-    inp.classList.remove('error');
-  }
+// Cálculo del importe anual a partir de mensual × meses, con validación opcional.
+function readMonthlyAnnual(monthlyId, monthsId){
+  const monthly = fieldAmount(monthlyId);
+  const monthsRaw = document.getElementById(monthsId);
+  const monthsVal = monthsRaw ? (monthsRaw.value || monthsRaw.placeholder || '') : '';
+  const months = Math.max(0, Math.min(12, parseInt(monthsVal) || 0));
+  return { monthly, months, annual: monthly * months };
 }
 
-function validateTrans(){
-  const val = parseAmount(document.getElementById('transAmt').value);
+function recalcTicketsAnnual(){
+  const { annual } = readMonthlyAnnual('ticketsMonthly','ticketsMonths');
+  const hint = document.getElementById('ticketsAnnualHint');
+  if(hint) hint.innerHTML = annual > 0 ? `${t('hint_annual')} <strong>${fmt(annual)}</strong>` : '';
+  const err = document.getElementById('ticketsError');
+  const inpM = document.getElementById('ticketsMonthly');
+  if(annual > TICKETS_LIMIT){ err.classList.add('show'); inpM.classList.add('error'); }
+  else { err.classList.remove('show'); inpM.classList.remove('error'); }
+}
+
+function recalcTransAnnual(){
+  const { annual } = readMonthlyAnnual('transMonthly','transMonths');
+  const hint = document.getElementById('transAnnualHint');
+  if(hint) hint.innerHTML = annual > 0 ? `${t('hint_annual')} <strong>${fmt(annual)}</strong>` : '';
   const err = document.getElementById('transError');
-  const inp = document.getElementById('transAmt');
-  if(val > TRANS_LIMIT){
-    err.classList.add('show');
-    inp.classList.add('error');
-  } else {
-    err.classList.remove('show');
-    inp.classList.remove('error');
-  }
+  const inpM = document.getElementById('transMonthly');
+  if(annual > TRANS_LIMIT){ err.classList.add('show'); inpM.classList.add('error'); }
+  else { err.classList.remove('show'); inpM.classList.remove('error'); }
+}
+
+function recalcGuardAnnual(){
+  const { annual } = readMonthlyAnnual('guardMonthly','guardMonths');
+  const hint = document.getElementById('guardAnnualHint');
+  if(hint) hint.innerHTML = annual > 0 ? `${t('hint_annual')} <strong>${fmt(annual)}</strong>` : '';
+}
+
+// ── Otros beneficios en especie (lista dinámica) ──
+let otroRowCounter = 0;
+function addOtroRow(name, monthly, months, placeholderRow){
+  otroRowCounter++;
+  const id = otroRowCounter;
+  const list = document.getElementById('otrosList');
+  const div = document.createElement('div');
+  div.className = 'otro-row';
+  div.dataset.id = id;
+  const nameVal = name ? ` value="${name}"` : '';
+  const monthlyVal = (monthly!=null && monthly!=='') ? ` value="${monthly}"` : '';
+  const monthsVal = (months!=null && months!=='') ? ` value="${months}"` : '';
+  const placeholderName = placeholderRow ? 'Wonest' : '';
+  const placeholderMonthly = placeholderRow ? '8,24' : '';
+  const placeholderMonths = placeholderRow ? '12' : '';
+  div.innerHTML = `
+    <div class="field field-name">
+      <label data-i18n="lbl_otro_name">Nombre</label>
+      <input type="text" class="otro-name" placeholder="${placeholderName}"${nameVal}>
+    </div>
+    <div class="field field-monthly">
+      <label data-i18n="lbl_monthly_amt">Importe mensual (€)</label>
+      <div class="input-wrap">
+        <input type="text" inputmode="decimal" class="money-input otro-monthly" placeholder="${placeholderMonthly}"${monthlyVal} oninput="recalcOtrosTotal()">
+        <span class="unit">€</span>
+      </div>
+    </div>
+    <div class="field field-months">
+      <label data-i18n="lbl_num_months">Nº meses</label>
+      <input type="number" class="otro-months" min="1" max="12" step="1" placeholder="${placeholderMonths}"${monthsVal} oninput="recalcOtrosTotal()">
+    </div>
+    <button type="button" class="btn-remove" onclick="removeOtroRow(this)" title="Eliminar">×</button>
+  `;
+  list.appendChild(div);
+  // Hook live money formatting for the new input
+  const mInp = div.querySelector('.otro-monthly');
+  attachMoneyFormat(mInp);
+  applyTranslations();
+  recalcOtrosTotal();
+}
+
+function removeOtroRow(btn){
+  btn.closest('.otro-row').remove();
+  recalcOtrosTotal();
+}
+
+function readOtros(){
+  // Solo cuenta filas con importe y meses REALMENTE escritos por el usuario.
+  // Placeholders ("Wonest" / 8,24 / 12) son sugerencias visuales, no se contabilizan.
+  const rows = document.querySelectorAll('#otrosList .otro-row');
+  const items = [];
+  let total = 0;
+  rows.forEach(row => {
+    const monthlyRaw = (row.querySelector('.otro-monthly').value || '').trim();
+    const monthsRaw  = (row.querySelector('.otro-months').value  || '').trim();
+    if(monthlyRaw === '' || monthsRaw === '') return;
+    const monthly = parseAmount(monthlyRaw);
+    const months = Math.max(0, Math.min(12, parseInt(monthsRaw) || 0));
+    const annual = monthly * months;
+    if(annual <= 0) return;
+    const name = (row.querySelector('.otro-name').value || '').trim();
+    items.push({ name: name || '—', monthly, months, annual });
+    total += annual;
+  });
+  return { items, total };
+}
+
+function recalcOtrosTotal(){
+  const { total } = readOtros();
+  const hint = document.getElementById('otrosAnnualHint');
+  if(hint) hint.innerHTML = total > 0 ? `${t('hint_otros_total')} <strong>${fmt(total)}</strong>` : '';
 }
 
 function localeFor(){ return currentLang==='en' ? 'en-GB' : 'es-ES'; }
@@ -1574,18 +1790,24 @@ function calcSolidarity(annualSalaryForSS, ssCap){
 }
 
 function calculate(){
-  const ticketsAmt = fieldAmount('ticketsAmt');
-  if(ticketsAmt > TICKETS_LIMIT){ validateTickets(); return; }
-  const transAmt = fieldAmount('transAmt');
-  if(transAmt > TRANS_LIMIT){ validateTrans(); return; }
+  const ticketsCalc = readMonthlyAnnual('ticketsMonthly','ticketsMonths');
+  const ticketsAmt = ticketsCalc.annual;
+  if(ticketsAmt > TICKETS_LIMIT){ recalcTicketsAnnual(); return; }
+  const transCalc = readMonthlyAnnual('transMonthly','transMonths');
+  const transAmt = transCalc.annual;
+  if(transAmt > TRANS_LIMIT){ recalcTransAnnual(); return; }
+  const guardCalc = readMonthlyAnnual('guardMonthly','guardMonths');
+  const guardAmt = guardCalc.annual;
 
   const hasRaise = document.getElementById('hasRaise').checked;
   const hasBonus = document.getElementById('hasBonus').checked;
   const hasCar   = document.getElementById('hasCar').checked;
   const hasTickets = document.getElementById('hasTickets').checked;
   const hasTrans   = document.getElementById('hasTrans').checked;
+  const hasGuard   = document.getElementById('hasGuard').checked;
   const hasHealth  = document.getElementById('hasHealth').checked;
   const hasLife    = document.getElementById('hasLife').checked;
+  const hasOtros   = document.getElementById('hasOtros').checked;
   const hasPension = document.getElementById('hasPension').checked;
   const hasPensionExtra = document.getElementById('hasPensionExtra').checked;
 
@@ -1609,12 +1831,21 @@ function calculate(){
   const transExempt = hasTrans ? Math.min(transAmt, TRANS_LIMIT) : 0;
   const transTaxable = hasTrans ? Math.max(0, transAmt - TRANS_LIMIT) : 0;
 
+  // Cheque guardería (Art. 42.3.b LIRPF): exento sin límite cuantitativo.
+  const guardType = hasGuard ? document.querySelector('input[name="guardType"]:checked').value : 'none';
+  const guardExempt = hasGuard ? guardAmt : 0;
+  const guardTaxable = 0;
+
   const healthType = hasHealth ? document.querySelector('input[name="healthType"]:checked').value : 'none';
   const healthAmt  = hasHealth ? fieldAmount('healthAmt') : 0;
   const healthExempt = Math.min(healthAmt, HEALTH_EXEMPT);
   const healthTaxable = Math.max(0, healthAmt - HEALTH_EXEMPT);
 
   const lifeAmt = hasLife ? fieldAmount('lifeAmt') : 0;
+
+  // Otros beneficios en especie (lista dinámica) — tributan íntegros como retribución en especie.
+  const otrosData = hasOtros ? readOtros() : { items: [], total: 0 };
+  const otrosAmt = otrosData.total;
 
   const pensionPct   = hasPension ? fieldPct('pensionPct')/100 : 0;
   const pensionMatch = hasPension ? fieldPct('pensionMatch')/100 : 0;
@@ -1645,7 +1876,7 @@ function calculate(){
   const pensionCompanyAnnual = pensionMatchAmt + pensionTramos;                  // total empresa (retribución en especie)
   // Rendimientos del trabajo aprox. — incluye las contribuciones de la empresa al plan,
   // que son retribución en especie (para la regla de 60.000 € y el tope del 30%).
-  const rendTrabajoAprox = weightedSalaryProj + carAnnual + lifeAmt + healthTaxable + (hasBonus ? bonusAmt : 0) + pensionCompanyAnnual;
+  const rendTrabajoAprox = weightedSalaryProj + carAnnual + lifeAmt + healthTaxable + otrosAmt + (hasBonus ? bonusAmt : 0) + pensionCompanyAnnual;
   const penB = hasPension
     ? pensionBreakdown(pensionEmpAnnual, pensionMatchAmt, pensionTramos, rendTrabajoAprox)
     : { dedVoluntaria:0, dedInvoluntaria:0, total:0, coefMax:0, voluntariaContrib:0, involuntariaContrib:0, voluntariaExcess:0, involuntariaExcess:0 };
@@ -1664,17 +1895,19 @@ function calculate(){
     // Pension employee contribution this month — sobre el salario de enero (constante todo el año)
     const pensionEmpM = hasPension ? (pensionSalaryBase * pensionPct / 12) : 0;
 
-    // Benefits in kind (life, health excess) — prorate over 12
+    // Benefits in kind (life, health excess, otros) — prorate over 12
     const lifeM = lifeAmt / 12;
     const healthTaxableM = healthTaxable / 12;
+    const otrosM = otrosAmt / 12;
 
     // Gross for the month (what lands in the payslip)
     let grossM = curSalaryMonth + carM;
-    // In flex mode, tickets/transport/health reduce the gross shown
+    // In flex mode, tickets/transport/guard/health reduce the gross shown
     const ticketsFlexM = (ticketsType === 'flex') ? (ticketsExempt / 12) : 0;
     const transFlexM   = (transType   === 'flex') ? (transExempt   / 12) : 0;
+    const guardFlexM   = (guardType   === 'flex') ? (guardExempt   / 12) : 0;
     const healthFlexM  = (healthType  === 'flex') ? (healthExempt / 12)  : 0;
-    grossM -= ticketsFlexM + transFlexM + healthFlexM;
+    grossM -= ticketsFlexM + transFlexM + guardFlexM + healthFlexM;
 
     let bonusPay = 0;
     if(hasBonus && m === bonusMonth){ bonusPay = bonusAmt; grossM += bonusPay; }
@@ -1689,17 +1922,19 @@ function calculate(){
       const pPensM = hasPension ? (pensionSalaryBase * pensionPct / 12) : 0;
       const pTickFlex = (ticketsType==='flex') ? ticketsExempt/12 : 0;
       const pTransFlex = (transType==='flex') ? transExempt/12 : 0;
+      const pGuardFlex = (guardType==='flex') ? guardExempt/12 : 0;
       const pHealthFlex = (healthType==='flex') ? healthExempt/12 : 0;
       const pLifeM = lifeAmt/12;
       const pHealthTaxM = healthTaxable/12;
-      let pBaseM = pSalM + pCarM - pPensM + pLifeM + pHealthTaxM - pTickFlex - pTransFlex - pHealthFlex;
+      const pOtrosM = otrosAmt/12;
+      let pBaseM = pSalM + pCarM - pPensM + pLifeM + pHealthTaxM + pOtrosM - pTickFlex - pTransFlex - pGuardFlex - pHealthFlex;
       // El bonus se asume conocido desde enero: siempre se incluye en el mes que toca.
       if(hasBonus && pm === bonusMonth) pBaseM += bonusAmt;
       accBase += pBaseM;  // (sin cambio — el bonus ya se sumaba en el mes correcto aquí)
     }
 
     // Current month base
-    let curBaseM = curSalaryMonth + carM - pensionEmpM + lifeM + healthTaxableM - ticketsFlexM - transFlexM - healthFlexM;
+    let curBaseM = curSalaryMonth + carM - pensionEmpM + lifeM + healthTaxableM + otrosM - ticketsFlexM - transFlexM - guardFlexM - healthFlexM;
     if(hasBonus && m === bonusMonth) curBaseM += bonusAmt;
 
     // Project remaining months (including current)
@@ -1712,10 +1947,12 @@ function calculate(){
       const fPensM = hasPension ? (pensionSalaryBase * pensionPct / 12) : 0;
       const fTickFlex = (ticketsType==='flex') ? ticketsExempt/12 : 0;
       const fTransFlex = (transType==='flex') ? transExempt/12 : 0;
+      const fGuardFlex = (guardType==='flex') ? guardExempt/12 : 0;
       const fHealthFlex = (healthType==='flex') ? healthExempt/12 : 0;
       const fLifeM = lifeAmt/12;
       const fHealthTaxM = healthTaxable/12;
-      let fBaseM = fSalM + fCarM - fPensM + fLifeM + fHealthTaxM - fTickFlex - fTransFlex - fHealthFlex;
+      const fOtrosM = otrosAmt/12;
+      let fBaseM = fSalM + fCarM - fPensM + fLifeM + fHealthTaxM + fOtrosM - fTickFlex - fTransFlex - fGuardFlex - fHealthFlex;
       // El bonus se asume 0 hasta que se cobra: solo entra en la proyección a partir del
       // mes en que se paga (m >= bonusMonth). Antes de ese mes la empresa no lo conoce ni
       // retiene por él, lo que genera un pico de retención en el mes del bonus.
@@ -1726,7 +1963,7 @@ function calculate(){
     // Annual SS base & projected annual pension contribution for the IRPF helper
     const annSalForSS = ((hasRaise && raiseMonth <= 12) ?
       (salaryBase * (raiseMonth-1)/12 + newSalary * (13-raiseMonth)/12)
-      : salaryBase) + carAnnual - (ticketsType==='flex'?ticketsExempt:0) - (transType==='flex'?transExempt:0) - (healthType==='flex'?healthExempt:0);
+      : salaryBase) + carAnnual - (ticketsType==='flex'?ticketsExempt:0) - (transType==='flex'?transExempt:0) - (guardType==='flex'?guardExempt:0) - (healthType==='flex'?healthExempt:0);
     const annualSS = Math.min(annSalForSS, ssCapUsed) * SS_RATE;
     // La cuota de solidaridad del trabajador también es cotización a la SS y, por tanto,
     // gasto deducible del rendimiento del trabajo (Art. 19.2.a LIRPF).
@@ -1745,7 +1982,7 @@ function calculate(){
     accRetained += irpfM;
 
     // SS
-    const ssBaseM = Math.min(curSalaryMonth + carM - ticketsFlexM - transFlexM - healthFlexM, ssCapMonth);
+    const ssBaseM = Math.min(curSalaryMonth + carM - ticketsFlexM - transFlexM - guardFlexM - healthFlexM, ssCapMonth);
     const ssM = ssBaseM * SS_RATE;
 
     // Solidarity (annual, prorate monthly) — ya calculada arriba como annSolProj
@@ -1780,12 +2017,14 @@ function calculate(){
     const carM2 = hasCar ? carMonthly : 0;
     const tflexM = (ticketsType==='flex') ? ticketsExempt/12 : 0;
     const trflexM = (transType==='flex') ? transExempt/12 : 0;
+    const gflexM = (guardType==='flex') ? guardExempt/12 : 0;
     const hflexM = (healthType==='flex') ? healthExempt/12 : 0;
     const lM = lifeAmt/12;
+    const oM = otrosAmt/12;
     // On-top: el seguro médico entra ENTERO como retribución en especie (la exención
     // de 500 € se descuenta después en la base). Flex: solo la parte que excede el límite.
     const htM = (healthType==='flex') ? healthTaxable/12 : healthAmt/12;
-    return s + cur/12 + carM2 + lM + htM - tflexM - trflexM - hflexM + (hasBonus && mo.m===bonusMonth ? bonusAmt : 0);
+    return s + cur/12 + carM2 + lM + htM + oM - tflexM - trflexM - gflexM - hflexM + (hasBonus && mo.m===bonusMonth ? bonusAmt : 0);
   }, 0)
   // Las contribuciones de la empresa al plan son retribución en especie → rendimiento íntegro.
   + pensionCompanyAnnual;
@@ -1822,31 +2061,48 @@ function calculate(){
   const transSaving = transExempt * marginalRate;
   const transSSSaving = (transType==='flex') ? transExempt * SS_RATE : 0;
 
+  // Guard saving
+  const guardSaving = guardExempt * marginalRate;
+  const guardSSSaving = (guardType==='flex') ? guardExempt * SS_RATE : 0;
+
   // Health saving
   const healthSavingIRPF = healthExempt * marginalRate;
   const healthSavingSS   = (healthType==='flex') ? healthExempt * SS_RATE : 0;
 
   // ── Valoración de beneficios (lo que vale tu paquete, percibido en cash o en especie) ──
+  // Si la retribución flexible se aporta "por el trabajador" (modo flex), NO entra en la
+  // valoración del paquete: ese importe sale del propio salario, no es valor adicional.
   const benefitSalary   = weightedSalary;                 // salario anual
   const benefitBonus    = hasBonus ? bonusAmt : 0;
   const benefitCar      = hasCar ? carAnnual : 0;
-  const benefitTickets  = hasTickets ? ticketsAmt : 0;
-  const benefitTrans    = hasTrans ? transAmt : 0;
-  const benefitHealth   = (hasHealth && healthType !== 'flex') ? healthAmt : 0; // solo on-top suma valor extra
+  const benefitTickets  = (hasTickets && ticketsType !== 'flex') ? ticketsAmt : 0;
+  const benefitTrans    = (hasTrans   && transType   !== 'flex') ? transAmt   : 0;
+  const benefitGuard    = (hasGuard   && guardType   !== 'flex') ? guardAmt   : 0;
+  const benefitHealth   = (hasHealth  && healthType  !== 'flex') ? healthAmt  : 0;
   const benefitLife     = hasLife ? lifeAmt : 0;
+  const benefitOtros    = hasOtros ? otrosAmt : 0;
   const benefitPensionCompany = pensionCompanyAnnual;
-  const benefitTotal = benefitSalary + benefitBonus + benefitCar + benefitTickets + benefitTrans + benefitHealth + benefitLife + benefitPensionCompany;
+  const benefitTotal = benefitSalary + benefitBonus + benefitCar + benefitTickets + benefitTrans + benefitGuard + benefitHealth + benefitLife + benefitOtros + benefitPensionCompany;
   // Ahorro fiscal de la retribución flexible (solo modalidad flex: IRPF + SS del empleado)
   const flexSavingTickets = (ticketsType==='flex') ? ticketsExempt * (marginalRate + SS_RATE) : 0;
   const flexSavingTrans   = (transType==='flex')   ? transExempt   * (marginalRate + SS_RATE) : 0;
+  const flexSavingGuard   = (guardType==='flex')   ? guardExempt   * (marginalRate + SS_RATE) : 0;
   const flexSavingHealth  = (healthType==='flex')  ? healthExempt  * (marginalRate + SS_RATE) : 0;
-  const flexSavingTotal = flexSavingTickets + flexSavingTrans + flexSavingHealth;
+  const flexSavingTotal = flexSavingTickets + flexSavingTrans + flexSavingGuard + flexSavingHealth;
+
+  // Ahorro IRPF únicamente (sin SS) — para el hero. Incluye AMBOS modos: cuando la
+  // retribución flexible está exenta, no tributa en IRPF aunque se reciba "on top".
+  const flexIRPFSavingTickets = hasTickets ? ticketsExempt * marginalRate : 0;
+  const flexIRPFSavingTrans   = hasTrans   ? transExempt   * marginalRate : 0;
+  const flexIRPFSavingGuard   = hasGuard   ? guardExempt   * marginalRate : 0;
+  const flexIRPFSavingTotal   = flexIRPFSavingTickets + flexIRPFSavingTrans + flexIRPFSavingGuard;
 
   // Importes exentos de retribución flexible (reducen la base; van como deducción explícita).
   const flexExemptTickets = (ticketsType==='flex') ? ticketsExempt : 0;
   const flexExemptTrans   = (transType==='flex')   ? transExempt   : 0;
+  const flexExemptGuard   = (guardType==='flex')   ? guardExempt   : 0;
   const flexExemptHealth  = (healthType==='flex')  ? healthExempt  : 0;
-  const flexExemptTotal   = flexExemptTickets + flexExemptTrans + flexExemptHealth;
+  const flexExemptTotal   = flexExemptTickets + flexExemptTrans + flexExemptGuard + flexExemptHealth;
   // Bruto percibido = rendimientos íntegros sin descontar todavía la retribución flexible exenta.
   const grossPercibido = annualRendIntegros + flexExemptTotal;
 
@@ -1854,8 +2110,10 @@ function calculate(){
     months, totalGross, totalIRPF, totalSS, totalSol, totalPensionEmp, totalNet,
     carAnnual, bonusAmt, hasBonus, hasTickets, ticketsAmt, ticketsExempt, ticketsType, ticketSaving, ticketSSSaving,
     hasTrans, transAmt, transExempt, transType, transSaving, transSSSaving,
+    hasGuard, guardAmt, guardExempt, guardType, guardSaving, guardSSSaving,
     hasHealth, healthAmt, healthTaxable, healthExemptOnTop, healthSavingIRPF, healthSavingSS, healthType,
     hasLife, lifeAmt,
+    hasOtros, otrosAmt, otrosItems: otrosData.items,
     hasPension, pensionPct, pensionMatchAmt, pensionT1amt, pensionT2amt, pensionTotal, pensionTaxSaving,
     marginalRate, effectiveRate, weightedSalary, hasCar,
     annualBase, annualRendIntegros, baseLiquidable, reduccionRT, otrosGastos: OTROS_GASTOS, minimoPersonal: MINIMO_PERSONAL,
@@ -1866,9 +2124,10 @@ function calculate(){
     pensionVoluntariaExcess: penB.voluntariaExcess, pensionInvoluntariaExcess: penB.involuntariaExcess,
     pensionCoefMax: penB.coefMax,
     // Valoración de beneficios
-    benefitSalary, benefitBonus, benefitCar, benefitTickets, benefitTrans, benefitHealth, benefitLife, benefitPensionCompany, benefitTotal,
-    flexSavingTickets, flexSavingTrans, flexSavingHealth, flexSavingTotal,
-    flexExemptTickets, flexExemptTrans, flexExemptHealth, flexExemptTotal, grossPercibido
+    benefitSalary, benefitBonus, benefitCar, benefitTickets, benefitTrans, benefitGuard, benefitHealth, benefitLife, benefitOtros, benefitPensionCompany, benefitTotal,
+    flexSavingTickets, flexSavingTrans, flexSavingGuard, flexSavingHealth, flexSavingTotal,
+    flexIRPFSavingTotal,
+    flexExemptTickets, flexExemptTrans, flexExemptGuard, flexExemptHealth, flexExemptTotal, grossPercibido
   };
 
   renderResults(lastResult);
@@ -1883,19 +2142,26 @@ function renderResults(r){
   const months = currentLang==='ca' ? MONTHS_CA : currentLang==='en' ? MONTHS_EN : MONTHS_ES;
 
   // Hero (totales redondeados a 0 decimales para una lectura más clara)
-  document.getElementById('heroGross').textContent = fmtRound(r.totalGross);
+  document.getElementById('heroValuation').textContent = fmtRound(r.benefitTotal);
   document.getElementById('heroNet').textContent = fmtRound(r.totalNet);
-  document.getElementById('heroNetMonth').textContent = fmtRound(r.totalNet/12);
-  document.getElementById('heroEffRate').textContent = fmtPct(r.effectiveRate*100);
+  document.getElementById('heroFlexSaving').textContent = (r.flexIRPFSavingTotal > 0 ? '+' : '') + fmtRound(r.flexIRPFSavingTotal);
 
   // ── Valoración de salario y beneficios ──
+  // Cuando la retribución flexible se aporta "por el trabajador", el importe sale del
+  // salario y NO suma valor adicional al paquete: por eso benefitTickets/Trans/Guard van a 0.
   let val = `<div class="inline-sum"><span>${t('val_salary')}</span><span class="val">${fmt(r.benefitSalary)}</span></div>`;
   if(r.hasBonus) val += `<div class="inline-sum"><span>${t('val_bonus')}</span><span class="val">${fmt(r.benefitBonus)}</span></div>`;
   if(r.hasCar) val += `<div class="inline-sum"><span>${t('val_car')}</span><span class="val">${fmt(r.benefitCar)}</span></div>`;
-  if(r.hasTickets) val += `<div class="inline-sum"><span>${t('val_tickets')}</span><span class="val">${fmt(r.benefitTickets)}</span></div>`;
-  if(r.hasTrans) val += `<div class="inline-sum"><span>${t('val_trans')}</span><span class="val">${fmt(r.benefitTrans)}</span></div>`;
-  if(r.benefitHealth > 0) val += `<div class="inline-sum"><span>${t('val_health')}</span><span class="val">${fmt(r.benefitHealth)}</span></div>`;
+  if(r.benefitTickets > 0) val += `<div class="inline-sum"><span>${t('val_tickets')}</span><span class="val">${fmt(r.benefitTickets)}</span></div>`;
+  if(r.benefitTrans > 0)   val += `<div class="inline-sum"><span>${t('val_trans')}</span><span class="val">${fmt(r.benefitTrans)}</span></div>`;
+  if(r.benefitGuard > 0)   val += `<div class="inline-sum"><span>${t('val_guard')}</span><span class="val">${fmt(r.benefitGuard)}</span></div>`;
+  if(r.benefitHealth > 0)  val += `<div class="inline-sum"><span>${t('val_health')}</span><span class="val">${fmt(r.benefitHealth)}</span></div>`;
   if(r.hasLife) val += `<div class="inline-sum"><span>${t('val_life')}</span><span class="val">${fmt(r.benefitLife)}</span></div>`;
+  if(r.hasOtros && r.otrosItems && r.otrosItems.length){
+    r.otrosItems.forEach(it => {
+      val += `<div class="inline-sum"><span>${t('val_otro_prefix')} ${it.name}</span><span class="val">${fmt(it.annual)}</span></div>`;
+    });
+  }
   if(r.benefitPensionCompany > 0) val += `<div class="inline-sum"><span>${t('val_pension_company')}</span><span class="val">${fmt(r.benefitPensionCompany)}</span></div>`;
   val += `<div class="inline-sum total pos"><span>${t('val_total')}</span><span class="val">${fmtRound(r.benefitTotal)}</span></div>`;
   if(r.flexSavingTotal > 0){
@@ -1912,6 +2178,7 @@ function renderResults(r){
   if(r.hasBonus) ann += `<div class="inline-sum"><span>${t('ann_bonus')}</span><span class="val">${fmt(r.bonusAmt)}</span></div>`;
   if(r.hasHealth && r.healthType !== 'flex' && r.healthAmt > 0) ann += `<div class="inline-sum"><span>${t('ann_health_spkd')}</span><span class="val">${fmt(r.healthAmt)}</span></div>`;
   if(r.hasLife) ann += `<div class="inline-sum"><span>${t('ann_life_spkd')}</span><span class="val">${fmt(r.lifeAmt)}</span></div>`;
+  if(r.hasOtros && r.otrosAmt > 0) ann += `<div class="inline-sum"><span>${t('ann_otros_spkd')}</span><span class="val">${fmt(r.otrosAmt)}</span></div>`;
   if(r.hasPension && r.pensionCompanyAnnual > 0) ann += `<div class="inline-sum"><span>${t('ann_pension_company_spkd')}</span><span class="val">${fmt(r.pensionCompanyAnnual)}</span></div>`;
   ann += `<div class="inline-sum" style="font-weight:600; border-top:1px solid var(--border); padding-top:8px; margin-top:4px;"><span>${t('ann_percibido_total')}</span><span class="val">${fmt(r.grossPercibido)}</span></div>`;
 
@@ -2038,7 +2305,13 @@ function resetForm(){
   document.getElementById('results').style.display = 'none';
   document.getElementById('raisePct').textContent = '—';
   ['ticketsError','transError'].forEach(id => document.getElementById(id) && document.getElementById(id).classList.remove('show'));
-  ['ticketsAmt','transAmt'].forEach(id => document.getElementById(id) && document.getElementById(id).classList.remove('error'));
+  ['ticketsMonthly','transMonthly'].forEach(id => document.getElementById(id) && document.getElementById(id).classList.remove('error'));
+  // Vaciar lista "otros beneficios" y dejar una fila placeholder
+  const otrosList = document.getElementById('otrosList');
+  if(otrosList){ otrosList.innerHTML = ''; addOtroRow(null,null,null,true); }
+  ['ticketsAnnualHint','transAnnualHint','guardAnnualHint','otrosAnnualHint'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.innerHTML = '';
+  });
   lastResult = null;
 }
 
@@ -2081,6 +2354,12 @@ document.querySelectorAll('input[name="healthType"]').forEach(r => {
 document.querySelectorAll('input[name="transType"]').forEach(r => {
   r.addEventListener('change', () => {
     document.getElementById('transTypeHelp').setAttribute('data-i18n', r.value==='flex' ? 'tip_trans_flex' : 'tip_trans_ontop');
+    applyTranslations();
+  });
+});
+document.querySelectorAll('input[name="guardType"]').forEach(r => {
+  r.addEventListener('change', () => {
+    document.getElementById('guardTypeHelp').setAttribute('data-i18n', r.value==='flex' ? 'tip_guard_flex' : 'tip_guard_ontop');
     applyTranslations();
   });
 });
@@ -2130,6 +2409,9 @@ applyTranslations();
 // Live money-input formatting
 document.querySelectorAll('.money-input').forEach(inp => attachMoneyFormat(inp));
 reformatAllMoneyInputs();
+
+// Seed: una fila placeholder en "otros beneficios" (no se cuenta hasta que se rellene)
+addOtroRow(null, null, null, true);
 </script>
 </body>
 </html>
