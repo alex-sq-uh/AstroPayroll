@@ -265,7 +265,7 @@
     </svg>
     <div class="brand-text">
       <span class="name">Astro<span class="accent">Payroll</span></span>
-      <span class="ver">v1.4</span>
+      <span class="ver">v1.5</span>
     </div>
   </div>
   <div class="nav-links">
@@ -843,13 +843,13 @@
       <text x="32" y="35" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-weight="800" font-size="15" fill="#1a2b5e">€</text>
     </svg>
     <span>AstroPayroll</span>
-    <span class="ver-tag">v1.4</span>
+    <span class="ver-tag">v1.5</span>
   </div>
   <div data-i18n="footer_astrocosas">Una app de <a href="#" target="_blank" rel="noopener">AstroCosas</a> · Hecha con ☕ y datos fiscales 2026</div>
 </footer>
 
 <script>
-const APP_VERSION = '1.4';
+const APP_VERSION = '1.5';
 // Escala IRPF 2025 — Cataluña (suma estatal + autonómico)
 // Fuente: https://taxdown.es/irpf/tabla-tramos
 const TRAMOS = [
@@ -961,6 +961,7 @@ const T = {
     ann_rend_integros:'Rendimientos íntegros del trabajo',
     ann_irpf_base_title:'Cálculo de la base del IRPF',
     ann_ss_deduction:'Cotizaciones SS empleado (gasto deducible)',
+    ann_sol_deduction:'Cuota de solidaridad (gasto deducible)',
     ann_otros_gastos:'Otros gastos (2.000 €/año)',
     ann_reduccion_rt:'Reducción por rendimientos del trabajo',
     ann_pension_red:'Reducción por aportación a plan de pensiones',
@@ -1043,6 +1044,7 @@ const T = {
     ann_rend_integros:'Rendiments íntegres del treball',
     ann_irpf_base_title:"Càlcul de la base de l'IRPF",
     ann_ss_deduction:'Cotitzacions SS empleat (despesa deduïble)',
+    ann_sol_deduction:'Quota de solidaritat (despesa deduïble)',
     ann_otros_gastos:'Altres despeses (2.000 €/any)',
     ann_reduccion_rt:'Reducció per rendiments del treball',
     ann_pension_red:'Reducció per aportació a pla de pensions',
@@ -1125,6 +1127,7 @@ const T = {
     ann_rend_integros:'Gross employment income',
     ann_irpf_base_title:'How the income tax base is built',
     ann_ss_deduction:'Employee SS contributions (deductible)',
+    ann_sol_deduction:'Solidarity surcharge (deductible)',
     ann_otros_gastos:'Other deductible expenses (€2,000/year)',
     ann_reduccion_rt:'Employment income reduction',
     ann_pension_red:'Reduction for pension plan contributions',
@@ -1558,13 +1561,17 @@ function calculate(){
       (salaryBase * (raiseMonth-1)/12 + newSalary * (13-raiseMonth)/12)
       : salaryBase) + carAnnual - (ticketsType==='flex'?ticketsExempt:0) - (healthType==='flex'?healthExempt:0);
     const annualSS = Math.min(annSalForSS, ssCapUsed) * SS_RATE;
+    // La cuota de solidaridad del trabajador también es cotización a la SS y, por tanto,
+    // gasto deducible del rendimiento del trabajo (Art. 19.2.a LIRPF).
+    const annSolProj = calcSolidarity(annSalForSS, ssCapUsed);
 
     // El bucle resta la aportación COMPLETA del trabajador; la añadimos de vuelta para
     // obtener los rendimientos íntegros, pero en el IRPF solo es deducible la parte que
     // permite el Art. 52 LIRPF (pensionDeductibleAnnual).
     const totalProjBase = accBase + projBase;
     const rendIntegros = Math.max(0, totalProjBase + pensionEmpAnnual);
-    const { irpf: annualIRPFProj } = calcAnnualIRPF(rendIntegros, annualSS, pensionDeductibleAnnual);
+    // Gastos deducibles de SS = cotización normal (6,50%) + cuota de solidaridad
+    const { irpf: annualIRPFProj } = calcAnnualIRPF(rendIntegros, annualSS + annSolProj, pensionDeductibleAnnual);
     const targetRetained = annualIRPFProj * (m / 12);
     const irpfM = Math.max(0, targetRetained - accRetained);
     accRetained += irpfM;
@@ -1573,8 +1580,8 @@ function calculate(){
     const ssBaseM = Math.min(curSalaryMonth + carM - ticketsFlexM - healthFlexM, ssCapMonth);
     const ssM = ssBaseM * SS_RATE;
 
-    // Solidarity (annual, prorate monthly)
-    const annSolTotal = calcSolidarity(annSalForSS, ssCapUsed);
+    // Solidarity (annual, prorate monthly) — ya calculada arriba como annSolProj
+    const annSolTotal = annSolProj;
     const solM = annSolTotal / 12;
 
     const netM = grossM - irpfM - ssM - solM - pensionEmpM;
@@ -1612,7 +1619,7 @@ function calculate(){
 
   // Aplica el cálculo real del IRPF para extraer base liquidable y desglose.
   // OJO: solo la parte DEDUCIBLE de la aportación al plan reduce la base (Art. 52 LIRPF).
-  const rntPrevio = Math.max(0, annualRendIntegros - totalSS - OTROS_GASTOS);
+  const rntPrevio = Math.max(0, annualRendIntegros - totalSS - totalSol - OTROS_GASTOS);
   const reduccionRT = reduccionTrabajo(rntPrevio);
   const rntReducido = Math.max(0, rntPrevio - reduccionRT);
   const baseLiquidable = Math.max(0, rntReducido - pensionDeductibleAnnual);
@@ -1680,6 +1687,7 @@ function renderResults(r){
   // Cómo se construye la base imponible del IRPF
   ann += `<div class="section-title" style="margin-top:1rem;">${t('ann_irpf_base_title')}</div>`;
   ann += `<div class="inline-sum neg"><span>${t('ann_ss_deduction')}</span><span class="val">−${fmt(r.totalSS)}</span></div>`;
+  if(r.totalSol > 0) ann += `<div class="inline-sum neg"><span>${t('ann_sol_deduction')}</span><span class="val">−${fmt(r.totalSol)}</span></div>`;
   ann += `<div class="inline-sum neg"><span>${t('ann_otros_gastos')}</span><span class="val">−${fmt(r.otrosGastos)}</span></div>`;
   if(r.reduccionRT > 0) ann += `<div class="inline-sum neg"><span>${t('ann_reduccion_rt')}</span><span class="val">−${fmt(r.reduccionRT)}</span></div>`;
   if(r.hasPension && r.pensionDeductibleAnnual > 0) ann += `<div class="inline-sum neg"><span>${t('ann_pension_red')}</span><span class="val">−${fmt(r.pensionDeductibleAnnual)}</span></div>`;
