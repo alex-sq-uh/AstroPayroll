@@ -262,10 +262,14 @@
   .section-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); margin: 1.25rem 0 0.75rem; }
 
   /* SUMMARY INLINE */
-  .inline-sum { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 0.9rem; }
+  .inline-sum { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 0.9rem; gap: 10px; }
+  .inline-sum > span:first-child { min-width: 0; }
+  .inline-sum .val { white-space: nowrap; flex-shrink: 0; text-align: right; }
   .inline-sum.total { font-weight: 700; color: var(--primary); border-top: 1.5px solid var(--border); margin-top: 6px; padding-top: 10px; font-size: 1rem; }
   .inline-sum.neg .val { color: var(--danger); }
   .inline-sum.pos .val { color: var(--success); }
+  /* Pension rows — mismo tratamiento que inline-sum: el importe no se parte */
+  .pension-row > span:last-child { white-space: nowrap; flex-shrink: 0; }
 
   /* PENSION DETAIL */
   .pension-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 0.85rem; border-bottom: 1px solid var(--border); }
@@ -323,7 +327,7 @@
     </svg>
     <div class="brand-text">
       <span class="name">Astro<span class="accent">Payroll</span></span>
-      <span class="ver">v3.1</span>
+      <span class="ver">v3.2</span>
     </div>
   </div>
   <div class="nav-links">
@@ -1019,13 +1023,13 @@
       <text x="32" y="35" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-weight="800" font-size="15" fill="#1a2b5e">€</text>
     </svg>
     <span>AstroPayroll</span>
-    <span class="ver-tag">v3.1</span>
+    <span class="ver-tag">v3.2</span>
   </div>
   <div data-i18n="footer_astrocosas">Una app de <a href="#" target="_blank" rel="noopener">AstroCosas</a> · Hecha con ☕ y datos fiscales 2026</div>
 </footer>
 
 <script>
-const APP_VERSION = '3.1';
+const APP_VERSION = '3.2';
 // Escala IRPF 2025 — Cataluña (suma estatal + autonómico)
 // Fuente: https://taxdown.es/irpf/tabla-tramos
 const TRAMOS = [
