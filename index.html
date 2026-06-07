@@ -29,7 +29,8 @@
     --shadow-lg: 0 4px 24px rgba(26,60,94,0.13);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); font-size: 15px; line-height: 1.6; }
+  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); font-size: 15px; line-height: 1.6; overflow-x: hidden; }
   a { color: var(--secondary); }
 
   /* NAV */
@@ -206,15 +207,23 @@
 
   /* RESPONSIVE */
   @media (max-width: 600px) {
-    .topbar { padding: 0 1rem; }
-    .nav-links { gap: 2px; }
-    .nav-btn { padding: 6px 9px; font-size: 0.8rem; }
-    .page { padding: 1rem 0.75rem 3rem; }
+    /* Barra superior en dos filas: marca + idioma arriba, navegación abajo a todo el ancho */
+    .topbar { height: auto; flex-wrap: wrap; padding: 8px 1rem; row-gap: 8px; }
+    .topbar-brand { flex: 1 1 auto; }
+    .topbar-right { order: 2; }
+    .nav-links { order: 3; flex-basis: 100%; width: 100%; justify-content: space-between; gap: 4px; }
+    .nav-btn { padding: 6px 10px; font-size: 0.82rem; }
+    .page { padding: 1rem 0.9rem 3rem; }
     .card { padding: 1.1rem 1rem; }
-    .hero-stat .val { font-size: 1.25rem; }
+    .result-hero { padding: 1.3rem 1.1rem; }
+    .result-hero h2 { font-size: 0.92rem; }
+    .hero-stat .val { font-size: 1.3rem; }
     .field-row { flex-direction: column; gap: 0.75rem; }
     .topbar-brand .brand-text .ver { display: none; }
     .topbar-brand .logo { width: 30px; height: 30px; }
+    /* Reducir titulares que en móvil resultan demasiado grandes (vienen con estilo inline) */
+    #page-calc > div > h1, #page-tramos h1 { font-size: 1.2rem !important; }
+    .tramos-table th, .tramos-table td { padding: 8px 8px; font-size: 0.8rem; }
   }
 
   /* SEPARATOR */
@@ -265,7 +274,7 @@
     </svg>
     <div class="brand-text">
       <span class="name">Astro<span class="accent">Payroll</span></span>
-      <span class="ver">v2.7</span>
+      <span class="ver">v2.8</span>
     </div>
   </div>
   <div class="nav-links">
@@ -880,13 +889,13 @@
       <text x="32" y="35" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-weight="800" font-size="15" fill="#1a2b5e">€</text>
     </svg>
     <span>AstroPayroll</span>
-    <span class="ver-tag">v2.7</span>
+    <span class="ver-tag">v2.8</span>
   </div>
   <div data-i18n="footer_astrocosas">Una app de <a href="#" target="_blank" rel="noopener">AstroCosas</a> · Hecha con ☕ y datos fiscales 2026</div>
 </footer>
 
 <script>
-const APP_VERSION = '2.7';
+const APP_VERSION = '2.8';
 // Escala IRPF 2025 — Cataluña (suma estatal + autonómico)
 // Fuente: https://taxdown.es/irpf/tabla-tramos
 const TRAMOS = [
