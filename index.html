@@ -265,7 +265,7 @@
     </svg>
     <div class="brand-text">
       <span class="name">Astro<span class="accent">Payroll</span></span>
-      <span class="ver">v2.4</span>
+      <span class="ver">v2.5</span>
     </div>
   </div>
   <div class="nav-links">
@@ -298,7 +298,7 @@
       <div class="field">
         <label data-i18n="lbl_salary_base">Salario base bruto anual</label>
         <div class="input-wrap">
-          <input type="text" inputmode="decimal" class="money-input" id="salaryBase" placeholder="">
+          <input type="text" inputmode="decimal" class="money-input" id="salaryBase" placeholder="50.000">
           <span class="unit">€</span>
         </div>
         <div class="tooltip-wrap" style="margin-top:5px;">
@@ -314,14 +314,14 @@
         <div class="field">
           <label data-i18n="lbl_old_salary_v2">Salario base bruto anual inicial</label>
           <div class="input-wrap">
-            <input type="text" inputmode="decimal" class="money-input" id="oldSalary" placeholder="">
+            <input type="text" inputmode="decimal" class="money-input" id="oldSalary" placeholder="48.000">
             <span class="unit">€</span>
           </div>
         </div>
         <div class="field">
           <label data-i18n="lbl_new_salary_v2">Salario después de la subida</label>
           <div class="input-wrap">
-            <input type="text" inputmode="decimal" class="money-input" id="newSalary" placeholder="" oninput="calcRaisePct()">
+            <input type="text" inputmode="decimal" class="money-input" id="newSalary" placeholder="50.000" oninput="calcRaisePct()">
             <span class="unit">€</span>
           </div>
         </div>
@@ -364,7 +364,7 @@
             <span class="info-icon" style="margin-left:5px;">i<div class="tooltip-box" data-i18n="tip_bonus">El bonus tributa igual que el salario. El mes que lo cobras, tu empresa recalcula toda la retención del año y aplica el ajuste de golpe en ese mes.</div></span>
           </label>
           <div class="input-wrap">
-            <input type="text" inputmode="decimal" class="money-input" id="bonusAmt" placeholder="">
+            <input type="text" inputmode="decimal" class="money-input" id="bonusAmt" placeholder="10.000">
             <span class="unit">€</span>
           </div>
         </div>
@@ -393,7 +393,7 @@
           <span class="info-icon" style="margin-left:5px;">i<div class="tooltip-box" data-i18n="tip_car">Si tu empresa te da una asignación de coche y no la usas para un vehículo, ese importe se añade a tu salario y tributa como salario normal. No computa para bonus ni plan de pensiones.</div></span>
         </label>
         <div class="input-wrap">
-          <input type="text" inputmode="decimal" class="money-input" id="carAmt" placeholder="">
+          <input type="text" inputmode="decimal" class="money-input" id="carAmt" placeholder="8.280">
           <span class="unit">€/año</span>
         </div>
       </div>
@@ -427,7 +427,7 @@
       <div class="field">
         <label data-i18n="lbl_tickets_amt">Importe anual de tickets (€)</label>
         <div class="input-wrap">
-          <input type="text" inputmode="decimal" class="money-input" id="ticketsAmt" placeholder="" oninput="validateTickets()">
+          <input type="text" inputmode="decimal" class="money-input" id="ticketsAmt" placeholder="2.420" oninput="validateTickets()">
           <span class="unit">€</span>
         </div>
         <div class="field-error" id="ticketsError" data-i18n="err_tickets">El límite legal exento es de 2.750 € (11 €/día × 250 días). No puede superar este importe.</div>
@@ -462,7 +462,7 @@
       <div class="field">
         <label data-i18n="lbl_trans_amt">Importe anual de transporte (€)</label>
         <div class="input-wrap">
-          <input type="text" inputmode="decimal" class="money-input" id="transAmt" placeholder="" oninput="validateTrans()">
+          <input type="text" inputmode="decimal" class="money-input" id="transAmt" placeholder="1.500" oninput="validateTrans()">
           <span class="unit">€</span>
         </div>
         <div class="field-error" id="transError" data-i18n="err_trans">El límite legal exento es de 1.500 €/año (136,36 €/mes). No puede superar este importe.</div>
@@ -497,7 +497,7 @@
       <div class="field">
         <label data-i18n="lbl_health_amt">Importe anual del seguro médico (€)</label>
         <div class="input-wrap">
-          <input type="text" inputmode="decimal" class="money-input" id="healthAmt" placeholder="">
+          <input type="text" inputmode="decimal" class="money-input" id="healthAmt" placeholder="980">
           <span class="unit">€</span>
         </div>
       </div>
@@ -520,7 +520,7 @@
           <span class="info-icon" style="margin-left:5px;">i<div class="tooltip-box" data-i18n="tip_life">Lo paga la empresa pero tributa íntegramente como retribución en especie. Se suma a tu base imponible del IRPF.</div></span>
         </label>
         <div class="input-wrap">
-          <input type="text" inputmode="decimal" class="money-input" id="lifeAmt" placeholder="">
+          <input type="text" inputmode="decimal" class="money-input" id="lifeAmt" placeholder="552">
           <span class="unit">€</span>
         </div>
       </div>
@@ -601,7 +601,7 @@
             <span class="info-icon" style="margin-left:5px;">i<div class="tooltip-box" data-i18n="tip_ss_cap">Límite anual sobre el que cotizas a la SS. Para 2026 es de 61.214,40 €.</div></span>
           </label>
           <div class="input-wrap">
-            <input type="text" inputmode="decimal" class="money-input" id="ssCap" placeholder="">
+            <input type="text" inputmode="decimal" class="money-input" id="ssCap" placeholder="61.214,40">
             <span class="unit">€</span>
           </div>
         </div>
@@ -884,13 +884,13 @@
       <text x="32" y="35" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-weight="800" font-size="15" fill="#1a2b5e">€</text>
     </svg>
     <span>AstroPayroll</span>
-    <span class="ver-tag">v2.4</span>
+    <span class="ver-tag">v2.5</span>
   </div>
   <div data-i18n="footer_astrocosas">Una app de <a href="#" target="_blank" rel="noopener">AstroCosas</a> · Hecha con ☕ y datos fiscales 2026</div>
 </footer>
 
 <script>
-const APP_VERSION = '2.4';
+const APP_VERSION = '2.5';
 // Escala IRPF 2025 — Cataluña (suma estatal + autonómico)
 // Fuente: https://taxdown.es/irpf/tabla-tramos
 const TRAMOS = [
