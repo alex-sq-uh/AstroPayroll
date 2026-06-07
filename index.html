@@ -265,7 +265,7 @@
     </svg>
     <div class="brand-text">
       <span class="name">Astro<span class="accent">Payroll</span></span>
-      <span class="ver">v1.7</span>
+      <span class="ver">v1.8</span>
     </div>
   </div>
   <div class="nav-links">
@@ -843,13 +843,13 @@
       <text x="32" y="35" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-weight="800" font-size="15" fill="#1a2b5e">€</text>
     </svg>
     <span>AstroPayroll</span>
-    <span class="ver-tag">v1.7</span>
+    <span class="ver-tag">v1.8</span>
   </div>
   <div data-i18n="footer_astrocosas">Una app de <a href="#" target="_blank" rel="noopener">AstroCosas</a> · Hecha con ☕ y datos fiscales 2026</div>
 </footer>
 
 <script>
-const APP_VERSION = '1.7';
+const APP_VERSION = '1.8';
 // Escala IRPF 2025 — Cataluña (suma estatal + autonómico)
 // Fuente: https://taxdown.es/irpf/tabla-tramos
 const TRAMOS = [
@@ -1515,12 +1515,15 @@ function calculate(){
   const weightedSalaryProj = (hasRaise && raiseMonth <= 12)
     ? (salaryBase*(raiseMonth-1)/12 + newSalary*(13-raiseMonth)/12)
     : salaryBase;
-  const pensionEmpAnnual = hasPension ? weightedSalaryProj * pensionPct : 0;   // aportación trabajador (la que decide él)
+  // El plan de pensiones se calcula sobre el último salario del año anterior. Como no lo
+  // pedimos, usamos el salario de referencia de enero (salaryBase), constante todo el año.
+  const pensionSalaryBase = salaryBase;
+  const pensionEmpAnnual = hasPension ? pensionSalaryBase * pensionPct : 0;     // aportación trabajador (la que decide él)
   const pensionMatchAmt  = pensionEmpAnnual * pensionMatch;                     // match de la empresa
   let pensionT1amt = 0, pensionT2amt = 0;
   if(hasPension && hasPensionExtra){
-    const belowCap = Math.min(weightedSalaryProj, ssCapUsed);
-    const aboveCap = Math.max(0, weightedSalaryProj - ssCapUsed);
+    const belowCap = Math.min(pensionSalaryBase, ssCapUsed);
+    const aboveCap = Math.max(0, pensionSalaryBase - ssCapUsed);
     pensionT1amt = belowCap * pensionT1;
     pensionT2amt = aboveCap * pensionT2;
   }
@@ -1544,8 +1547,8 @@ function calculate(){
     const curSalaryMonth = curSalary / 12;
     const carM = hasCar ? carMonthly : 0;
 
-    // Pension employee contribution this month
-    const pensionEmpM = hasPension ? (curSalary * pensionPct / 12) : 0;
+    // Pension employee contribution this month — sobre el salario de enero (constante todo el año)
+    const pensionEmpM = hasPension ? (pensionSalaryBase * pensionPct / 12) : 0;
 
     // Benefits in kind (life, health excess) — prorate over 12
     const lifeM = lifeAmt / 12;
@@ -1568,7 +1571,7 @@ function calculate(){
       const pSal = (hasRaise && pm >= raiseMonth) ? newSalary : salaryBase;
       const pSalM = pSal / 12;
       const pCarM = hasCar ? carMonthly : 0;
-      const pPensM = hasPension ? (pSal * pensionPct / 12) : 0;
+      const pPensM = hasPension ? (pensionSalaryBase * pensionPct / 12) : 0;
       const pTickFlex = (ticketsType==='flex') ? ticketsExempt/12 : 0;
       const pHealthFlex = (healthType==='flex') ? healthExempt/12 : 0;
       const pLifeM = lifeAmt/12;
@@ -1590,7 +1593,7 @@ function calculate(){
       const fSal = (hasRaise && fm >= raiseMonth) ? newSalary : salaryBase;
       const fSalM = fSal / 12;
       const fCarM = hasCar ? carMonthly : 0;
-      const fPensM = hasPension ? (fSal * pensionPct / 12) : 0;
+      const fPensM = hasPension ? (pensionSalaryBase * pensionPct / 12) : 0;
       const fTickFlex = (ticketsType==='flex') ? ticketsExempt/12 : 0;
       const fHealthFlex = (healthType==='flex') ? healthExempt/12 : 0;
       const fLifeM = lifeAmt/12;
