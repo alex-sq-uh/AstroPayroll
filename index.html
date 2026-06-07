@@ -265,7 +265,7 @@
     </svg>
     <div class="brand-text">
       <span class="name">Astro<span class="accent">Payroll</span></span>
-      <span class="ver">v1.9</span>
+      <span class="ver">v2.0</span>
     </div>
   </div>
   <div class="nav-links">
@@ -843,13 +843,13 @@
       <text x="32" y="35" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-weight="800" font-size="15" fill="#1a2b5e">€</text>
     </svg>
     <span>AstroPayroll</span>
-    <span class="ver-tag">v1.9</span>
+    <span class="ver-tag">v2.0</span>
   </div>
   <div data-i18n="footer_astrocosas">Una app de <a href="#" target="_blank" rel="noopener">AstroCosas</a> · Hecha con ☕ y datos fiscales 2026</div>
 </footer>
 
 <script>
-const APP_VERSION = '1.9';
+const APP_VERSION = '2.0';
 // Escala IRPF 2025 — Cataluña (suma estatal + autonómico)
 // Fuente: https://taxdown.es/irpf/tabla-tramos
 const TRAMOS = [
@@ -1599,10 +1599,10 @@ function calculate(){
       const fLifeM = lifeAmt/12;
       const fHealthTaxM = healthTaxable/12;
       let fBaseM = fSalM + fCarM - fPensM + fLifeM + fHealthTaxM - fTickFlex - fHealthFlex;
-      // El bonus se asume conocido desde enero y siempre se proyecta en el mes que toca,
-      // independientemente del mes actual que estamos calculando. Esto produce una retención
-      // mensual uniforme y más alta durante todo el año, sin spike en el mes del bonus.
-      if(hasBonus && fm === bonusMonth) fBaseM += bonusAmt;
+      // El bonus se asume 0 hasta que se cobra: solo entra en la proyección a partir del
+      // mes en que se paga (m >= bonusMonth). Antes de ese mes la empresa no lo conoce ni
+      // retiene por él, lo que genera un pico de retención en el mes del bonus.
+      if(hasBonus && fm === bonusMonth && m >= bonusMonth) fBaseM += bonusAmt;
       projBase += fBaseM;
     }
 
