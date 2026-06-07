@@ -127,7 +127,8 @@
   /* RESULT TABLE */
   .rtable { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
   .rtable th { text-align: left; padding: 7px 10px; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); border-bottom: 2px solid var(--border); }
-  .rtable td { padding: 7px 10px; border-bottom: 1px solid var(--border); }
+  .rtable td { padding: 7px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  .rtable td:first-child { white-space: normal; }
   .rtable tr:last-child td { border-bottom: none; }
   .rtable .total-row td { font-weight: 700; color: var(--primary); border-top: 2px solid var(--border); border-bottom: none; }
   .rtable .deduct td { color: var(--danger); }
@@ -207,23 +208,53 @@
 
   /* RESPONSIVE */
   @media (max-width: 600px) {
+    body { font-size: 14px; }
     /* Barra superior en dos filas: marca + idioma arriba, navegación abajo a todo el ancho */
     .topbar { height: auto; flex-wrap: wrap; padding: 8px 1rem; row-gap: 8px; }
     .topbar-brand { flex: 1 1 auto; }
     .topbar-right { order: 2; }
     .nav-links { order: 3; flex-basis: 100%; width: 100%; justify-content: space-between; gap: 4px; }
-    .nav-btn { padding: 6px 10px; font-size: 0.82rem; }
-    .page { padding: 1rem 0.9rem 3rem; }
-    .card { padding: 1.1rem 1rem; }
-    .result-hero { padding: 1.3rem 1.1rem; }
-    .result-hero h2 { font-size: 0.92rem; }
-    .hero-stat .val { font-size: 1.3rem; }
-    .field-row { flex-direction: column; gap: 0.75rem; }
+    .nav-btn { padding: 6px 10px; font-size: 0.8rem; }
+    .page { padding: 0.9rem 0.8rem 3rem; }
+    .card { padding: 1rem 0.9rem; margin-bottom: 1rem; }
+    .card-title { font-size: 0.9rem; }
+    .result-hero { padding: 1.1rem 1rem; }
+    .result-hero h2 { font-size: 0.85rem; margin-bottom: 0.7rem; }
+    .hero-grid { gap: 0.6rem; grid-template-columns: 1fr 1fr; }
+    .hero-stat .val { font-size: 1.15rem; }
+    .hero-stat .lbl { font-size: 0.68rem; }
+    .hero-stat:nth-child(3) { grid-column: 1 / -1; }
+    .field-row { flex-direction: column; gap: 0.75rem; align-items: stretch; }
+    .field-row .field { width: 100%; }
+    .field label { font-size: 0.76rem; }
     .topbar-brand .brand-text .ver { display: none; }
     .topbar-brand .logo { width: 30px; height: 30px; }
     /* Reducir titulares que en móvil resultan demasiado grandes (vienen con estilo inline) */
-    #page-calc > div > h1, #page-tramos h1 { font-size: 1.2rem !important; }
-    .tramos-table th, .tramos-table td { padding: 8px 8px; font-size: 0.8rem; }
+    #page-calc > div > h1, #page-tramos h1 { font-size: 1.15rem !important; }
+    .tramos-table th, .tramos-table td { padding: 8px 6px; font-size: 0.78rem; }
+    /* TABLAS de resultados — compactas y con scroll horizontal cuando hace falta */
+    .rtable { font-size: 0.75rem; }
+    .rtable th, .rtable td { padding: 6px 6px; white-space: nowrap; }
+    .rtable th { font-size: 0.66rem; padding: 6px 6px; }
+    .monthly-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -0.3rem; padding: 0 0.3rem; }
+    .month-badge { font-size: 0.62rem; padding: 1px 5px; margin-left: 3px; }
+    /* Inline summaries — un poco más compactos */
+    .inline-sum { font-size: 0.85rem; padding: 5px 0; }
+    .inline-sum.total { font-size: 0.95rem; }
+    .pension-row { font-size: 0.8rem; }
+    .section-title { font-size: 0.7rem; margin: 0.9rem 0 0.5rem; }
+    /* Inputs y radios */
+    input[type="number"], input[type="text"], select { font-size: 16px; padding: 8px 11px; } /* 16px evita zoom en iOS */
+    .radio-opt label { font-size: 0.78rem; padding: 7px 10px; }
+    .toggle-content { padding-top: 0.85rem; margin-top: 0.85rem; }
+    .toggle-label { font-size: 0.86rem; }
+    .toggle-sub { font-size: 0.74rem; }
+    /* Otros beneficios — filas dinámicas */
+    .otro-row label { font-size: 0.68rem; }
+    /* Caja de resumen flex en móvil: forzar ancho mínimo a la tabla para que el scroll horizontal funcione bien */
+    #flexSummaryBreakdown table { min-width: 560px; }
+    /* Disclaimers más compactos */
+    .disclaimer, .privacy-note, .llm-note { font-size: 0.78rem; padding: 0.85rem 1rem; }
   }
 
   /* SEPARATOR */
@@ -292,7 +323,7 @@
     </svg>
     <div class="brand-text">
       <span class="name">Astro<span class="accent">Payroll</span></span>
-      <span class="ver">v3.0</span>
+      <span class="ver">v3.1</span>
     </div>
   </div>
   <div class="nav-links">
@@ -776,7 +807,7 @@
     <div class="card" id="flexSummaryCard" style="display:none;">
       <div class="card-title"><div class="icon">💡</div> <span data-i18n="res_flex_summary">Resumen de retribución flexible</span></div>
       <p style="font-size:0.83rem;color:var(--text-muted);margin-bottom:10px;" data-i18n="flex_summary_exp">Cada concepto de retribución flexible aprovecha una exención y te ahorra IRPF al tipo marginal del resto de tu paquete. Si el concepto sale de tu salario base (aportado por el trabajador), además ahorras la cuota a la Seguridad Social.</p>
-      <div id="flexSummaryBreakdown"></div>
+      <div class="monthly-wrap"><div id="flexSummaryBreakdown"></div></div>
     </div>
   </div>
 
@@ -988,13 +1019,13 @@
       <text x="32" y="35" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-weight="800" font-size="15" fill="#1a2b5e">€</text>
     </svg>
     <span>AstroPayroll</span>
-    <span class="ver-tag">v3.0</span>
+    <span class="ver-tag">v3.1</span>
   </div>
   <div data-i18n="footer_astrocosas">Una app de <a href="#" target="_blank" rel="noopener">AstroCosas</a> · Hecha con ☕ y datos fiscales 2026</div>
 </footer>
 
 <script>
-const APP_VERSION = '3.0';
+const APP_VERSION = '3.1';
 // Escala IRPF 2025 — Cataluña (suma estatal + autonómico)
 // Fuente: https://taxdown.es/irpf/tabla-tramos
 const TRAMOS = [
