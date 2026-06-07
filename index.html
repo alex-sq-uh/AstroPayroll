@@ -264,7 +264,7 @@
     </svg>
     <div class="brand-text">
       <span class="name">Astro<span class="accent">Payroll</span></span>
-      <span class="ver">v1.2</span>
+      <span class="ver">v1.3</span>
     </div>
   </div>
   <div class="nav-links">
@@ -388,12 +388,12 @@
     <div class="toggle-content" id="carSec">
       <div class="field">
         <label>
-          <span data-i18n="lbl_car">Importe mensual del car allowance</span>
+          <span data-i18n="lbl_car">Importe anual del car allowance</span>
           <span class="info-icon" style="margin-left:5px;">i<div class="tooltip-box" data-i18n="tip_car">Si tu empresa te da una asignación de coche y no la usas para un vehículo, ese importe se añade a tu salario y tributa como salario normal. No computa para bonus ni plan de pensiones.</div></span>
         </label>
         <div class="input-wrap">
-          <input type="text" inputmode="decimal" class="money-input" id="carAmt" placeholder="690">
-          <span class="unit">€/mes</span>
+          <input type="text" inputmode="decimal" class="money-input" id="carAmt" value="8280" placeholder="8.280">
+          <span class="unit">€/año</span>
         </div>
       </div>
     </div>
@@ -461,7 +461,7 @@
       <div class="field">
         <label data-i18n="lbl_health_amt">Importe anual del seguro médico (€)</label>
         <div class="input-wrap">
-          <input type="text" inputmode="decimal" class="money-input" id="healthAmt" placeholder="1.200">
+          <input type="text" inputmode="decimal" class="money-input" id="healthAmt" value="980" placeholder="980">
           <span class="unit">€</span>
         </div>
       </div>
@@ -484,7 +484,7 @@
           <span class="info-icon" style="margin-left:5px;">i<div class="tooltip-box" data-i18n="tip_life">Lo paga la empresa pero tributa íntegramente como retribución en especie. Se suma a tu base imponible del IRPF.</div></span>
         </label>
         <div class="input-wrap">
-          <input type="text" inputmode="decimal" class="money-input" id="lifeAmt" placeholder="300">
+          <input type="text" inputmode="decimal" class="money-input" id="lifeAmt" value="552" placeholder="552">
           <span class="unit">€</span>
         </div>
       </div>
@@ -842,13 +842,13 @@
       <text x="32" y="35" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-weight="800" font-size="15" fill="#1a2b5e">€</text>
     </svg>
     <span>AstroPayroll</span>
-    <span class="ver-tag">v1.2</span>
+    <span class="ver-tag">v1.3</span>
   </div>
   <div data-i18n="footer_astrocosas">Una app de <a href="#" target="_blank" rel="noopener">AstroCosas</a> · Hecha con ☕ y datos fiscales 2026</div>
 </footer>
 
 <script>
-const APP_VERSION = '1.2';
+const APP_VERSION = '1.3';
 // Escala IRPF 2025 — Cataluña (suma estatal + autonómico)
 // Fuente: https://taxdown.es/irpf/tabla-tramos
 const TRAMOS = [
@@ -905,7 +905,7 @@ const T = {
     help_raise:'La retención se recalculará desde ese mes en adelante, igual que lo haría tu empresa.',
     blk_bonus:'Bonus', toggle_bonus_sub:'Pago variable anual', lbl_bonus:'Importe del bonus bruto', tip_bonus:'El bonus tributa igual que el salario. El mes que lo cobras, tu empresa recalcula toda la retención del año y aplica el ajuste de golpe en ese mes.',
     lbl_bonus_month:'Mes en que se cobra', help_bonus:'Los meses anteriores al bonus tu empresa calcula la retención sin contar con él. Cuando se decide, ajusta todo de golpe.',
-    blk_car:'Car allowance', toggle_car_sub:'Asignación de coche', lbl_car:'Importe mensual del car allowance', tip_car:'Si tu empresa te da una asignación de coche y no la usas para un vehículo, ese importe se añade a tu salario y tributa como salario normal. No computa para bonus ni plan de pensiones.',
+    blk_car:'Car allowance', toggle_car_sub:'Asignación de coche', lbl_car:'Importe anual del car allowance', tip_car:'Si tu empresa te da una asignación de coche y no la usas para un vehículo, ese importe se añade a tu salario y tributa como salario normal. No computa para bonus ni plan de pensiones.',
     blk_tickets:'Tickets restaurante', toggle_tickets_sub:'Límite exento: 2.750 €/año', lbl_tickets_type:'¿Cómo funcionan tus tickets?',
     tickets_ontop:'Beneficio adicional (on top)', tickets_flex:'Retribución flexible',
     tip_tickets_ontop:'La empresa te da los tickets encima de tu sueldo. El importe exento (hasta 2.750 €) no tributa en IRPF ni cotiza a la SS.',
@@ -957,7 +957,7 @@ const T = {
     ann_ss_deduction:'Cotizaciones SS empleado (gasto deducible)',
     ann_otros_gastos:'Otros gastos (2.000 €/año)',
     ann_reduccion_rt:'Reducción por rendimientos del trabajo',
-    ann_pension_red:'Aportación plan de pensiones (reducción)',
+    ann_pension_red:'Reducción por aportación a plan de pensiones',
     ann_base_liquidable:'Base liquidable IRPF',
     ann_minimo_exp:'Sobre la base liquidable se aplica la escala progresiva y luego se resta la cuota correspondiente al mínimo personal de {m} (Art. 56 LIRPF).',
     ann_base:'Base imponible', ann_irpf:'IRPF retenido', ann_irpf_rate:'Tipo efectivo', ann_ss:'Seguridad Social (empleado)', ann_solidarity:'Cuota de solidaridad', ann_pension_emp:'Aportación plan pensiones (empleado)', ann_total_ded:'Total deducciones', ann_net:'Neto anual estimado',
@@ -982,7 +982,7 @@ const T = {
     help_raise:"La retenció es recalcularà des d'aquell mes en endavant.",
     blk_bonus:'Bonus', toggle_bonus_sub:'Pagament variable anual', lbl_bonus:'Import del bonus brut', tip_bonus:'El bonus tributa igual que el salari. El mes que el cobres, la teva empresa recalcula tota la retenció de l\'any.',
     lbl_bonus_month:'Mes en què es cobra', help_bonus:"Els mesos anteriors al bonus, l'empresa calcula la retenció sense comptar-lo.",
-    blk_car:'Car allowance', toggle_car_sub:'Assignació de cotxe', lbl_car:'Import mensual del car allowance', tip_car:"Si l'empresa et dóna una assignació de cotxe i no la uses, es suma al salari i tributa normalment.",
+    blk_car:'Car allowance', toggle_car_sub:'Assignació de cotxe', lbl_car:'Import anual del car allowance', tip_car:"Si l'empresa et dóna una assignació de cotxe i no la uses, es suma al salari i tributa normalment.",
     blk_tickets:'Tiquets restaurant', toggle_tickets_sub:'Límit exempt: 2.750 €/any', lbl_tickets_type:'Com funcionen els teus tiquets?',
     tickets_ontop:'Benefici addicional (on top)', tickets_flex:'Retribució flexible',
     tip_tickets_ontop:"L'empresa et dóna els tiquets a sobre del sou. L'import exempt (fins a 2.750 €) no tributa.",
@@ -1034,7 +1034,7 @@ const T = {
     ann_ss_deduction:'Cotitzacions SS empleat (despesa deduïble)',
     ann_otros_gastos:'Altres despeses (2.000 €/any)',
     ann_reduccion_rt:'Reducció per rendiments del treball',
-    ann_pension_red:'Aportació pla de pensions (reducció)',
+    ann_pension_red:'Reducció per aportació a pla de pensions',
     ann_base_liquidable:'Base liquidable IRPF',
     ann_minimo_exp:"Sobre la base liquidable s'aplica l'escala progressiva i després es resta la quota corresponent al mínim personal de {m} (Art. 56 LIRPF).",
     ann_base:'Base imposable', ann_irpf:'IRPF retingut', ann_irpf_rate:'Tipus efectiu', ann_ss:'Seguretat Social (empleat)', ann_solidarity:'Quota de solidaritat', ann_pension_emp:'Aportació pla pensions (empleat)', ann_total_ded:'Total deduccions', ann_net:'Net anual estimat',
@@ -1059,7 +1059,7 @@ const T = {
     help_raise:'Tax withholding will be recalculated from that month onwards.',
     blk_bonus:'Bonus', toggle_bonus_sub:'Annual variable pay', lbl_bonus:'Gross bonus amount', tip_bonus:'Bonuses are taxed like salary. The month you receive it, your company recalculates the full-year withholding and applies the adjustment all at once.',
     lbl_bonus_month:'Month it is paid', help_bonus:"In months before the bonus, your company calculates withholding without it. When it's decided, they adjust everything at once.",
-    blk_car:'Car allowance', toggle_car_sub:'Vehicle allowance', lbl_car:'Monthly car allowance amount', tip_car:"If your company gives you a car allowance and you don't use it for a vehicle, it's added to your salary and taxed normally. It doesn't count for bonus or pension calculations.",
+    blk_car:'Car allowance', toggle_car_sub:'Vehicle allowance', lbl_car:'Annual car allowance amount', tip_car:"If your company gives you a car allowance and you don't use it for a vehicle, it's added to your salary and taxed normally. It doesn't count for bonus or pension calculations.",
     blk_tickets:'Meal vouchers', toggle_tickets_sub:'Tax-exempt limit: €2,750/year', lbl_tickets_type:'How do your meal vouchers work?',
     tickets_ontop:'Additional benefit (on top of salary)', tickets_flex:'Flexible remuneration',
     tip_tickets_ontop:'The company gives you vouchers on top of your salary. The exempt amount (up to €2,750) is free of income tax and social security.',
@@ -1111,7 +1111,7 @@ const T = {
     ann_ss_deduction:'Employee SS contributions (deductible)',
     ann_otros_gastos:'Other deductible expenses (€2,000/year)',
     ann_reduccion_rt:'Employment income reduction',
-    ann_pension_red:'Pension contribution (base reduction)',
+    ann_pension_red:'Reduction for pension plan contributions',
     ann_base_liquidable:'Taxable base (after reductions)',
     ann_minimo_exp:'The progressive scale is applied to the taxable base, then the tax on the personal minimum of {m} is subtracted (Art. 56 LIRPF).',
     ann_base:'Taxable base', ann_irpf:'Income tax withheld', ann_irpf_rate:'Effective rate', ann_ss:'Social Security (employee)', ann_solidarity:'Solidarity surcharge', ann_pension_emp:'Pension contribution (employee)', ann_total_ded:'Total deductions', ann_net:'Estimated annual net',
@@ -1384,8 +1384,8 @@ function calculate(){
   const bonusAmt   = hasBonus ? parseAmount(document.getElementById('bonusAmt').value) : 0;
   const bonusMonth = hasBonus ? parseInt(document.getElementById('bonusMonth').value) : 0;
 
-  const carMonthly = hasCar ? parseAmount(document.getElementById('carAmt').value) : 0;
-  const carAnnual  = carMonthly * 12;
+  const carAnnual  = hasCar ? parseAmount(document.getElementById('carAmt').value) : 0;
+  const carMonthly = carAnnual / 12;
 
   const ticketsType = hasTickets ? document.querySelector('input[name="ticketsType"]:checked').value : 'none';
   const ticketsExempt = hasTickets ? Math.min(ticketsAmt, TICKETS_LIMIT) : 0;
