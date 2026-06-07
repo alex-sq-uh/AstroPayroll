@@ -186,13 +186,42 @@
   .tramo-bar { height: 8px; border-radius: 4px; background: var(--secondary); }
 
   /* INTERACTIVE TRAMO EXAMPLE */
-  .tramo-example { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; margin-top: 1.5rem; }
-  .tramo-example h3 { font-size: 0.9rem; font-weight: 700; color: var(--primary); margin-bottom: 1rem; }
-  .breakdown-bars { margin-top: 1rem; }
-  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; font-size: 0.8rem; }
-  .bar-row .bar-label { width: 120px; color: var(--text-muted); flex-shrink: 0; }
-  .bar-row .bar-fill { height: 20px; border-radius: 4px; transition: width 0.3s; }
-  .bar-row .bar-val { min-width: 80px; text-align: right; font-weight: 600; }
+  .tramo-example { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; margin-top: 1.5rem; }
+  .tramo-example h3 { font-size: 1rem; font-weight: 700; color: var(--primary); margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+  .tramo-example h3::before { content: '🧮'; font-size: 1.1rem; }
+  .tramo-example .tramo-intro { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.1rem; line-height: 1.5; }
+  /* Stacked bar — cómo se divide la base entre los tramos */
+  .tramo-stack-wrap { margin: 0.5rem 0 1.25rem; }
+  .tramo-stack-label { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; }
+  .tramo-stack { display: flex; height: 22px; border-radius: 6px; overflow: hidden; box-shadow: inset 0 0 0 1px var(--border); }
+  .tramo-stack-seg { height: 100%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; color: #fff; min-width: 0; overflow: hidden; white-space: nowrap; text-shadow: 0 1px 2px rgba(0,0,0,0.18); }
+  .tramo-stack-legend { display: flex; flex-wrap: wrap; gap: 8px 14px; margin-top: 8px; font-size: 0.74rem; color: var(--text-muted); }
+  .tramo-stack-legend .lg-dot { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 5px; vertical-align: middle; }
+  /* Tabla por tramo — versión mejorada */
+  .tramo-detail-wrap { margin-top: 1rem; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .tramo-detail-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+  .tramo-detail-table th { text-align: left; padding: 8px 10px; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); background: var(--bg); border-bottom: 1px solid var(--border); white-space: nowrap; }
+  .tramo-detail-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  .tramo-detail-table tr:last-child td { border-bottom: none; }
+  .tramo-detail-table .row-color { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 6px; vertical-align: middle; flex-shrink: 0; }
+  .tramo-detail-table .col-cuota { text-align: right; font-weight: 600; color: var(--primary); }
+  .tramo-detail-table .col-base { text-align: right; }
+  /* Bloque resumen final */
+  .tramo-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 1.1rem; padding-top: 1.1rem; border-top: 1px dashed var(--border); }
+  .tramo-summary .ts-box { background: var(--bg); border-radius: 8px; padding: 10px 12px; }
+  .tramo-summary .ts-lbl { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.03em; font-weight: 600; margin-bottom: 3px; }
+  .tramo-summary .ts-val { font-size: 1.1rem; font-weight: 700; color: var(--primary); }
+  .tramo-summary .ts-val.danger { color: var(--danger); }
+  .tramo-summary .ts-sub { font-size: 0.72rem; color: var(--text-muted); margin-top: 3px; line-height: 1.35; }
+  .tramo-note { background: var(--bg); border-left: 3px solid var(--secondary); border-radius: 6px; padding: 8px 12px; margin-top: 1rem; font-size: 0.76rem; color: var(--text-muted); line-height: 1.5; }
+  @media (max-width: 600px) {
+    .tramo-example { padding: 1.1rem 1rem; }
+    .tramo-summary { grid-template-columns: 1fr; gap: 6px; }
+    .tramo-summary .ts-box { padding: 8px 10px; }
+    .tramo-summary .ts-val { font-size: 1rem; }
+    .tramo-detail-table { font-size: 0.78rem; }
+    .tramo-detail-table th, .tramo-detail-table td { padding: 6px 6px; }
+  }
 
   /* SHARE */
   .share-copied { color: var(--success); font-size: 0.82rem; display: none; margin-left: 8px; }
@@ -327,7 +356,7 @@
     </svg>
     <div class="brand-text">
       <span class="name">Astro<span class="accent">Payroll</span></span>
-      <span class="ver">v2.12</span>
+      <span class="ver">v2.13</span>
     </div>
   </div>
   <div class="nav-links">
@@ -997,11 +1026,12 @@
   </div>
 
   <div class="tramo-example">
-    <h3 data-i18n="tramo_ex_title">Prueba con tu salario</h3>
-    <div class="field" style="margin-bottom:1rem;">
-      <label data-i18n="tramo_ex_input">Introduce un salario anual (€)</label>
+    <h3 data-i18n="tramo_ex_title">Calcula tu IRPF tramo a tramo</h3>
+    <p class="tramo-intro" data-i18n="tramo_ex_intro">Introduce una base imponible y verás cómo se aplica la escala progresiva: cada euro paga el tipo de su tramo, no del más alto que alcances.</p>
+    <div class="field" style="margin-bottom:0; max-width:260px;">
+      <label data-i18n="tramo_ex_input">Base imponible anual</label>
       <div class="input-wrap">
-        <input type="text" inputmode="decimal" class="money-input" id="tramoInput" placeholder="45.000" oninput="renderTramoExample()" style="max-width:220px;">
+        <input type="text" inputmode="decimal" class="money-input" id="tramoInput" placeholder="45.000" oninput="renderTramoExample()">
         <span class="unit">€</span>
       </div>
     </div>
@@ -1023,13 +1053,13 @@
       <text x="32" y="35" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-weight="800" font-size="15" fill="#1a2b5e">€</text>
     </svg>
     <span>AstroPayroll</span>
-    <span class="ver-tag">v2.12</span>
+    <span class="ver-tag">v2.13</span>
   </div>
   <div data-i18n="footer_astrocosas">Una app de <a href="#" target="_blank" rel="noopener">AstroCosas</a> · Datos fiscales 2026</div>
 </footer>
 
 <script>
-const APP_VERSION = '2.12';
+const APP_VERSION = '2.13';
 // Escala IRPF 2025 — Cataluña (suma estatal + autonómico)
 // Fuente: https://taxdown.es/irpf/tabla-tramos
 const TRAMOS = [
@@ -1172,7 +1202,14 @@ const T = {
     tramos_title:'Tramos del IRPF 2025 · Cataluña', tramos_sub:'Suma del tipo estatal y del tipo autonómico de Cataluña. Otras CCAA aplican tipos diferentes.',
     col_tramo:'Tramo', col_tipo:'Tipo', col_tipo_estatal:'Estatal', col_tipo_auto:'Autonómico', col_tipo_total:'Total', col_cuota:'Cuota', col_cuota_tramo:'Lo que pagas en este tramo', col_desc:'Explicación', col_base:'Base en tramo', col_total:'Cuota íntegra',
     tramo_top_range:'Más de 300.000 €',
-    tramo_ex_title:'Prueba con tu salario', tramo_ex_input:'Introduce un salario anual (€)',
+    tramo_ex_title:'Calcula tu IRPF tramo a tramo', tramo_ex_input:'Base imponible anual',
+    tramo_ex_intro:'Introduce una base imponible y verás cómo se aplica la escala progresiva: cada euro paga el tipo de su tramo, no del más alto que alcances.',
+    tramo_stack_label:'Cómo se divide tu base imponible ({x}) entre los tramos',
+    tramo_col_tramo:'Tramo', tramo_col_base:'Base en este tramo', tramo_col_tipo:'Tipo', tramo_col_cuota:'IRPF de este tramo',
+    tramo_sum_total:'IRPF total (cuota íntegra)', tramo_sum_total_sub:'Suma del IRPF de todos los tramos.',
+    tramo_sum_eff:'Tipo efectivo', tramo_sum_eff_sub:'Lo que pagas de media sobre el total.',
+    tramo_sum_marg:'Tipo marginal', tramo_sum_marg_sub:'Lo que pagarías por el siguiente euro extra.',
+    tramo_note:'Cálculo orientativo: aplica la escala IRPF de Cataluña 2025 directamente sobre el importe. La base imponible real ya descuenta reducciones (rendimientos del trabajo, plan de pensiones, mínimo personal, etc.). Para tu cuota líquida final usa la calculadora principal.',
     month_bonus:'Bonus', month_raise:'Subida',
     ann_gross:'Bruto total anual', ann_salary:'Salario base', ann_car:'Car allowance', ann_bonus:'Bonus bruto', ann_health_spkd:'Retribución en especie: seguro médico', ann_life_spkd:'Retribución en especie: seguro vida',
     ann_rend_integros:'Rendimientos íntegros del trabajo',
@@ -1185,7 +1222,7 @@ const T = {
     ann_pension_red:'Reducción por aportación a plan de pensiones',
     ann_base_liquidable:'Base liquidable IRPF',
     ann_minimo_exp:'Sobre la base liquidable se aplica la escala progresiva y luego se resta la cuota correspondiente al mínimo personal de {m} (Art. 56 LIRPF).',
-    ann_base:'Base imponible', ann_irpf:'IRPF retenido', ann_irpf_rate:'Tipo efectivo', ann_ss:'Seguridad Social (empleado)', ann_solidarity:'Cuota de solidaridad', ann_pension_emp:'Aportación plan pensiones (empleado)', ann_total_ded:'Total deducciones', ann_net:'Neto anual estimado',
+    ann_base:'Base imponible', ann_irpf:'IRPF retenido', ann_irpf_rate:'Tipo efectivo', ann_ss:'Seguridad Social (empleado)', ann_solidarity:'Cuota de solidaridad', ann_pension_emp:'Aportación plan pensiones (empleado)', ann_total_ded:'Total deducciones', ann_net:'Neto anual estimado', per_month_label:'/mes en promedio',
     ann_tickets_saving:'Ahorro fiscal tickets restaurante', ann_tickets_exp:'El ahorro equivale al importe exento multiplicado por tu tipo marginal. Ese dinero no paga IRPF.',
     col_mes:'Mes', col_bruto:'Bruto', col_irpf:'IRPF', col_ss:'SS + Solidaridad', col_pension_emp:'Pensión (tú)', col_neto:'Neto',
     bonus_gross:'Bonus bruto', bonus_irpf_est:'Retención extra del mes del bonus', bonus_marginal_cost:'IRPF anual atribuible al bonus', bonus_net:'Bonus neto estimado',
@@ -1296,7 +1333,14 @@ const T = {
     tramos_title:"Trams de l'IRPF 2025 · Catalunya", tramos_sub:"Suma del tipus estatal i del tipus autonòmic de Catalunya. Altres CCAA apliquen tipus diferents.",
     col_tramo:'Tram', col_tipo:'Tipus', col_tipo_estatal:'Estatal', col_tipo_auto:'Autonòmic', col_tipo_total:'Total', col_cuota:'Quota', col_cuota_tramo:'El que pagues en aquest tram', col_desc:'Explicació', col_base:'Base en tram', col_total:'Quota íntegra',
     tramo_top_range:'Més de 300.000 €',
-    tramo_ex_title:'Prova amb el teu salari', tramo_ex_input:'Introdueix un salari anual (€)',
+    tramo_ex_title:"Calcula el teu IRPF tram a tram", tramo_ex_input:'Base imposable anual',
+    tramo_ex_intro:"Introdueix una base imposable i veuràs com s'aplica l'escala progressiva: cada euro paga el tipus del seu tram, no del més alt que assoleixis.",
+    tramo_stack_label:'Com es divideix la teva base imposable ({x}) entre els trams',
+    tramo_col_tramo:'Tram', tramo_col_base:'Base en aquest tram', tramo_col_tipo:'Tipus', tramo_col_cuota:'IRPF d\'aquest tram',
+    tramo_sum_total:'IRPF total (quota íntegra)', tramo_sum_total_sub:"Suma de l'IRPF de tots els trams.",
+    tramo_sum_eff:'Tipus efectiu', tramo_sum_eff_sub:'El que pagues de mitjana sobre el total.',
+    tramo_sum_marg:'Tipus marginal', tramo_sum_marg_sub:'El que pagaries pel següent euro extra.',
+    tramo_note:"Càlcul orientatiu: aplica l'escala IRPF de Catalunya 2025 directament sobre l'import. La base imposable real ja descompta reduccions (rendiments del treball, pla de pensions, mínim personal, etc.). Per a la teva quota líquida final fes servir la calculadora principal.",
     month_bonus:'Bonus', month_raise:'Pujada',
     ann_gross:'Brut total anual', ann_salary:'Salari base', ann_car:'Car allowance', ann_bonus:'Bonus brut', ann_health_spkd:'Retribució en espècie: assegurança mèdica', ann_life_spkd:'Retribució en espècie: assegurança vida',
     ann_rend_integros:'Rendiments íntegres del treball',
@@ -1309,7 +1353,7 @@ const T = {
     ann_pension_red:'Reducció per aportació a pla de pensions',
     ann_base_liquidable:'Base liquidable IRPF',
     ann_minimo_exp:"Sobre la base liquidable s'aplica l'escala progressiva i després es resta la quota corresponent al mínim personal de {m} (Art. 56 LIRPF).",
-    ann_base:'Base imposable', ann_irpf:'IRPF retingut', ann_irpf_rate:'Tipus efectiu', ann_ss:'Seguretat Social (empleat)', ann_solidarity:'Quota de solidaritat', ann_pension_emp:'Aportació pla pensions (empleat)', ann_total_ded:'Total deduccions', ann_net:'Net anual estimat',
+    ann_base:'Base imposable', ann_irpf:'IRPF retingut', ann_irpf_rate:'Tipus efectiu', ann_ss:'Seguretat Social (empleat)', ann_solidarity:'Quota de solidaritat', ann_pension_emp:'Aportació pla pensions (empleat)', ann_total_ded:'Total deduccions', ann_net:'Net anual estimat', per_month_label:'/mes de mitjana',
     ann_tickets_saving:'Estalvi fiscal tiquets restaurant', ann_tickets_exp:"L'estalvi equival a l'import exempt multiplicat pel teu tipus marginal.",
     col_mes:'Mes', col_bruto:'Brut', col_irpf:'IRPF', col_ss:'SS + Solidaritat', col_pension_emp:'Pensió (tu)', col_neto:'Net',
     bonus_gross:'Bonus brut', bonus_irpf_est:'Retenció extra del mes del bonus', bonus_marginal_cost:'IRPF anual atribuïble al bonus', bonus_net:'Bonus net estimat',
@@ -1420,7 +1464,14 @@ const T = {
     tramos_title:'2025 Income Tax Brackets · Catalonia', tramos_sub:'Sum of state rate and Catalonia regional rate. Other regions apply different rates.',
     col_tramo:'Bracket', col_tipo:'Rate', col_tipo_estatal:'State', col_tipo_auto:'Regional', col_tipo_total:'Total', col_cuota:'Tax due', col_cuota_tramo:'What you pay in this bracket', col_desc:'Explanation', col_base:'Income in bracket', col_total:'Gross tax',
     tramo_top_range:'Over €300,000',
-    tramo_ex_title:'Try with your salary', tramo_ex_input:'Enter an annual salary (€)',
+    tramo_ex_title:'See how the brackets apply to you', tramo_ex_input:'Annual taxable base',
+    tramo_ex_intro:'Enter a taxable base and watch the progressive scale at work: each euro is taxed at its own bracket rate, not at the highest one you reach.',
+    tramo_stack_label:'How your taxable base ({x}) splits across brackets',
+    tramo_col_tramo:'Bracket', tramo_col_base:'Income in this bracket', tramo_col_tipo:'Rate', tramo_col_cuota:'Tax in this bracket',
+    tramo_sum_total:'Total income tax (gross liability)', tramo_sum_total_sub:'Sum of the tax in every bracket.',
+    tramo_sum_eff:'Effective rate', tramo_sum_eff_sub:'What you pay on average across the whole base.',
+    tramo_sum_marg:'Marginal rate', tramo_sum_marg_sub:'What you would pay on the next euro earned.',
+    tramo_note:'Indicative calculation: applies the 2025 Catalonia IRPF scale directly to the amount you enter. The real taxable base already nets out work-income reductions, pension contributions, personal allowance and so on. For your actual liability, use the main calculator.',
     month_bonus:'Bonus', month_raise:'Raise',
     ann_gross:'Total annual gross', ann_salary:'Base salary', ann_car:'Car allowance', ann_bonus:'Gross bonus', ann_health_spkd:'Benefit in kind: health insurance', ann_life_spkd:'Benefit in kind: life insurance',
     ann_rend_integros:'Gross employment income',
@@ -1433,7 +1484,7 @@ const T = {
     ann_pension_red:'Reduction for pension plan contributions',
     ann_base_liquidable:'Taxable base (after reductions)',
     ann_minimo_exp:'The progressive scale is applied to the taxable base, then the tax on the personal minimum of {m} is subtracted (Art. 56 LIRPF).',
-    ann_base:'Taxable base', ann_irpf:'Income tax withheld', ann_irpf_rate:'Effective rate', ann_ss:'Social Security (employee)', ann_solidarity:'Solidarity surcharge', ann_pension_emp:'Pension contribution (employee)', ann_total_ded:'Total deductions', ann_net:'Estimated annual net',
+    ann_base:'Taxable base', ann_irpf:'Income tax withheld', ann_irpf_rate:'Effective rate', ann_ss:'Social Security (employee)', ann_solidarity:'Solidarity surcharge', ann_pension_emp:'Pension contribution (employee)', ann_total_ded:'Total deductions', ann_net:'Estimated annual net', per_month_label:'/month on average',
     ann_tickets_saving:'Tax saving from meal vouchers', ann_tickets_exp:'The saving equals the exempt amount multiplied by your marginal rate. That money is not subject to income tax.',
     col_mes:'Month', col_bruto:'Gross', col_irpf:'Tax', col_ss:'SS + Solidarity', col_pension_emp:'Pension (you)', col_neto:'Net',
     bonus_gross:'Gross bonus', bonus_irpf_est:'Extra withholding in the bonus month', bonus_marginal_cost:'Annual tax attributable to the bonus', bonus_net:'Estimated net bonus',
@@ -2289,6 +2340,7 @@ function renderResults(r){
   const totalDed = r.totalIRPF + r.totalSS + r.totalSol + r.totalPensionEmp;
   ann += `<div class="inline-sum total neg" style="color:var(--danger);"><span>${t('ann_total_ded')}</span><span class="val">−${fmtRound(totalDed)}</span></div>`;
   ann += `<div class="inline-sum total pos"><span>${t('ann_net')}</span><span class="val">${fmtRound(r.totalNet)}</span></div>`;
+  ann += `<div style="text-align:right;font-size:0.8rem;font-weight:600;color:var(--success);margin-top:-2px;">≈ ${fmtRound(r.totalNet/12)}${t('per_month_label')}</div>`;
   ann += `<p style="font-size:0.78rem;color:var(--text-muted);margin-top:4px;">${t('ann_net_exp')}</p>`;
 
   document.getElementById('annualBreakdown').innerHTML = ann;
@@ -2480,30 +2532,79 @@ document.querySelectorAll('input[name="guardType"]').forEach(r => {
 // Tramos interactive example
 function renderTramoExample(){
   const sal = parseAmount(document.getElementById('tramoInput').value);
-  if(sal <= 0){ document.getElementById('tramoExResult').innerHTML=''; return; }
-  const tramos = TRAMOS;
-  const colors = ['#3498db','#2ecc71','#f39c12','#e67e22','#e74c3c','#8e44ad'];
+  const out = document.getElementById('tramoExResult');
+  if(sal <= 0){ out.innerHTML = ''; return; }
+  // Paleta del tramo más bajo al más alto (verde → rojo)
+  const colors = ['#27ae60','#2ecc71','#5fb849','#a4c93b','#f1c40f','#f39c12','#e67e22','#d35400','#e74c3c','#c0392b','#a93226','#922b21','#7b241c'];
   let total = 0;
-  let rows = '';
-  let bars = '';
-  tramos.forEach((tr,i) => {
+  const usedTramos = [];
+  TRAMOS.forEach((tr, i) => {
     if(sal <= tr.from) return;
     const portion = Math.min(sal, tr.to) - tr.from;
     const tax = portion * tr.rate;
     total += tax;
-    rows += `<tr><td>${fmtInt(tr.from)} – ${tr.to===Infinity?'∞':fmtInt(tr.to)} €</td><td>${fmt(portion)}</td><td>${(tr.rate*100).toFixed(0)}%</td><td>${fmt(tax)}</td></tr>`;
-    const pct = Math.min(100, (portion/sal)*100);
-    bars += `<div class="bar-row"><div class="bar-label">${(tr.rate*100).toFixed(0)}%</div><div class="bar-fill" style="flex:${pct};background:${colors[i]};max-width:${pct*2}px;min-width:4px;"></div><div class="bar-val">${fmt(tax)}</div></div>`;
+    usedTramos.push({ tr, portion, tax, color: colors[i % colors.length] });
   });
-  const eff = (total/sal*100).toFixed(2);
-  document.getElementById('tramoExResult').innerHTML = `
-    <div class="breakdown-bars">${bars}</div>
-    <table class="edu-body" style="display:table; margin-top:1rem;"><thead><tr><th>Tramo</th><th>Base</th><th>Tipo</th><th>Cuota</th></tr></thead><tbody>${rows}</tbody></table>
-    <div style="margin-top:0.75rem; display:flex; gap:1.5rem; font-size:0.85rem;">
-      <div><span style="color:var(--text-muted);">Total IRPF: </span><strong class="amount-neg">${fmt(total)}</strong></div>
-      <div><span style="color:var(--text-muted);">Tipo efectivo: </span><strong>${eff} %</strong></div>
-      <div><span style="color:var(--text-muted);">Tipo marginal: </span><strong>${(getMarginalRate(sal)*100).toFixed(0)} %</strong></div>
-    </div>`;
+  // Segmentos del stack — proporcionales a la BASE en cada tramo (qué parte de tu salario va a cada tramo)
+  const stackSegs = usedTramos.map(u => {
+    const pct = (u.portion / sal) * 100;
+    const label = pct >= 9 ? (u.tr.rate*100).toFixed(0)+'%' : '';
+    return `<div class="tramo-stack-seg" style="flex:${pct};background:${u.color};" title="${(u.tr.rate*100).toFixed(0)}% — ${fmt(u.portion)}">${label}</div>`;
+  }).join('');
+  // Leyenda corta debajo
+  const legend = usedTramos.map(u => `<span><span class="lg-dot" style="background:${u.color}"></span>${(u.tr.rate*100).toFixed(0)}% (${fmtInt(u.tr.from)}${u.tr.to===Infinity?'+':'–'+fmtInt(u.tr.to)} €)</span>`).join('');
+  // Tabla detallada por tramo con la cuota acumulada
+  let acc = 0;
+  const rows = usedTramos.map(u => {
+    acc += u.tax;
+    const rangeTo = u.tr.to === Infinity ? '∞' : fmtInt(u.tr.to) + ' €';
+    return `<tr>
+      <td><span class="row-color" style="background:${u.color}"></span>${fmtInt(u.tr.from)} – ${rangeTo}</td>
+      <td class="col-base">${fmt(u.portion)}</td>
+      <td><strong>${(u.tr.rate*100).toFixed(2).replace('.',',')} %</strong></td>
+      <td class="col-cuota">${fmt(u.tax)}</td>
+    </tr>`;
+  }).join('');
+  const eff = (total / sal) * 100;
+  const marg = getMarginalRate(sal) * 100;
+  out.innerHTML = `
+    <div class="tramo-stack-wrap">
+      <div class="tramo-stack-label">${t('tramo_stack_label').replace('{x}', fmtRound(sal))}</div>
+      <div class="tramo-stack">${stackSegs}</div>
+      <div class="tramo-stack-legend">${legend}</div>
+    </div>
+    <div class="tramo-detail-wrap">
+      <table class="tramo-detail-table">
+        <thead>
+          <tr>
+            <th>${t('tramo_col_tramo')}</th>
+            <th class="col-base">${t('tramo_col_base')}</th>
+            <th>${t('tramo_col_tipo')}</th>
+            <th class="col-cuota">${t('tramo_col_cuota')}</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    <div class="tramo-summary">
+      <div class="ts-box">
+        <div class="ts-lbl">${t('tramo_sum_total')}</div>
+        <div class="ts-val danger">${fmt(total)}</div>
+        <div class="ts-sub">${t('tramo_sum_total_sub')}</div>
+      </div>
+      <div class="ts-box">
+        <div class="ts-lbl">${t('tramo_sum_eff')}</div>
+        <div class="ts-val">${eff.toFixed(2).replace('.',',')} %</div>
+        <div class="ts-sub">${t('tramo_sum_eff_sub')}</div>
+      </div>
+      <div class="ts-box">
+        <div class="ts-lbl">${t('tramo_sum_marg')}</div>
+        <div class="ts-val">${marg.toFixed(2).replace('.',',')} %</div>
+        <div class="ts-sub">${t('tramo_sum_marg_sub')}</div>
+      </div>
+    </div>
+    <div class="tramo-note">ℹ️ ${t('tramo_note')}</div>
+  `;
 }
 
 // ── Umami Analytics helpers ──────────────────────────────────────────────────
