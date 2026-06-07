@@ -265,7 +265,7 @@
     </svg>
     <div class="brand-text">
       <span class="name">Astro<span class="accent">Payroll</span></span>
-      <span class="ver">v1.5</span>
+      <span class="ver">v1.6</span>
     </div>
   </div>
   <div class="nav-links">
@@ -843,13 +843,13 @@
       <text x="32" y="35" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-weight="800" font-size="15" fill="#1a2b5e">€</text>
     </svg>
     <span>AstroPayroll</span>
-    <span class="ver-tag">v1.5</span>
+    <span class="ver-tag">v1.6</span>
   </div>
   <div data-i18n="footer_astrocosas">Una app de <a href="#" target="_blank" rel="noopener">AstroCosas</a> · Hecha con ☕ y datos fiscales 2026</div>
 </footer>
 
 <script>
-const APP_VERSION = '1.5';
+const APP_VERSION = '1.6';
 // Escala IRPF 2025 — Cataluña (suma estatal + autonómico)
 // Fuente: https://taxdown.es/irpf/tabla-tramos
 const TRAMOS = [
@@ -974,12 +974,17 @@ const T = {
     bonus_exp_trigger:'¿Por qué la retención del bonus es tan alta?',
     bonus_exp:'El mes que cobras el bonus, tu empresa recalcula el IRPF de todo el año incluyéndolo. Aplica de golpe la diferencia entre lo que debería haberte retenido hasta ahora y lo que te ha retenido realmente. El resultado es una retención muy alta ese mes, aunque en total anual cuadra.',
     ben_tickets:'Tickets restaurante', ben_health:'Seguro médico', ben_life:'Seguro de vida', ben_saving_irpf:'Ahorro IRPF estimado', ben_saving_ss:'Ahorro SS estimado', ben_saving_total:'Ahorro total estimado', ben_marginal:'Tipo marginal aplicado',
-    pen_emp:'Tu aportación', pen_match:'Match empresa', pen_t1:'Aportación empresa tramo 1%', pen_t2:'Aportación empresa tramo 10%', pen_total:'Total anual al plan', pen_tax_saving:'Ahorro fiscal por tu aportación', pen_tax_exp:'Solo la parte deducible de tu aportación reduce la base imponible del IRPF. El ahorro es esa parte multiplicada por tu tipo marginal.',
+    pen_emp:'Tu aportación', pen_match:'Match empresa', pen_t1:'Aportación empresa tramo 1%', pen_t2:'Aportación empresa tramo 10%', pen_total:'Total anual al plan', pen_tax_saving:'Ahorro fiscal por tu aportación', pen_tax_exp:'La contribución de la empresa se suma a tus ingresos y se deduce a la vez, así que es neutra fiscalmente. El ahorro real proviene solo de tu aportación: tu parte deducible × tu tipo marginal.',
     pen_worker_title:'Tu aportación (la decides tú)', pen_worker_amount:'Aportación anual', pen_worker_deductible:'Deducible en IRPF', pen_worker_nondeductible:'No deducible este año',
     pen_worker_limit_note:'Tu máximo deducible es {max}: 1.500 € del límite individual más el extra que permite la contribución de tu empresa (Art. 52 LIRPF).',
     pen_excess_warn:'Aportas {x} por encima de tu máximo deducible ({max}). Ese exceso entra en el plan pero no reduce tu IRPF este año (puedes solicitar deducirlo en los 5 ejercicios siguientes).',
-    pen_company_title:'Contribución de la empresa (no la decides tú)', pen_company_note:'Cuenta dentro del límite de 8.500 €/año propio de los planes de empleo. No sale de tu salario.',
+    pen_company_title:'Contribución de la empresa (no la decides tú)', pen_company_note:'Las aportaciones de la empresa son retribución en especie: se suman a tus rendimientos íntegros y se deducen dentro del límite de 8.500 €/año de los planes de empleo. No salen de tu salario.',
     pen_company_excess_warn:'La empresa aporta {x} por encima del límite de 8.500 €/año.',
+    pen_vol_title:'Parte voluntaria (tu 4% + match 50% empresa)', pen_vol_deductible:'Reducción en IRPF', pen_vol_excess_warn:'{x} de esta parte supera el límite y no reduce tu IRPF este año (deducible en los 5 ejercicios siguientes).',
+    pen_inv_title:'Parte involuntaria (aportación obligatoria de la empresa)', pen_inv_deductible:'Reducción en IRPF', pen_inv_excess_warn:'{x} de esta parte supera el límite y no reduce el IRPF este año.',
+    pen_total_deductible:'Reducción total en IRPF',
+    ann_pension_company_spkd:'Contribución empresa al plan (en especie)',
+    ann_pension_red_vol:'Reducción: tu aportación + match empresa', ann_pension_red_inv:'Reducción: aportación obligatoria empresa',
     pen_exp_trigger:'¿Qué es el plan de pensiones y por qué me conviene?',
     pen_exp:'Aportas dinero ahora, pagas menos IRPF, y la empresa añade más por encima. Ese dinero crece sin tributar hasta la jubilación.'
   },
@@ -1057,12 +1062,17 @@ const T = {
     bonus_exp_trigger:'Per què la retenció del bonus és tan alta?',
     bonus_exp:"El mes que cobres el bonus, la teva empresa recalcula l'IRPF de tot l'any incloent-lo.",
     ben_tickets:'Tiquets restaurant', ben_health:'Assegurança mèdica', ben_life:'Assegurança de vida', ben_saving_irpf:'Estalvi IRPF estimat', ben_saving_ss:'Estalvi SS estimat', ben_saving_total:'Estalvi total estimat', ben_marginal:'Tipus marginal aplicat',
-    pen_emp:'La teva aportació', pen_match:"Match empresa", pen_t1:'Aportació empresa tram 1%', pen_t2:'Aportació empresa tram 10%', pen_total:'Total anual al pla', pen_tax_saving:"Estalvi fiscal per la teva aportació", pen_tax_exp:"Només la part deduïble de la teva aportació redueix la base imposable de l'IRPF. L'estalvi és aquesta part multiplicada pel teu tipus marginal.",
+    pen_emp:'La teva aportació', pen_match:"Match empresa", pen_t1:'Aportació empresa tram 1%', pen_t2:'Aportació empresa tram 10%', pen_total:'Total anual al pla', pen_tax_saving:"Estalvi fiscal per la teva aportació", pen_tax_exp:"La contribució de l'empresa se suma als teus ingressos i es dedueix alhora, així que és neutra fiscalment. L'estalvi real prové només de la teva aportació: la teva part deduïble × el teu tipus marginal.",
     pen_worker_title:'La teva aportació (la decideixes tu)', pen_worker_amount:'Aportació anual', pen_worker_deductible:'Deduïble en IRPF', pen_worker_nondeductible:'No deduïble enguany',
     pen_worker_limit_note:'El teu màxim deduïble és {max}: 1.500 € del límit individual més l\'extra que permet la contribució de la teva empresa (Art. 52 LIRPF).',
     pen_excess_warn:'Aportes {x} per sobre del teu màxim deduïble ({max}). Aquest excés entra al pla però no redueix el teu IRPF enguany (pots demanar deduir-lo en els 5 exercicis següents).',
-    pen_company_title:'Contribució de l\'empresa (no la decideixes tu)', pen_company_note:'Compta dins del límit de 8.500 €/any propi dels plans d\'ocupació. No surt del teu salari.',
+    pen_company_title:'Contribució de l\'empresa (no la decideixes tu)', pen_company_note:"Les aportacions de l'empresa són retribució en espècie: se sumen als teus rendiments íntegres i es dedueixen dins del límit de 8.500 €/any dels plans d'ocupació. No surten del teu salari.",
     pen_company_excess_warn:'L\'empresa aporta {x} per sobre del límit de 8.500 €/any.',
+    pen_vol_title:'Part voluntària (el teu 4% + match 50% empresa)', pen_vol_deductible:'Reducció en IRPF', pen_vol_excess_warn:'{x} d\'aquesta part supera el límit i no redueix el teu IRPF enguany (deduïble en els 5 exercicis següents).',
+    pen_inv_title:'Part involuntària (aportació obligatòria de l\'empresa)', pen_inv_deductible:'Reducció en IRPF', pen_inv_excess_warn:'{x} d\'aquesta part supera el límit i no redueix l\'IRPF enguany.',
+    pen_total_deductible:'Reducció total en IRPF',
+    ann_pension_company_spkd:'Contribució empresa al pla (en espècie)',
+    ann_pension_red_vol:'Reducció: la teva aportació + match empresa', ann_pension_red_inv:'Reducció: aportació obligatòria empresa',
     pen_exp_trigger:'Què és el pla de pensions i per què m\'interessa?',
     pen_exp:"Aportes diners ara, pagues menys IRPF, i l'empresa afegeix més per sobre."
   },
@@ -1140,12 +1150,17 @@ const T = {
     bonus_exp_trigger:'Why is the bonus month withholding so high?',
     bonus_exp:'The month the bonus is paid, your company recalculates the full-year income tax including it. It applies the cumulative difference all at once.',
     ben_tickets:'Meal vouchers', ben_health:'Health insurance', ben_life:'Life insurance', ben_saving_irpf:'Estimated tax saving', ben_saving_ss:'Estimated SS saving', ben_saving_total:'Total estimated saving', ben_marginal:'Marginal rate applied',
-    pen_emp:'Your contribution', pen_match:'Company match', pen_t1:'Company contribution tier 1%', pen_t2:'Company contribution tier 10%', pen_total:'Total annual to plan', pen_tax_saving:'Tax saving from your contribution', pen_tax_exp:'Only the deductible part of your contribution reduces your income tax base. The saving is that part multiplied by your marginal rate.',
+    pen_emp:'Your contribution', pen_match:'Company match', pen_t1:'Company contribution tier 1%', pen_t2:'Company contribution tier 10%', pen_total:'Total annual to plan', pen_tax_saving:'Tax saving from your contribution', pen_tax_exp:'The company contribution is added to your income and deducted at the same time, so it is tax-neutral. The real saving comes only from your own contribution: your deductible part × your marginal rate.',
     pen_worker_title:'Your contribution (you decide it)', pen_worker_amount:'Annual contribution', pen_worker_deductible:'Deductible in income tax', pen_worker_nondeductible:'Not deductible this year',
     pen_worker_limit_note:'Your maximum deductible is {max}: €1,500 individual limit plus the extra allowed by your company contribution (Art. 52 LIRPF).',
     pen_excess_warn:'You contribute {x} above your deductible maximum ({max}). That excess goes into the plan but does not reduce your income tax this year (you may carry it forward 5 years).',
-    pen_company_title:'Company contribution (you do not decide it)', pen_company_note:'Counts within the €8,500/year limit specific to employment plans. It does not come out of your salary.',
+    pen_company_title:'Company contribution (you do not decide it)', pen_company_note:'Company contributions are benefits in kind: they are added to your gross income and deducted within the €8,500/year limit specific to employment plans. They do not come out of your salary.',
     pen_company_excess_warn:'The company contributes {x} above the €8,500/year limit.',
+    pen_vol_title:'Voluntary part (your 4% + 50% company match)', pen_vol_deductible:'Income tax reduction', pen_vol_excess_warn:'{x} of this part exceeds the limit and does not reduce your income tax this year (carryable forward 5 years).',
+    pen_inv_title:'Involuntary part (mandatory company contribution)', pen_inv_deductible:'Income tax reduction', pen_inv_excess_warn:'{x} of this part exceeds the limit and does not reduce income tax this year.',
+    pen_total_deductible:'Total income tax reduction',
+    ann_pension_company_spkd:'Company contribution to plan (in kind)',
+    ann_pension_red_vol:'Reduction: your contribution + company match', ann_pension_red_inv:'Reduction: mandatory company contribution',
     pen_exp_trigger:'What is a pension plan and why should I care?',
     pen_exp:"You invest now, pay less tax, and the company adds free money on top. That money grows tax-deferred until retirement."
   }
@@ -1376,30 +1391,57 @@ function coefMaxAportacionTrabajador(contribEmpresa, rendTrabajo){
   return contribEmpresa * 1;
 }
 
-// Calcula la parte de la APORTACIÓN DEL TRABAJADOR que da derecho a reducción en
-// la base imponible del IRPF, aplicando los límites del Art. 52 LIRPF.
-//   worker  = aportación anual del trabajador (la que él decide, p.ej. 4% del salario)
-//   company = contribución anual de la empresa (match + tramos, que el trabajador no decide)
+// Desglose de la reducción por aportaciones al plan, aplicando los límites del
+// Art. 52 LIRPF y SEPARANDO dos bloques:
+//   · Voluntaria   = tu aportación (4% bruto) + el match de la empresa (50%)
+//   · Involuntaria = la contribución por tramos que aporta la empresa al margen
+//                    de tu decisión (1% bajo tope SS + 10% sobre el exceso)
+// Todas las contribuciones de la empresa son retribución en especie y se suman a
+// los rendimientos íntegros; aquí calculamos qué parte de cada bloque es deducible.
+//   worker = aportación trabajador · match = match empresa · tramos = aportación obligatoria empresa
 //   rendTrabajo = rendimientos íntegros del trabajo (para la regla de 60.000 € y el 30%)
-function pensionDeductible(worker, company, rendTrabajo){
-  // 1) Hueco que deja la empresa dentro del incremento de 8.500 €.
-  const incrementRoom = Math.max(0, PENSION_LIMIT_INCREMENT - company);
-  // 2) Coeficiente: máximo del trabajador con derecho al incremento.
+function pensionBreakdown(worker, match, tramos, rendTrabajo){
+  const company = match + tramos;
   const coefMax = coefMaxAportacionTrabajador(company, rendTrabajo);
-  // 3) Máximo deducible para el trabajador = parte en el incremento + límite individual,
-  //    acotado por el 30% de los rendimientos netos del trabajo.
+  let individualRoom = PENSION_LIMIT_INDIVIDUAL;   // 1.500 €, solo trabajador
+  let incrementRoom  = PENSION_LIMIT_INCREMENT;    // 8.500 €, empresa + trabajador (amplificado)
+  let workerIncRoom  = coefMax;                     // tope del trabajador dentro del incremento
+
+  // Prioridad de llenado: tu aportación → match → tramos.
+  const wIndiv = Math.min(worker, individualRoom);
+  individualRoom -= wIndiv;
+  const wInc = Math.min(worker - wIndiv, workerIncRoom, incrementRoom);
+  incrementRoom -= wInc;
+  const dedWorker = wIndiv + wInc;
+
+  const dedMatch = Math.min(match, incrementRoom);
+  incrementRoom -= dedMatch;
+
+  const dedTramos = Math.min(tramos, incrementRoom);
+  incrementRoom -= dedTramos;
+
+  let dedVoluntaria   = dedWorker + dedMatch;
+  let dedInvoluntaria = dedTramos;
+
+  // Tope global: 30% de los rendimientos netos del trabajo. Si recorta, se reduce
+  // primero la parte involuntaria (tramos) y después la voluntaria.
   const cap30 = PENSION_PCT_NET * Math.max(0, rendTrabajo);
-  const workerMaxRaw = Math.min(coefMax, incrementRoom) + PENSION_LIMIT_INDIVIDUAL;
-  const workerMax = Math.min(workerMaxRaw, cap30);
-  // 4) Lo realmente deducible: lo menor entre lo que aporta y su máximo legal.
-  const deductible = Math.min(worker, workerMax);
+  let total = dedVoluntaria + dedInvoluntaria;
+  if(total > cap30){
+    let over = total - cap30;
+    const cutInv = Math.min(dedInvoluntaria, over);
+    dedInvoluntaria -= cutInv; over -= cutInv;
+    dedVoluntaria = Math.max(0, dedVoluntaria - over);
+    total = dedVoluntaria + dedInvoluntaria;
+  }
+
   return {
-    deductible,
-    coefMax,
-    workerMax,
-    companyWithinLimit: Math.min(company, PENSION_LIMIT_INCREMENT),
-    companyExcess: Math.max(0, company - PENSION_LIMIT_INCREMENT),
-    excess: Math.max(0, worker - deductible)
+    dedVoluntaria, dedInvoluntaria, total, coefMax,
+    dedWorker,  // parte deducible de TU dinero (la que de verdad te ahorra IRPF)
+    voluntariaContrib: worker + match,
+    involuntariaContrib: tramos,
+    voluntariaExcess: Math.max(0, (worker + match) - dedVoluntaria),
+    involuntariaExcess: Math.max(0, tramos - dedInvoluntaria)
   };
 }
 
@@ -1479,13 +1521,15 @@ function calculate(){
     pensionT1amt = belowCap * pensionT1;
     pensionT2amt = aboveCap * pensionT2;
   }
-  const pensionCompanyAnnual = pensionMatchAmt + pensionT1amt + pensionT2amt;   // contribución empresa (el trabajador no la decide)
-  // Rendimientos del trabajo aprox. (para la regla de 60.000 € y el tope del 30%)
-  const rendTrabajoAprox = weightedSalaryProj + carAnnual + lifeAmt + healthTaxable + (hasBonus ? bonusAmt : 0);
-  const penDed = hasPension
-    ? pensionDeductible(pensionEmpAnnual, pensionCompanyAnnual, rendTrabajoAprox)
-    : { deductible:0, coefMax:0, workerMax:0, companyWithinLimit:0, companyExcess:0, excess:0 };
-  const pensionDeductibleAnnual = penDed.deductible;
+  const pensionTramos = pensionT1amt + pensionT2amt;                            // aportación obligatoria de la empresa (involuntaria)
+  const pensionCompanyAnnual = pensionMatchAmt + pensionTramos;                  // total empresa (retribución en especie)
+  // Rendimientos del trabajo aprox. — incluye las contribuciones de la empresa al plan,
+  // que son retribución en especie (para la regla de 60.000 € y el tope del 30%).
+  const rendTrabajoAprox = weightedSalaryProj + carAnnual + lifeAmt + healthTaxable + (hasBonus ? bonusAmt : 0) + pensionCompanyAnnual;
+  const penB = hasPension
+    ? pensionBreakdown(pensionEmpAnnual, pensionMatchAmt, pensionTramos, rendTrabajoAprox)
+    : { dedVoluntaria:0, dedInvoluntaria:0, total:0, coefMax:0, voluntariaContrib:0, involuntariaContrib:0, voluntariaExcess:0, involuntariaExcess:0 };
+  const pensionDeductibleAnnual = penB.total;
 
   let months = [];
   let accRetained = 0;
@@ -1566,10 +1610,11 @@ function calculate(){
     const annSolProj = calcSolidarity(annSalForSS, ssCapUsed);
 
     // El bucle resta la aportación COMPLETA del trabajador; la añadimos de vuelta para
-    // obtener los rendimientos íntegros, pero en el IRPF solo es deducible la parte que
-    // permite el Art. 52 LIRPF (pensionDeductibleAnnual).
+    // obtener los rendimientos íntegros. Además, las contribuciones de la empresa al plan
+    // son retribución en especie, así que también se suman a los rendimientos íntegros.
+    // En el IRPF solo es deducible la parte permitida por el Art. 52 (pensionDeductibleAnnual).
     const totalProjBase = accBase + projBase;
-    const rendIntegros = Math.max(0, totalProjBase + pensionEmpAnnual);
+    const rendIntegros = Math.max(0, totalProjBase + pensionEmpAnnual + pensionCompanyAnnual);
     // Gastos deducibles de SS = cotización normal (6,50%) + cuota de solidaridad
     const { irpf: annualIRPFProj } = calcAnnualIRPF(rendIntegros, annualSS + annSolProj, pensionDeductibleAnnual);
     const targetRetained = annualIRPFProj * (m / 12);
@@ -1615,10 +1660,12 @@ function calculate(){
     const lM = lifeAmt/12;
     const htM = healthTaxable/12;
     return s + cur/12 + carM2 + lM + htM - tflexM - hflexM + (hasBonus && mo.m===bonusMonth ? bonusAmt : 0);
-  }, 0);
+  }, 0)
+  // Las contribuciones de la empresa al plan son retribución en especie → rendimiento íntegro.
+  + pensionCompanyAnnual;
 
   // Aplica el cálculo real del IRPF para extraer base liquidable y desglose.
-  // OJO: solo la parte DEDUCIBLE de la aportación al plan reduce la base (Art. 52 LIRPF).
+  // OJO: solo la parte DEDUCIBLE de las aportaciones al plan reduce la base (Art. 52 LIRPF).
   const rntPrevio = Math.max(0, annualRendIntegros - totalSS - totalSol - OTROS_GASTOS);
   const reduccionRT = reduccionTrabajo(rntPrevio);
   const rntReducido = Math.max(0, rntPrevio - reduccionRT);
@@ -1633,8 +1680,9 @@ function calculate(){
   const weightedSalary = weightedSalaryProj;
   const pensionTotalCompany = pensionCompanyAnnual;
   const pensionTotal = totalPensionEmp + pensionTotalCompany;
-  // El ahorro fiscal solo aplica sobre la parte deducible.
-  const pensionTaxSaving = pensionDeductibleAnnual * marginalRate;
+  // El ahorro fiscal real es solo sobre la parte deducible de TU dinero: la contribución
+  // de la empresa es neutra (se suma a ingresos y se deduce), no te ahorra IRPF adicional.
+  const pensionTaxSaving = (hasPension ? penB.dedWorker : 0) * marginalRate;
 
   // Ticket saving
   const ticketSaving = ticketsExempt * marginalRate;
@@ -1653,9 +1701,11 @@ function calculate(){
     marginalRate, effectiveRate, weightedSalary, hasCar,
     annualBase, annualRendIntegros, baseLiquidable, reduccionRT, otrosGastos: OTROS_GASTOS, minimoPersonal: MINIMO_PERSONAL,
     ssCapUsed, pensionT1, pensionT2,
-    pensionEmpAnnual, pensionCompanyAnnual, pensionDeductibleAnnual,
-    pensionExcess: penDed.excess, pensionWorkerMax: penDed.workerMax, pensionCoefMax: penDed.coefMax,
-    pensionCompanyWithinLimit: penDed.companyWithinLimit, pensionCompanyExcess: penDed.companyExcess
+    pensionEmpAnnual, pensionCompanyAnnual, pensionTramos, pensionDeductibleAnnual,
+    pensionDedVoluntaria: penB.dedVoluntaria, pensionDedInvoluntaria: penB.dedInvoluntaria,
+    pensionVoluntariaContrib: penB.voluntariaContrib, pensionInvoluntariaContrib: penB.involuntariaContrib,
+    pensionVoluntariaExcess: penB.voluntariaExcess, pensionInvoluntariaExcess: penB.involuntariaExcess,
+    pensionCoefMax: penB.coefMax
   };
 
   renderResults(lastResult);
@@ -1682,6 +1732,7 @@ function renderResults(r){
   if(r.hasBonus) ann += `<div class="inline-sum"><span>${t('ann_bonus')}</span><span class="val">${fmt(r.bonusAmt)}</span></div>`;
   if(r.hasHealth && r.healthTaxable > 0) ann += `<div class="inline-sum"><span>${t('ann_health_spkd')}</span><span class="val">${fmt(r.healthTaxable)}</span></div>`;
   if(r.hasLife) ann += `<div class="inline-sum"><span>${t('ann_life_spkd')}</span><span class="val">${fmt(r.lifeAmt)}</span></div>`;
+  if(r.hasPension && r.pensionCompanyAnnual > 0) ann += `<div class="inline-sum"><span>${t('ann_pension_company_spkd')}</span><span class="val">${fmt(r.pensionCompanyAnnual)}</span></div>`;
   ann += `<div class="inline-sum" style="font-weight:600; border-top:1px solid var(--border); padding-top:8px; margin-top:4px;"><span>${t('ann_rend_integros')}</span><span class="val">${fmt(r.annualRendIntegros)}</span></div>`;
 
   // Cómo se construye la base imponible del IRPF
@@ -1690,7 +1741,8 @@ function renderResults(r){
   if(r.totalSol > 0) ann += `<div class="inline-sum neg"><span>${t('ann_sol_deduction')}</span><span class="val">−${fmt(r.totalSol)}</span></div>`;
   ann += `<div class="inline-sum neg"><span>${t('ann_otros_gastos')}</span><span class="val">−${fmt(r.otrosGastos)}</span></div>`;
   if(r.reduccionRT > 0) ann += `<div class="inline-sum neg"><span>${t('ann_reduccion_rt')}</span><span class="val">−${fmt(r.reduccionRT)}</span></div>`;
-  if(r.hasPension && r.pensionDeductibleAnnual > 0) ann += `<div class="inline-sum neg"><span>${t('ann_pension_red')}</span><span class="val">−${fmt(r.pensionDeductibleAnnual)}</span></div>`;
+  if(r.hasPension && r.pensionDedVoluntaria > 0) ann += `<div class="inline-sum neg"><span>${t('ann_pension_red_vol')}</span><span class="val">−${fmt(r.pensionDedVoluntaria)}</span></div>`;
+  if(r.hasPension && r.pensionDedInvoluntaria > 0) ann += `<div class="inline-sum neg"><span>${t('ann_pension_red_inv')}</span><span class="val">−${fmt(r.pensionDedInvoluntaria)}</span></div>`;
   ann += `<div class="inline-sum" style="font-weight:600; border-top:1px solid var(--border); padding-top:8px; margin-top:4px;"><span>${t('ann_base_liquidable')}</span><span class="val">${fmt(r.baseLiquidable)}</span></div>`;
   ann += `<p style="font-size:0.78rem;color:var(--text-muted);margin-top:4px;">${t('ann_minimo_exp').replace('{m}', fmt(r.minimoPersonal))}</p>`;
 
@@ -1781,31 +1833,30 @@ function renderResults(r){
   if(r.hasPension){
     let pk = '';
 
-    // ── Bloque 1: tu aportación (la decides tú) ──
-    pk += `<div class="section-title">${t('pen_worker_title')}</div>`;
-    pk += `<div class="pension-row"><span class="lbl">${t('pen_worker_amount')}</span><span>${fmt(r.pensionEmpAnnual)}</span></div>`;
-    pk += `<div class="pension-row"><span class="lbl">${t('pen_worker_deductible')}</span><span class="amount-pos">${fmt(r.pensionDeductibleAnnual)}</span></div>`;
-    if(r.pensionExcess > 0){
-      pk += `<div class="pension-row"><span class="lbl">${t('pen_worker_nondeductible')}</span><span class="amount-neg">${fmt(r.pensionExcess)}</span></div>`;
-      pk += `<div class="pension-warn">⚠️ ${t('pen_excess_warn').replace('{x}', fmt(r.pensionExcess)).replace('{max}', fmt(r.pensionWorkerMax))}</div>`;
-    } else {
-      pk += `<p style="font-size:0.78rem;color:var(--text-muted);margin-top:4px;">${t('pen_worker_limit_note').replace('{max}', fmt(r.pensionWorkerMax))}</p>`;
+    // ── Bloque 1: parte voluntaria — tu aportación (4%) + match empresa (50%) ──
+    pk += `<div class="section-title">${t('pen_vol_title')}</div>`;
+    pk += `<div class="pension-row"><span class="lbl">${t('pen_emp')}</span><span>${fmt(r.pensionEmpAnnual)}</span></div>`;
+    pk += `<div class="pension-row"><span class="lbl">${t('pen_match')}</span><span>${fmt(r.pensionMatchAmt)}</span></div>`;
+    pk += `<div class="pension-row"><span class="lbl">${t('pen_vol_deductible')}</span><span class="amount-pos">${fmt(r.pensionDedVoluntaria)}</span></div>`;
+    if(r.pensionVoluntariaExcess > 0){
+      pk += `<div class="pension-warn">⚠️ ${t('pen_vol_excess_warn').replace('{x}', fmt(r.pensionVoluntariaExcess))}</div>`;
     }
 
-    // ── Bloque 2: contribución de la empresa (no la decides tú) ──
-    if(r.pensionCompanyAnnual > 0){
-      pk += `<div class="section-title" style="margin-top:1rem;">${t('pen_company_title')}</div>`;
-      pk += `<div class="pension-row"><span class="lbl">${t('pen_match')}</span><span>${fmt(r.pensionMatchAmt)}</span></div>`;
+    // ── Bloque 2: parte involuntaria — aportación obligatoria de la empresa (tramos) ──
+    if(r.pensionTramos > 0){
+      pk += `<div class="section-title" style="margin-top:1rem;">${t('pen_inv_title')}</div>`;
       if(r.pensionT1amt > 0) pk += `<div class="pension-row"><span class="lbl">${t('pen_t1')}</span><span>${fmt(r.pensionT1amt)}</span></div>`;
       if(r.pensionT2amt > 0) pk += `<div class="pension-row"><span class="lbl">${t('pen_t2')}</span><span>${fmt(r.pensionT2amt)}</span></div>`;
-      pk += `<p style="font-size:0.78rem;color:var(--text-muted);margin-top:4px;">${t('pen_company_note')}</p>`;
-      if(r.pensionCompanyExcess > 0){
-        pk += `<div class="pension-warn">⚠️ ${t('pen_company_excess_warn').replace('{x}', fmt(r.pensionCompanyExcess))}</div>`;
+      pk += `<div class="pension-row"><span class="lbl">${t('pen_inv_deductible')}</span><span class="amount-pos">${fmt(r.pensionDedInvoluntaria)}</span></div>`;
+      if(r.pensionInvoluntariaExcess > 0){
+        pk += `<div class="pension-warn">⚠️ ${t('pen_inv_excess_warn').replace('{x}', fmt(r.pensionInvoluntariaExcess))}</div>`;
       }
     }
+    pk += `<p style="font-size:0.78rem;color:var(--text-muted);margin-top:6px;">${t('pen_company_note')}</p>`;
 
     // ── Totales ──
     pk += `<div class="pension-row total" style="margin-top:1rem;"><span>${t('pen_total')}</span><span>${fmt(r.pensionTotal)}</span></div>`;
+    pk += `<div class="pension-row"><span class="lbl">${t('pen_total_deductible')}</span><span>${fmt(r.pensionDeductibleAnnual)}</span></div>`;
     pk += `<div class="pension-row"><span class="lbl">${t('pen_tax_saving')} <span style="font-size:0.78rem;">(${fmtPct(r.marginalRate*100)})</span></span><span class="amount-pos">+${fmt(r.pensionTaxSaving)}</span></div>`;
     pk += `<p style="font-size:0.78rem;color:var(--text-muted);margin-top:6px;">${t('pen_tax_exp')}</p>`;
     pk += `<div class="collapsible-trigger" onclick="toggleCollapsible('penExpBody')"><span>${t('pen_exp_trigger')}</span><span class="arrow">▼</span></div>`;
