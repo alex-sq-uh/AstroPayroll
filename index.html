@@ -356,7 +356,7 @@
     </svg>
     <div class="brand-text">
       <span class="name">Astro<span class="accent">Payroll</span></span>
-      <span class="ver">v2.14</span>
+      <span class="ver">v2.15</span>
     </div>
   </div>
   <div class="nav-links">
@@ -1053,13 +1053,13 @@
       <text x="32" y="35" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-weight="800" font-size="15" fill="#1a2b5e">€</text>
     </svg>
     <span>AstroPayroll</span>
-    <span class="ver-tag">v2.14</span>
+    <span class="ver-tag">v2.15</span>
   </div>
   <div data-i18n="footer_astrocosas">Una app de <a href="#" target="_blank" rel="noopener">AstroCosas</a> · Datos fiscales 2026</div>
 </footer>
 
 <script>
-const APP_VERSION = '2.14';
+const APP_VERSION = '2.15';
 // Escala IRPF 2025 — Cataluña (suma estatal + autonómico)
 // Fuente: https://taxdown.es/irpf/tabla-tramos
 const TRAMOS = [
@@ -1172,7 +1172,7 @@ const T = {
     lbl_pension_t1:'% tramo hasta el tope SS', tip_pension_t1:'La empresa aporta este % sobre la parte de tu salario base que está por debajo del tope máximo de cotización de la SS.',
     lbl_pension_t2:'% tramo por encima del tope SS', tip_pension_t2:'La empresa aporta este % sobre la parte de tu salario base que supera el tope de cotización.',
     lbl_ss_cap:'Tope máximo base cotización SS (€/año)', tip_ss_cap:'Límite anual sobre el que cotizas a la SS. Para 2026 es de 61.214,40 €.',
-    btn_calc:'Calcular mi neto', btn_reset:'Resetear', btn_share:'Compartir resultado', share_ok:'¡Copiado!',
+    btn_calc:'Calcular mi neto', btn_reset:'Resetear', btn_share:'Copiar resultados', share_ok:'¡Copiado!',
     res_title:'Tu resumen anual estimado', hero_gross:'Bruto anual', hero_net:'Neto anual', hero_net_month:'Neto mensual medio', hero_eff_rate:'Tipo efectivo IRPF',
     res_annual:'Del bruto al neto', res_monthly:'Desglose mes a mes', res_bonus:'Tu bonus', res_benefits:'Beneficios y ahorro fiscal', res_pension:'Tu plan de pensiones',
     res_valuation:'Valoración de salario y beneficios', res_info:'Información importante',
@@ -1303,7 +1303,7 @@ const T = {
     lbl_pension_t1:'% tram fins al topall SS', tip_pension_t1:"L'empresa aporta aquest % sobre la part del salari per sota del topall de cotització.",
     lbl_pension_t2:'% tram per sobre del topall SS', tip_pension_t2:"L'empresa aporta aquest % sobre la part del salari que supera el topall.",
     lbl_ss_cap:'Topall màxim base cotització SS (€/any)', tip_ss_cap:'Límit anual sobre el qual cotitzes a la SS. Per al 2026 és de 61.214,40 €.',
-    btn_calc:'Calcular el meu net', btn_reset:'Reiniciar', btn_share:'Compartir resultat', share_ok:'Copiat!',
+    btn_calc:'Calcular el meu net', btn_reset:'Reiniciar', btn_share:'Copiar resultats', share_ok:'Copiat!',
     res_title:'El teu resum anual estimat', hero_gross:'Brut anual', hero_net:'Net anual', hero_net_month:'Net mensual mitjà', hero_eff_rate:'Tipus efectiu IRPF',
     res_annual:'Del brut al net', res_monthly:'Desglossament mes a mes', res_bonus:'El teu bonus', res_benefits:'Beneficis i estalvi fiscal', res_pension:'El teu pla de pensions',
     res_valuation:'Valoració de salari i beneficis', res_info:'Informació important',
@@ -1434,7 +1434,7 @@ const T = {
     lbl_pension_t1:'% tier up to SS cap', tip_pension_t1:'The company contributes this % on the portion of your base salary below the SS contribution cap.',
     lbl_pension_t2:'% tier above SS cap', tip_pension_t2:'The company contributes this % on the portion of your base salary that exceeds the cap.',
     lbl_ss_cap:'Max SS contribution base cap (€/year)', tip_ss_cap:'Annual limit on which you contribute to social security. For 2026 it is €61,214.40.',
-    btn_calc:'Calculate my take-home', btn_reset:'Reset', btn_share:'Share result', share_ok:'Copied!',
+    btn_calc:'Calculate my take-home', btn_reset:'Reset', btn_share:'Copy results', share_ok:'Copied!',
     res_title:'Your estimated annual summary', hero_gross:'Annual gross', hero_net:'Annual net', hero_net_month:'Average monthly net', hero_eff_rate:'Effective tax rate',
     res_annual:'From gross to net', res_monthly:'Month-by-month breakdown', res_bonus:'Your bonus', res_benefits:'Benefits & tax savings', res_pension:'Your pension plan',
     res_valuation:'Salary & benefits valuation', res_info:'Key information',
@@ -1565,6 +1565,8 @@ function toggleCollapsible(id){
   body.classList.toggle('open');
   const trigger = body.previousElementSibling;
   if(trigger) trigger.classList.toggle('open', body.classList.contains('open'));
+  // Analítica: solo al ABRIR (para saber qué explicaciones interesan)
+  if(body.classList.contains('open')) utrack('expand', { section: id });
 }
 
 function toggleRaiseMode(on){
@@ -2292,8 +2294,13 @@ function calculate(){
   document.getElementById('results').style.display = 'block';
   document.getElementById('results').scrollIntoView({behavior:'smooth', block:'start'});
 
-  // Analytics — solo el idioma, sin ningún dato financiero ni de configuración
-  utrack('calculate', { lang: currentLang });
+  // Analytics — idioma + qué beneficios se activan (agregado y anónimo, SIN importes).
+  utrack('calculate', {
+    lang: currentLang,
+    raise: hasRaise, bonus: hasBonus, car: hasCar,
+    tickets: hasTickets, transporte: hasTrans, guarderia: hasGuard,
+    salud: hasHealth, vida: hasLife, otros: hasOtros, pension: hasPension
+  });
 }
 
 function renderResults(r){
@@ -2477,6 +2484,7 @@ function renderResults(r){
 }
 
 function resetForm(){
+  utrack('reset');
   // Sin valores iniciales: se limpian todos los campos y los placeholders (gris) actúan
   // como valores sugeridos por defecto.
   document.querySelectorAll('.money-input').forEach(i => { i.value = ''; });
